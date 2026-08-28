@@ -155,6 +155,16 @@ and a note on every page saying which other pages must be cooked first.
 
 Free (dbt Core), running against DuckDB locally.
 
+**One design rule, set here and cheap only if set here.** The schema
+must not hard-code 35 strains, five members per community, one pathogen
+or one readout. Treat the strain library, the community size and the
+measured outcome as *data*, not as constants baked into column names or
+logic. Hard-coding is marginally simpler today and makes the entire
+pipeline single-use; the same tables should accept a library of 400
+strains, communities of three, and a different assay without a rewrite.
+Generality designed in at the schema stage costs nothing. Retrofitted
+later, it is a rebuild.
+
 **Ships:** a dbt project with staging → intermediate → mart models,
 data tests (uniqueness, not-null, accepted ranges, referential
 integrity), and auto-generated documentation with a lineage graph.
@@ -198,9 +208,131 @@ the comparison table, unit tests including a leakage guard.
 leakage; baselines; reporting across seeds; experiment tracking; the
 discipline of not tuning until you match a known answer.
 
+**Lock your result before moving on.** Commit the Phase 5 numbers
+before starting Phase 6. That commit is the timestamped evidence that
+your reproduction was written independently, without having seen the
+authors' code run.
+
 ---
 
-### Phase 6 — Streamlit prototype · Track B · ~8 h
+### Phase 6 — The original R analysis, and the three-way comparison · Track A · ~8 h
+
+**The phase that turns a reproduction into a proper one.**
+
+The study this project rebuilds was written in **R** — a programming
+language built by statisticians, for statistics. The authors used the
+`caret`, `randomForest`, `glmnet` and `lme4` packages, and **their
+actual analysis scripts are inside the archive downloaded in Phase 1.**
+
+That is unusual and valuable. Most reproduction attempts have only the
+paper and the data. Here we also have the code that produced the
+published numbers — which means we can run it.
+
+#### Why this matters: what a two-way comparison cannot tell you
+
+Up to Phase 5, the project compares two things: the numbers printed in
+the paper, and the numbers from the Python rebuild. Suppose they
+disagree. What have you learned?
+
+Almost nothing, because **at least three different things could have
+caused it** and you cannot tell which:
+
+1. The rebuild misread the method — a mistake in the new code.
+2. The original code does not actually reproduce the published paper —
+   a gap between what was written and what was run.
+3. The finding is real but sensitive to the toolchain — different
+   defaults in different libraries.
+
+*Analogy.* A recipe from a magazine produces a flat cake in your
+kitchen. Was it your baking, a misprint in the recipe, or your oven?
+With only the magazine and your cake, you cannot say. But if you can
+watch the original chef bake it in *their* kitchen, the ambiguity
+collapses immediately.
+
+Running the authors' own code is watching the chef bake.
+
+#### The three comparisons
+
+| Comparison | The question it answers |
+|---|---|
+| Published paper → **their R code, run by you** | Does the released code reproduce its own paper? |
+| **Their R code** → your Python rebuild | Did you rebuild the method correctly? |
+| Published paper → your Python rebuild | Does the finding survive a different toolchain? |
+
+Each isolates one variable. Together they turn "our numbers differ" —
+a shrug — into a specific, defensible statement about *where* the
+difference comes from.
+
+#### Why it comes after Phase 5, not before
+
+Deliberately. You write your own reproduction **first**, from the
+published method, without having seen their code run.
+
+*Analogy.* Doing the exercise before turning to the answers at the back
+of the book. If you look first, you cannot honestly claim you worked it
+out — and worse, you will unconsciously steer your code toward the
+number you already know is coming. That has a name — **hindsight
+fitting** — and it is the specific way reproduction projects fool
+themselves.
+
+Locking the Python result before opening the R scripts is the whole
+discipline of this phase, and the README will say so plainly.
+
+#### What R is, and why it exists alongside Python
+
+**R** is a programming language created by and for statisticians.
+Python is a general-purpose language that grew excellent data tools;
+R was built for data from the first line.
+
+*Analogy.* Python is a well-equipped general workshop where you can
+build furniture, fix a bicycle or wire a lamp. R is a joiner's bench —
+narrower, and unbeatable at the thing it is for. Neither is better.
+Knowing which to reach for is the skill, and **being able to read both
+is what lets you work with anyone's code rather than only your own.**
+
+R remains the default in academic statistics and much of biology, which
+is precisely why the source study is written in it — and why reading it
+is a genuinely useful thing to be able to do.
+
+#### What gets built
+
+- **R and RStudio installed** — RStudio is an editor built specifically
+  for R, with a live console, a pane showing every variable currently
+  in memory, and a built-in plot viewer. It sits alongside VS Code
+  without conflict; they are two editors opening the same folder.
+- **`renv`** — R's equivalent of the Python virtual environment: a
+  sealed, per-project package library plus a lock file, so the exact
+  environment can be rebuilt by anyone. Same idea, same reasons,
+  different language.
+- **The authors' scripts run**, read-only, writing their outputs to a
+  separate folder so nothing in `data/raw/` is ever touched.
+- **A three-way comparison table** with a written interpretation of
+  every difference found.
+- **One "same task, three languages" walkthrough** — the same small
+  aggregation in Python/pandas, R/dplyr and SQL, side by side, with
+  commentary on what each is best at. Small and self-contained: it
+  teaches the trade-offs without doubling the workload.
+
+**Ships:** an R environment with `renv`, a runner for the original
+scripts, the three-way comparison table, the language comparison.
+**Teaches:** R basics from zero; `renv`; reading someone else's code in
+an unfamiliar language; the difference between "my code disagrees" and
+"the original does not reproduce"; why polyglot fluency matters more
+than language preference.
+
+**Honest expectations.** Someone else's research code frequently does
+not run unchanged: hard-coded paths, absent packages, versions long
+since moved on. **That is a finding, not a failure**, and it is
+precisely what reproducibility research reports. Every fix required to
+make it run will be documented — and that log is often the most useful
+artefact of the whole exercise.
+
+**Guide:** `03-r-environment.md` — written when this phase is reached,
+from zero, covering macOS, Windows and RHEL 8.
+
+---
+
+### Phase 7 — Streamlit prototype · Track B · ~8 h
 
 The first clickable thing. Choose five strains, see the predicted
 outcome and a plain-language explanation of which strains drove it.
@@ -215,7 +347,7 @@ honestly in a user interface; stating a model's limits on screen.
 
 ---
 
-### Phase 7 — Multi-omics integration · Track A · ~12 h · **headline phase**
+### Phase 8 — Multi-omics integration · Track A · ~12 h · **headline phase**
 
 The centrepiece. Join the genomic and network layers to the community
 data and ask whether they add predictive power beyond strain identity
@@ -246,7 +378,7 @@ correctly is a stronger signal than manufacturing a positive one.
 
 ---
 
-### Phase 8 — External validation · Track A · ~8 h
+### Phase 9 — External validation · Track A · ~8 h
 
 Compare the model's strain ranking — learned only from communities —
 against Layer 5's independently measured single-strain protection
@@ -263,7 +395,7 @@ disagreement rather than hiding it.
 
 ---
 
-### Phase 9 — PostgreSQL + FastAPI · Track B · ~12 h
+### Phase 10 — PostgreSQL + FastAPI · Track B · ~12 h
 
 The serving layer. Postgres as the application database, FastAPI as the
 backend, both running in Docker so the setup is identical on Windows,
@@ -286,7 +418,7 @@ room. Orders in, plates out, and nobody wanders into the kitchen.
 PostgreSQL by hand on three operating systems, the database arrives as
 a container — one command, identical everywhere. This is deliberately
 where containers are introduced: one service, one obvious benefit,
-before the full system in Phase 16. Works with **either Docker or
+before the full system in Phase 17. Works with **either Docker or
 Podman**; on RHEL 8 it will be Podman, because Red Hat removed Docker
 from RHEL 8 entirely. The full explanation, from zero, is in
 [`CONTAINERS.md`](CONTAINERS.md).
@@ -299,7 +431,7 @@ stores.
 
 ---
 
-### Phase 10 — React + TypeScript frontend · Track B · ~16 h
+### Phase 11 — React + TypeScript frontend · Track B · ~16 h
 
 The production-style interface, replacing Streamlit for external users
 while Streamlit remains the internal tool.
@@ -317,7 +449,7 @@ layers.
 
 ---
 
-### Phase 11 — Airflow orchestration · Track B · ~10 h
+### Phase 12 — Airflow orchestration · Track B · ~10 h
 
 Every step so far is a command someone types. This phase makes the
 pipeline run itself, in the right order, on a schedule, with failures
@@ -339,7 +471,7 @@ observability; why "I run it manually" stops working.
 
 ---
 
-### Phase 12 — Knowledge graph and ontology · Track C · ~12 h
+### Phase 13 — Knowledge graph and ontology · Track C · ~12 h
 
 The domain modelled as entities and relationships, in Neo4j.
 
@@ -362,7 +494,7 @@ beats a table and when it does not.
 
 ---
 
-### Phase 13 — GraphRAG chatbot · Track C · ~10 h
+### Phase 14 — GraphRAG chatbot · Track C · ~10 h
 
 Ask questions in plain English; get answers grounded in the graph and
 the source papers, with citations.
@@ -383,7 +515,7 @@ model is unusable for scientific work.
 
 ---
 
-### Phase 14 — MCP server · Track C · ~6 h
+### Phase 15 — MCP server · Track C · ~6 h
 
 Wrap the model, database and graph as an MCP server so an AI assistant
 can query the project directly.
@@ -395,12 +527,12 @@ device needed its own connector; after it, one socket fits everything.
 **Ships:** an MCP server exposing prediction, query and graph tools,
 with documented safety limits (read-only, no destructive operations).
 **Teaches:** MCP; tool design for AI consumers; safe scoping.
-**Why it is small:** once Phase 9's API exists, this is mostly a thin,
+**Why it is small:** once Phase 10's API exists, this is mostly a thin,
 well-designed wrapper. Good value for the effort.
 
 ---
 
-### Phase 15 — Recommendation agent · Track C · ~8 h
+### Phase 16 — Recommendation agent · Track C · ~8 h
 
 An agent that plans: given a goal ("suggest three untested five-strain
 communities most likely to protect"), it decides which queries to run,
@@ -419,7 +551,7 @@ is unacceptable in any serious setting.
 
 ---
 
-### Phase 16 — Containerise the whole system · Track D · ~12 h
+### Phase 17 — Containerise the whole system · Track D · ~12 h
 
 Everything built so far becomes six containers that start together as
 one system: PostgreSQL, Neo4j, the FastAPI backend, the Streamlit tool,
@@ -451,7 +583,7 @@ prior container knowledge assumed.
 
 ---
 
-### Phase 17 — CI/CD and release · Track D · ~8 h
+### Phase 18 — CI/CD and release · Track D · ~8 h
 
 Continuous integration on GitHub Actions: tests run on every push, and
 the container images build automatically so a broken build is caught by
@@ -475,12 +607,13 @@ projects.
 | **v0.1.0** ✅ | Phase 1 | Documentation, verified dataset, reproducible setup |
 | v0.2.0 | Phase 3 | All sources ingested and harmonised; a tested dbt pipeline |
 | v0.5.0 | Phase 5 | The reproduction: our numbers beside the published ones |
-| v0.6.0 | Phase 6 | A working, clickable product |
-| v0.8.0 | Phase 8 | Multi-omics integration and external validation — the science complete |
-| v1.0.0 | Phase 11 | Full application: Postgres, API, React, orchestrated |
-| v1.2.0 | Phase 15 | The AI layer: graph, retrieval, MCP, agent |
-| v1.3.0 | Phase 16 | Fully containerised — one command, Docker or Podman |
-| v1.4.0 | Phase 17 | Industrialised: CI/CD, released |
+| v0.6.0 | Phase 6 | The three-way comparison — paper, original R code, and the Python rebuild |
+| v0.7.0 | Phase 7 | A working, clickable product |
+| v0.8.0 | Phase 9 | Multi-omics integration and external validation — the science complete |
+| v1.0.0 | Phase 12 | Full application: Postgres, API, React, orchestrated |
+| v1.2.0 | Phase 16 | The AI layer: graph, retrieval, MCP, agent |
+| v1.3.0 | Phase 17 | Fully containerised — one command, Docker or Podman |
+| v1.4.0 | Phase 18 | Industrialised: CI/CD, released |
 
 ---
 
@@ -488,13 +621,13 @@ projects.
 
 | Track | Phases | Hours |
 |---|---|---|
-| A — Science | 1, 2, 3, 4, 5, 7, 8 | ~60 |
-| B — Platform | 6, 9, 10, 11 | ~46 |
-| C — AI | 12, 13, 14, 15 | ~36 |
-| D — Industrialisation | 16, 17 | ~20 |
-| **Total** | | **~162** |
+| A — Science | 1, 2, 3, 4, 5, 6, 8, 9 | ~68 |
+| B — Platform | 7, 10, 11, 12 | ~46 |
+| C — AI | 13, 14, 15, 16 | ~36 |
+| D — Industrialisation | 17, 18 | ~20 |
+| **Total** | | **~170** |
 
-At four to five hours a week, that is **roughly eight to ten months**.
+At four to five hours a week, that is **roughly eight to eleven months**.
 
 **This is deliberately stated rather than softened.** A plan that
 claims a project like this fits into three weekends is either
@@ -556,7 +689,7 @@ containers across a fleet of machines with automatic restarts, scaling
 and rolling updates — real problems, none of which this project has.
 *Analogy:* Compose organises one restaurant; Kubernetes runs a national
 chain. Adopting the chain's management system for one restaurant is not
-ambition, it is overhead. The containers built in Phase 16 are standard
+ambition, it is overhead. The containers built in Phase 17 are standard
 OCI images, so if a fleet ever were needed, they would already be the
 right input — which is the honest version of "future-proof".
 

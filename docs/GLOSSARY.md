@@ -23,6 +23,7 @@ been introduced.
 - [Group 8 — Evaluation and honesty](#group-8--evaluation-and-honesty)
 - [Group 9 — Science and reproducibility](#group-9--science-and-reproducibility)
 - [Group 10 — The platform and AI layers](#group-10--the-platform-and-ai-layers)
+- [Group 11 — R and the three-way comparison](#group-11--r-and-the-three-way-comparison)
 
 ---
 
@@ -1013,3 +1014,88 @@ with a shortlist. **Chatbots answer; agents act.**
 of tools, a maximum number of steps, read-only access, and a log of
 every action. An unlogged agent is unacceptable in any serious setting,
 because an action nobody can review is an action nobody can trust.
+
+---
+
+## Group 11 — R and the three-way comparison
+
+*These terms arrive in Phase 6, where the original authors' own
+analysis code is run alongside our rebuild.*
+
+**R** — a programming language created by statisticians, for
+statistics. Python is a general-purpose language that grew excellent
+data tools; R was built for data from its first line. *Analogy:* Python
+is a well-equipped general workshop — build furniture, fix a bicycle,
+wire a lamp. R is a joiner's bench: narrower, and unbeatable at the
+thing it is for. Neither is better; knowing which to reach for is the
+skill. R remains the default in academic statistics and much of
+biology, which is why the study reproduced here is written in it.
+
+**RStudio** — an editor built specifically for R, with a live console,
+a pane listing every variable currently in memory, and a built-in plot
+viewer. It coexists with VS Code without conflict: they are two editors
+opening the same folder. *Analogy:* a woodworking bench and a general
+workbench in the same garage.
+
+**Positron** — a newer editor from RStudio's makers that handles both R
+and Python. Worth knowing about; this project sticks with the proven
+RStudio-and-VS-Code pair while you are learning.
+
+**CRAN** (Comprehensive R Archive Network) — R's public warehouse of
+packages, equivalent to PyPI for Python. Unusually, packages must pass
+automated checks before being accepted, which makes CRAN noticeably
+stricter than most package repositories.
+
+**`renv`** — R's equivalent of a Python virtual environment: a sealed,
+per-project package library plus a lock file recording exact versions,
+so anyone can rebuild the identical environment. Same idea and same
+reasons as `.venv`, different language. *Analogy:* a second knife roll,
+for the second kitchen.
+
+**`Rscript`** — the command that runs an R file from the terminal,
+without opening RStudio. The R counterpart of `python myfile.py`.
+
+**dplyr** — the most widely used R package for reshaping and
+summarising tables. The rough counterpart of pandas, and part of the
+**tidyverse**, a family of R packages sharing a common style.
+
+**caret** — an older, widely used R framework for training and
+evaluating machine-learning models. Roughly what scikit-learn is to
+Python. Used in the original study.
+
+**glmnet** — the R package implementing elastic-net and related
+penalised linear models. The counterpart of scikit-learn's
+`ElasticNet`. Used in the original study.
+
+**randomForest** — the classic R implementation of random forests. Used
+in the original study.
+
+**lme4** — the standard R package for **mixed-effects models**, used in
+the original study for analyses this project does not attempt.
+Mixed-effects modelling is genuinely more mature in R than in Python,
+which is an honest reason to leave those analyses alone rather than
+reproduce them badly.
+
+**`.rds` / `.RData`** — R's own file formats for saving objects to
+disk. `.rds` holds a single object; `.RData` holds several. You will
+see both inside the authors' archive.
+
+**R Markdown** — a document format mixing prose and runnable R code,
+much like a Jupyter notebook. Frequently how published analyses are
+written up.
+
+**Three-way comparison** — this project's method for locating the
+source of a discrepancy. Comparing only the published paper with your
+own rebuild cannot tell you whether a difference came from your code,
+from the original code failing to reproduce its own paper, or from the
+change of toolchain. Running the authors' code as well isolates each
+possibility. *Analogy:* a magazine recipe gives you a flat cake — your
+baking, a misprint, or your oven? With only the magazine and your cake
+you cannot say. Watching the original chef bake it settles the question
+at once.
+
+**Polyglot** — able to work in several programming languages. The
+practical value is not showing range but access: **you can read
+anyone's code, not only your own**. A great deal of published
+scientific analysis is in R, so being unable to read R means being
+unable to check it.

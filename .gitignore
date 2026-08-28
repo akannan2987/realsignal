@@ -13,6 +13,15 @@ env/
 # the proof the project works. (See README, "Repository map".)
 data/
 
+# R: the renv package library is machine-specific and rebuildable from
+# renv.lock, exactly as .venv is rebuildable from requirements.txt.
+# Commit renv.lock; never commit the library itself.
+renv/library/
+renv/staging/
+.Rhistory
+.RData
+.Rproj.user/
+
 # Python's compiled cache files — generated automatically, never useful to
 # anyone else.
 __pycache__/

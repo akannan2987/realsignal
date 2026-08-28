@@ -1,6 +1,6 @@
 # RealSignal 🌱🔬
 
-**v0.1.0** · ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white) ![scikit-learn](https://img.shields.io/badge/scikit--learn-modelling-F7931E?logo=scikitlearn&logoColor=white) ![dbt](https://img.shields.io/badge/dbt-transforms-FF694B?logo=dbt&logoColor=white) ![DuckDB](https://img.shields.io/badge/DuckDB-analytics-FFF000?logo=duckdb&logoColor=black) ![Postgres](https://img.shields.io/badge/PostgreSQL-serving-4169E1?logo=postgresql&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?logo=fastapi&logoColor=white) ![React](https://img.shields.io/badge/React%20%2B%20TS-frontend-61DAFB?logo=react&logoColor=black) ![Data](https://img.shields.io/badge/data-real%20%C2%B7%20published%20%C2%B7%20CC--BY-1a7f37) ![containers](https://img.shields.io/badge/containers-Docker%20%7C%20Podman-2496ED?logo=docker&logoColor=white) ![license](https://img.shields.io/badge/license-MIT-blue) ![status](https://img.shields.io/badge/status-phase%201%20of%2017-orange)
+**v0.1.0** · ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white) ![scikit-learn](https://img.shields.io/badge/scikit--learn-modelling-F7931E?logo=scikitlearn&logoColor=white) ![R](https://img.shields.io/badge/R-original%20analysis-276DC3?logo=r&logoColor=white) ![dbt](https://img.shields.io/badge/dbt-transforms-FF694B?logo=dbt&logoColor=white) ![DuckDB](https://img.shields.io/badge/DuckDB-analytics-FFF000?logo=duckdb&logoColor=black) ![Postgres](https://img.shields.io/badge/PostgreSQL-serving-4169E1?logo=postgresql&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?logo=fastapi&logoColor=white) ![React](https://img.shields.io/badge/React%20%2B%20TS-frontend-61DAFB?logo=react&logoColor=black) ![Data](https://img.shields.io/badge/data-real%20%C2%B7%20published%20%C2%B7%20CC--BY-1a7f37) ![containers](https://img.shields.io/badge/containers-Docker%20%7C%20Podman-2496ED?logo=docker&logoColor=white) ![license](https://img.shields.io/badge/license-MIT-blue) ![status](https://img.shields.io/badge/status-phase%201%20of%2018-orange)
 
 **Can a published machine-learning result in biology be rebuilt from
 scratch, in a different language, by one person — and does it survive
@@ -134,7 +134,11 @@ in Python from four linked published datasets:
    was written in R), evaluated honestly on communities the model never
    saw.
 4. **Compare** our numbers to the published numbers, plainly, including
-   where they disagree.
+   where they disagree — then go further and **run the authors' own R
+   code**, which ships with their data. That gives a three-way
+   comparison (paper → their code → our rebuild) which can distinguish
+   a mistake in our rebuild from a gap in the original, where a
+   two-way comparison can only shrug.
 5. **Integrate** the genomic and network layers: do the strains the
    model ranks highly carry more antibiotic-producing gene clusters?
    That turns a statistical result into a mechanism.
@@ -271,11 +275,49 @@ established. But "Leaf76 protects *Arabidopsis* in a box" does not mean
 on screen. A product that overstates its scope is worse than no
 product, because it will be believed.
 
+### The part that generalises
+
+The trained model is specific to these 35 strains, this pathogen and
+this plant. **The method is not.**
+
+Underneath the biology sits a problem that has nothing to do with
+bacteria: *you have N components, you can combine k of them, N-choose-k
+is astronomically larger than what you can afford to test, and each
+test is slow and expensive. Which handful do you test next?*
+
+Thirty-five strains taken five at a time gives over 300,000
+combinations. Testing a hundred a year, exhaustive search takes three
+thousand years. **No amount of laboratory funding solves that; only a
+better choice of which experiments to run does.**
+
+The same shape of problem appears wherever combinations of living
+components are designed — protective consortia in agriculture, defined
+multi-strain formulations in health, starter blends in fermentation,
+production consortia in industrial biotechnology. The organisms differ;
+the arithmetic does not.
+
+So this project is built to make the *method* portable, not just the
+result:
+
+- **Nothing assumes 35 strains, five members, one pathogen or one
+  readout.** The data model treats the strain library, the community
+  size and the measured outcome as inputs, not constants. Hard-coding
+  them would be marginally simpler now and would make the whole thing
+  single-use.
+- **The interesting loop is not a single prediction.** It is *predict →
+  test a shortlist → feed the results back → retrain → predict better*.
+  A tool that only answers once is a calculator; one that improves with
+  every round of experiments is worth returning to.
+- **It runs entirely on your own machine.** Containerised, no external
+  service, nothing uploaded anywhere. That is a design choice made for
+  reproducibility, and it happens to be the only arrangement acceptable
+  to anyone whose strain library is confidential.
+
 ---
 
 ## Build status
 
-**Phase 1 of 17 complete.** The full plan, with effort estimates and
+**Phase 1 of 18 complete.** The full plan, with effort estimates and
 the reasoning behind every tool chosen *and* rejected, is in
 [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
@@ -290,24 +332,25 @@ correcting each other.
 | 3 | Harmonisation with dbt — one key, tested, documented | Science | ⏳ |
 | 4 | Exploration — distributions, quality, first figures | Science | ⏳ |
 | 5 | Reproduction of the published models + MLflow | Science | ⏳ |
-| 6 | Streamlit prototype — the first clickable thing | Platform | ⏳ |
-| 7 | **Multi-omics integration** — genomic + network features | Science | ⏳ |
-| 8 | **External validation** against single-strain scores | Science | ⏳ |
-| 9 | PostgreSQL + FastAPI + Docker | Platform | ⏳ |
-| 10 | React + TypeScript frontend | Platform | ⏳ |
-| 11 | Airflow orchestration | Platform | ⏳ |
-| 12 | Knowledge graph + ontology (Neo4j) | AI | ⏳ |
-| 13 | GraphRAG chatbot — grounded, cited answers | AI | ⏳ |
-| 14 | MCP server — the project, queryable by an AI assistant | AI | ⏳ |
-| 15 | Recommendation agent | AI | ⏳ |
-| 16 | **Containerise the whole system** — one command, Docker *or* Podman | Industrialisation | ⏳ |
-| 17 | CI/CD and release | Industrialisation | ⏳ |
+| 6 | **The original R analysis** — run the authors' own code; the three-way comparison | Science | ⏳ |
+| 7 | Streamlit prototype — the first clickable thing | Platform | ⏳ |
+| 8 | **Multi-omics integration** — genomic + network features | Science | ⏳ |
+| 9 | **External validation** against single-strain scores | Science | ⏳ |
+| 10 | PostgreSQL + FastAPI, containerised | Platform | ⏳ |
+| 11 | React + TypeScript frontend | Platform | ⏳ |
+| 12 | Airflow orchestration | Platform | ⏳ |
+| 13 | Knowledge graph + ontology (Neo4j) | AI | ⏳ |
+| 14 | GraphRAG chatbot — grounded, cited answers | AI | ⏳ |
+| 15 | MCP server — the project, queryable by an AI assistant | AI | ⏳ |
+| 16 | Recommendation agent | AI | ⏳ |
+| 17 | **Containerise the whole system** — one command, Docker *or* Podman | Industrialisation | ⏳ |
+| 18 | CI/CD and release | Industrialisation | ⏳ |
 
-**Estimated total: ~162 hours.** That is stated rather than softened —
+**Estimated total: ~170 hours.** That is stated rather than softened —
 a plan claiming this fits into three weekends would be describing
 something much smaller. Milestones are defined so that stopping at any
 of them leaves something coherent; the science is complete at v0.8.0,
-after Phase 8.
+after Phase 9.
 
 **Results will be published here as each phase completes**, including
 our numbers beside the published ones, and including the places they
@@ -382,8 +425,8 @@ realsignal/
 ├── LICENSE                       ← MIT (this project's code and docs only)
 ├── requirements.txt              ← the Python packages, with version ranges
 ├── setup.sh / setup.ps1          ← one-command setup (macOS/Linux · Windows)
-├── compose.yaml                  ← all six services            (planned, P16)
-├── container.sh / container.ps1  ← engine-detecting wrappers   (planned, P16)
+├── compose.yaml                  ← all six services            (planned, P17)
+├── container.sh / container.ps1  ← engine-detecting wrappers   (planned, P17)
 ├── .gitignore                    ← what must never be committed
 │
 ├── docs/                         ← the tutorial — the main deliverable
@@ -401,13 +444,14 @@ realsignal/
 │
 ├── src/realsignal/               ← the reusable, importable, tested engine
 ├── dbt/                          ← harmonisation pipeline      (planned, P3)
+├── R/                            ← the original authors' analysis (planned, P6)
 ├── notebooks/                    ← exploration                 (planned, P4)
 ├── tests/                        ← automated checks            (planned, P5)
-├── app/                          ← Streamlit prototype         (planned, P6)
-├── api/                          ← FastAPI backend             (planned, P9)
-├── frontend/                     ← React + TypeScript          (planned, P10)
-├── airflow/                      ← orchestration DAGs          (planned, P11)
-├── mcp/                          ← MCP server                  (planned, P14)
+├── app/                          ← Streamlit prototype         (planned, P7)
+├── api/                          ← FastAPI backend             (planned, P10)
+├── frontend/                     ← React + TypeScript          (planned, P11)
+├── airflow/                      ← orchestration DAGs          (planned, P12)
+├── mcp/                          ← MCP server                  (planned, P15)
 ├── figures/                      ← charts, produced by code    (planned)
 └── data/                         ← NOT in Git — regenerated by the fetchers
     ├── raw/                      ← downloads, never edited
@@ -449,7 +493,7 @@ If that looked like a foreign language, that is expected and fine —
 assumes a completely blank machine and explains every word, every
 command and every piece of output, for Windows, macOS and Linux alike.
 
-**Or skip the setup entirely** (once Phase 16 is built). The whole
+**Or skip the setup entirely** (once Phase 17 is built). The whole
 system — database, graph, API, frontend, experiment tracking — runs
 containerised, with nothing else installed:
 

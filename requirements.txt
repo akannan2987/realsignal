@@ -1,0 +1,34 @@
+# RealSignal — Python dependencies
+# Install with:  pip install -r requirements.txt
+#
+# Version ranges: the lower bound is the oldest version known to work;
+# the upper bound keeps a future major release from silently breaking
+# the project. After a successful install, run
+#     pip freeze > requirements.lock.txt
+# to record the exact versions you actually got. That lock file is what
+# makes an install truly reproducible; this file is what makes it
+# installable in the first place.
+
+# --- Core data handling -------------------------------------------------
+pandas>=2.2,<4.0          # tables of data, driven by code
+numpy>=1.24,<3.0          # fast arithmetic underneath everything else
+openpyxl>=3.1,<4.0        # lets pandas read .xlsx files (the published data)
+
+# --- Storage ------------------------------------------------------------
+duckdb>=1.0,<2.0          # a complete SQL database in a single file
+
+# --- Modelling ----------------------------------------------------------
+scikit-learn>=1.4,<2.0    # the machine-learning models and evaluation tools
+scipy>=1.11,<2.0          # statistics used for confidence intervals
+
+# --- Charts -------------------------------------------------------------
+matplotlib>=3.8,<4.0      # charts, saved as image files by code
+
+# --- Getting the data ---------------------------------------------------
+requests>=2.31,<3.0       # downloading files over the internet
+
+# --- The application ----------------------------------------------------
+streamlit>=1.36,<2.0      # turns a Python script into a clickable web app
+
+# --- Quality ------------------------------------------------------------
+pytest>=8.0,<9.0          # automated tests

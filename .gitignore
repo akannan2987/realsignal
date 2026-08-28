@@ -1,0 +1,41 @@
+# ---------------------------------------------------------------------
+# RealSignal — files Git must never track
+# ---------------------------------------------------------------------
+
+# The virtual environment. Hundreds of megabytes, machine-specific, and
+# fully rebuildable from requirements.txt. Never commit it.
+.venv/
+venv/
+env/
+
+# Downloaded and generated data. Rebuilt by scripts/fetch_data.py,
+# verified by checksum. Keeping it out is deliberate: the script working
+# is the proof the project works. (See README, "Repository map".)
+data/
+
+# Python's compiled cache files — generated automatically, never useful
+# to anyone else.
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Secrets. This project uses only public data and needs no credentials,
+# but the rule belongs here permanently: a secret committed once is
+# compromised forever, because history is permanent.
+.env
+*.key
+secrets.*
+
+# Operating-system clutter
+.DS_Store          # macOS Finder
+Thumbs.db          # Windows Explorer
+desktop.ini
+
+# Editor settings — personal, not project-wide
+.vscode/
+.idea/
+*.swp

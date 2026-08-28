@@ -8,13 +8,13 @@
 venv/
 env/
 
-# Downloaded and generated data. Rebuilt by scripts/fetch_data.py,
-# verified by checksum. Keeping it out is deliberate: the script working
-# is the proof the project works. (See README, "Repository map".)
+# Downloaded and generated data. Rebuilt by scripts/fetch_data.py and
+# verified by checksum. Keeping it out is deliberate: the script working is
+# the proof the project works. (See README, "Repository map".)
 data/
 
-# Python's compiled cache files — generated automatically, never useful
-# to anyone else.
+# Python's compiled cache files — generated automatically, never useful to
+# anyone else.
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -23,16 +23,25 @@ __pycache__/
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-# Secrets. This project uses only public data and needs no credentials,
-# but the rule belongs here permanently: a secret committed once is
-# compromised forever, because history is permanent.
+# Secrets. This project uses only public data and needs no credentials, but
+# the rule belongs here permanently: a secret committed once is compromised
+# forever, because history is permanent.
 .env
 *.key
 secrets.*
 
+# Container artefacts. Never commit a .env holding database passwords:
+# history is permanent, so a secret committed once must be treated as
+# compromised and rotated, not quietly deleted.
+*.env.local
+.container-data/
+
+# Personal working notes — scratch material, never published
+.local-notes/
+
 # Operating-system clutter
-.DS_Store          # macOS Finder
-Thumbs.db          # Windows Explorer
+.DS_Store
+Thumbs.db
 desktop.ini
 
 # Editor settings — personal, not project-wide

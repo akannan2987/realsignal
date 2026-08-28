@@ -22,6 +22,7 @@ been introduced.
 - [Group 7 — Machine learning](#group-7--machine-learning)
 - [Group 8 — Evaluation and honesty](#group-8--evaluation-and-honesty)
 - [Group 9 — Science and reproducibility](#group-9--science-and-reproducibility)
+- [Group 10 — The platform and AI layers](#group-10--the-platform-and-ai-layers)
 
 ---
 
@@ -724,3 +725,291 @@ answer you already knew, then presenting the agreement as
 confirmation. The specific temptation in a reproduction project, and
 the reason this project records its first honest attempt at each step
 before any adjustment, and reports both.
+
+---
+
+## Group 10 — The platform and AI layers
+
+*These terms arrive in Phases 3 and 6–15. They are defined here in
+advance so the architecture document and the roadmap can be read
+without gaps.*
+
+### Data engineering
+
+**Harmonisation** — making several datasets agree so they can be
+joined: one identifier, one shape, one set of rules for disagreements.
+*Analogy:* three colleagues send attendance lists for the same meeting —
+one uses full names, one initials, one email addresses. Someone must
+decide who is who before anything can be counted.
+
+**ETL / ELT** — Extract, Transform, Load (or Extract, Load, Transform).
+Two orderings for the same job. ETL transforms data before storing it;
+ELT stores it first and transforms inside the database. ELT is the
+modern default because storage is cheap and databases are fast, and
+because keeping the untransformed copy means you can always redo the
+transformation. This project uses ELT.
+
+**dbt** — a tool that turns a folder of SQL files into a transformation
+pipeline with dependencies, automated tests and generated
+documentation. *Analogy:* your recipes were loose sheets of paper; dbt
+turns them into a cookbook with a contents page, an index, a note on
+each page saying which pages must be cooked first, and checks that
+refuse to serve the dish if the sauce came out wrong. **dbt Core** is
+the free, open-source version.
+
+**Model** (in dbt) — confusingly, *not* a machine-learning model. In
+dbt a "model" is one SQL file producing one table or view. Context
+tells you which meaning is meant; this glossary flags it because the
+collision genuinely trips people up.
+
+**Staging / intermediate / mart** — dbt's conventional layers. *Staging*
+lightly cleans each source, one model per source. *Intermediate* does
+the joining and reshaping. *Marts* are the finished tables analysis
+actually uses. *Analogy:* wash the vegetables, then prepare the
+components, then plate the dish.
+
+**Lineage** — the recorded ancestry of a table: which sources and which
+steps produced it. Turns "where did this column come from?" into a
+diagram rather than an archaeology project.
+
+**Orchestration** — running the steps of a pipeline in the right order,
+on schedule, with retries and visible failures.
+
+**Airflow** — the standard open-source orchestrator. *Analogy:* an
+alarm clock crossed with a checklist that understands dependencies — a
+kitchen pass that knows the sauce must be ready before the plate goes
+out, starts it at the right time, and rings a bell loudly if it burns.
+
+**DAG** (directed acyclic graph) — Airflow's word for one pipeline: a
+set of tasks with declared dependencies and no loops. "Directed" =
+arrows point one way; "acyclic" = nothing depends on itself, directly or
+indirectly.
+
+**cron** — the simple, decades-old scheduler built into Unix systems.
+Runs a command at a set time. No dependency handling and no visibility,
+which is exactly why Airflow exists — but this project starts with a
+plain runner so you feel the problem before meeting the solution.
+
+**Data warehouse** — a database built for analytics at scale, usually
+rented in the cloud (Snowflake, BigQuery, Redshift). *Analogy:* renting
+a warehouse rather than using a filing cabinet. Right at scale,
+disproportionate for 136 rows — see [`ROADMAP.md`](ROADMAP.md) §6.
+
+**OLAP / OLTP** — the two shapes of database work. **OLAP** (analytical
+processing) means few large questions scanning whole columns: DuckDB,
+warehouses. **OLTP** (transactional processing) means many small reads
+and writes from many users: PostgreSQL. *Analogy:* a research library
+where you spread twenty books across a table, versus a pharmacy counter
+serving a queue. Making one database do both jobs well is a classic
+source of slow, fragile systems.
+
+**PostgreSQL** ("Postgres") — a free, mature, full database server, the
+standard choice behind web applications. Used here as the *application*
+store once there is an API to serve.
+
+### Applications
+
+**API** (application programming interface) — a defined set of
+addresses another program can call to ask your system for something.
+*Analogy:* the serving hatch between kitchen and dining room. Orders
+in, plates out, through one well-defined opening, and nobody wanders
+into the kitchen.
+
+**REST** — the common convention for organising an API around
+addresses and standard verbs (get, post). Not a technology; an agreed
+style, which is why APIs from different companies feel similar.
+
+**Endpoint** — one address in an API, e.g. `/predict`.
+
+**FastAPI** — the Python framework used here to build the API. It
+validates every request against a declared shape (so a malformed
+request is rejected clearly rather than failing mysteriously deep
+inside) and generates interactive documentation automatically.
+
+**Frontend / backend** — see the restaurant analogy in
+[`00-architecture.md`](00-architecture.md) §9. Frontend = the dining
+room, what the user sees. Backend = the kitchen, where the work
+happens.
+
+**JavaScript** — the programming language web browsers run.
+
+**TypeScript** — JavaScript with types added. *Analogy:* seatbelts.
+JavaScript will happily let you add a number to a sentence and let you
+find out at three in the morning; TypeScript stops you in the editor.
+Preferred here for anything beyond a trivial script.
+
+**React** — the most widely used framework for building web interfaces
+out of reusable **components** — self-contained pieces (a button, a
+chart, a form) that can be composed like Lego bricks.
+
+**Container** — a program packaged together with everything it needs to
+run: interpreter, system libraries, code and start-up instructions.
+*Analogy:* shipping a meal with its own kitchen attached, so it cooks
+identically in any building. Unlike a **virtual machine**, it shares
+the host's operating-system core rather than carrying its own —
+*analogy:* a flat in a shared building, not a separate house.
+Containers are **disposable by design**: you do not repair one, you
+delete it and start a fresh one from the same image.
+
+**Image** — the read-only template a container is started from.
+*Analogy:* a recipe plus all the ingredients pre-measured in a sealed
+box. The **container** is the cake you baked from it.
+
+**Dockerfile / Containerfile** — the text file describing how to build
+an image. *Analogy:* the written recipe. Both names mean the same
+thing; this project uses `Dockerfile`, which both engines read.
+
+**Registry** — a website storing images for others to download.
+*Analogy:* a public cookbook library. Docker Hub and quay.io are the
+common ones.
+
+**Volume** — storage that survives when a container is deleted.
+*Analogy:* the paper cups are thrown away after every service; the
+fridge stays. Databases live on volumes.
+
+**Bind mount** — making a folder on your machine visible inside a
+container. *Analogy:* a hatch in the flat's wall opening onto your own
+storage room.
+
+**Port mapping** — connecting a door on your machine to a door inside
+the container, so you can reach the program in it. `-p 8000:8000`.
+
+**Docker** — the best-known container engine. Runs a **daemon**: a
+background service with administrator rights that does the actual work
+while your commands just send it instructions. *Analogy:* a hotel where
+you ring the front desk and staff go and do things for you.
+
+**Podman** — an alternative engine, **daemonless** and **rootless**: it
+does the work directly, in your own user account, with no privileged
+background service. *Analogy:* a self-catering flat where you do things
+yourself — no one holds a master key in the corridor. **Red Hat removed
+Docker from RHEL 8**, where Podman is the shipped default, so on that
+platform Podman is not an alternative but the option.
+
+**OCI** (Open Container Initiative) — the agreed standard defining what
+a container image is and how it runs. Because Docker and Podman both
+implement it, **an image built by one runs under the other**. *Analogy:*
+petrol from two filling stations — different logo, same fuel, same car.
+
+**Rootless** — running containers as an ordinary user rather than as
+administrator. More secure, and often the only option permitted on a
+managed work machine. The trade-off: rootless containers cannot use
+ports below 1024, which is why this project's services all sit on
+higher ports.
+
+**Compose** — a file describing several containers that run together as
+one system, started with a single command. *Analogy:* the menu for a
+whole dinner service, saying which dishes and in what order. The
+**Compose Specification** is an open standard; `compose.yaml` is read
+by both `docker compose` and `podman compose`.
+
+**Multi-stage build** — building an image in two steps: one with the
+compilers and build tools, then copying only the finished result into a
+clean final image. *Analogy:* baking in a messy kitchen, then carrying
+just the cake to the table. Produces smaller, safer images.
+
+**Layer** — an image is built up in layers, each cached. Changing only
+your code rebuilds only the last layer, which is why the first build is
+slow and later ones take seconds. *Analogy:* the first shop of the week
+is long; afterwards you only buy what ran out.
+
+**SELinux** — a security system on RHEL that labels every file and
+enforces which programs may touch which labels. *Analogy:* a building
+where every room has a colour-coded pass, and the pass matters more
+than the key. It will block container volume mounts with a confusing
+`Permission denied`; the fix is a `:Z` suffix on the mount.
+
+**WSL2** (Windows Subsystem for Linux 2) — a real Linux kernel running
+inside Windows. Both container engines use it on Windows, because
+containers are fundamentally a Linux technology.
+
+**Podman machine** — the small hidden Linux virtual machine Podman runs
+on macOS and Windows for the same reason. You do not manage it
+directly, but knowing it exists explains occasional surprises with file
+paths and networking.
+
+**Kubernetes** — coordinates containers across many machines, with
+automatic restarts, scaling and rolling updates. *Analogy:* Compose
+organises one restaurant; Kubernetes runs a national chain. Not used
+here — see [`ROADMAP.md`](ROADMAP.md) §6.
+
+**CI/CD** (continuous integration / continuous delivery) — automation
+that runs your tests on every change, and can publish releases.
+*Analogy:* a smoke alarm wired to the whole house rather than one you
+remember to test occasionally. This project uses **GitHub Actions**,
+which is free for public repositories.
+
+**MLflow** — a free tool that records every model-training run: its
+settings, its metrics, and the resulting model. *Analogy:* a laboratory
+notebook that fills itself in, so "which settings produced that
+result?" always has an answer.
+
+**Semantic versioning** — the `MAJOR.MINOR.PATCH` numbering convention
+(`1.2.3`). Patch = a fix; minor = a new capability that breaks nothing;
+major = something that breaks existing use. It lets a version number
+carry meaning rather than just counting upward.
+
+### Graphs and AI
+
+**Graph** — data expressed as things (**nodes**) connected by
+relationships (**edges**). *Analogy:* a detective's pinboard: the
+photographs are nodes, the string between them edges.
+
+**Knowledge graph** — a graph representing the meaningful entities of a
+domain and how they relate, so questions can be answered by following
+connections.
+
+**Ontology** — the agreed vocabulary for a domain: what kinds of thing
+exist and how they may relate. *Analogy:* a family tree for concepts.
+Ours states that a *strain* CARRIES a *gene cluster*, a *gene cluster*
+PRODUCES a *compound class*, a *strain* INHIBITS a *strain*, a
+*community* CONTAINS *strains* and PROTECTS a *plant*. Writing it down
+forces agreement on what a "strain" is across four datasets that
+describe it differently.
+
+**Neo4j** — the most widely used graph database. **Cypher** is its
+query language, playing the role SQL plays for tables.
+
+**NetworkX** — a Python library for building and analysing graphs in
+memory, with no database. The lighter starting point.
+
+**LLM** (large language model) — the kind of AI that reads and writes
+text, such as the one you may be using to read about this project.
+
+**RAG** (retrieval-augmented generation) — having the model look things
+up in *your* data before answering, instead of relying on what it
+happens to remember. *Analogy:* the difference between a colleague
+answering from memory and one who checks the file first.
+
+**GraphRAG** — RAG where the lookup walks a knowledge graph rather than
+only matching text, so relationship questions ("why might this strain
+work?") can be answered by following the chain.
+
+**Embedding** — a piece of text converted into a list of numbers, such
+that similar meanings produce similar numbers. How a computer finds
+"related" passages without exact word matches. *Analogy:* giving every
+document map coordinates, so "nearby" means "about the same thing".
+
+**Grounding** — requiring an answer to be traceable to a specific
+source. In scientific work an ungrounded answer is worthless, however
+fluent — which is why every answer in this project's AI layer carries a
+citation.
+
+**Hallucination** — an LLM stating something false with complete
+confidence. The specific failure that grounding and RAG exist to
+reduce.
+
+**MCP** (Model Context Protocol) — a standard way to plug tools and
+data into AI assistants. *Analogy:* USB. Before it, every device needed
+its own connector and driver; after it, one socket fits everything.
+
+**Agent** — an LLM that does not merely answer but *acts*: it plans
+steps, calls tools, examines results and decides what to do next,
+looping until the task is done. *Analogy:* asking a librarian a
+question, versus asking a research assistant to go away and come back
+with a shortlist. **Chatbots answer; agents act.**
+
+**Guardrails** — the deliberate limits placed on an agent: a fixed set
+of tools, a maximum number of steps, read-only access, and a log of
+every action. An unlogged agent is unacceptable in any serious setting,
+because an action nobody can review is an action nobody can trust.

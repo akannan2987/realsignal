@@ -1,705 +1,670 @@
-# 02 — Phase 1: getting the real data
+[Handbook](HANDBOOK.md) · [README](../README.md) · [Glossary](GLOSSARY.md) · [Architecture](00-architecture.md) · [Roadmap](ROADMAP.md)
 
-**Prerequisites:** [`01-setup.md`](01-setup.md) completed, with
-`python scripts/check_env.py` reporting **ALL CHECKS PASSED**. You
-should be inside the project folder with `(.venv)` showing in your
-prompt and on the `develop` branch.
+# 02 · Phase 1: get the real data, verified
 
-**Learning goal:** after this phase you will understand what a permanent
-research archive is and why it exists; what a checksum proves and what
-it does not; why raw data is treated as read-only; what provenance
-means and how to record it; and you will have the real, published,
-peer-reviewed dataset on your machine, verified.
+**Prerequisites:** [`docs/01-setup.md`](01-setup.md) done, with `python scripts/check_env.py` ending in **ALL CHECKS PASSED**. You're in the project folder, `(.venv)` shows in your prompt, and `git status` says you're on `develop`.
 
-**Time:** 45–60 minutes, most of it the download running while you read.
+**Learning goal:** after this phase you'll know what a permanent research archive is and why it exists, what a checksum proves (and what it doesn't), why raw data is never edited, and how provenance gets recorded without effort. You'll have the published, peer-reviewed dataset on your computer, verified, and you'll know what's inside it.
 
-**Data downloaded:** about 239 MB, once.
+**Time:** about an hour, much of it reading while the download runs. **Download:** about 239 MB, once. **Disk space:** about 700 MB free.
 
-> Every term is defined in [`GLOSSARY.md`](GLOSSARY.md).
+**Where this sits:** Stage 3 of the [Handbook](HANDBOOK.md#stage-3-phase-1-get-the-real-data-verified).
 
 ---
 
 ## Contents
 
-- [1. Why this phase exists](#1-why-this-phase-exists)
-- [2. Where the data comes from](#2-where-the-data-comes-from)
-- [3. What is actually in the dataset (the science)](#3-what-is-actually-in-the-dataset-the-science)
-- [4. Three ideas you need before running anything](#4-three-ideas-you-need-before-running-anything)
-- [5. Create the download script](#5-create-the-download-script)
-- [6. Run it — first look, then leap](#6-run-it--first-look-then-leap)
-- [7. Look at what you got](#7-look-at-what-you-got)
-- [8. Checkpoint](#8-checkpoint)
-- [9. What could go wrong](#9-what-could-go-wrong)
-- [10. Commit this phase](#10-commit-this-phase)
+- [1. The ideas behind this phase](#1-the-ideas-behind-this-phase)
+- [2. Meet the source](#2-meet-the-source)
+- [3. What's in the dataset: the science](#3-whats-in-the-dataset-the-science)
+- [4. Three ideas to hold before running anything](#4-three-ideas-to-hold-before-running-anything)
+- [5. The files for this phase](#5-the-files-for-this-phase)
+- [6. Step 1: probe before you fetch](#6-step-1-probe-before-you-fetch)
+- [7. Step 2: download, verify, unpack, list](#7-step-2-download-verify-unpack-list)
+- [8. Step 3: look at what you got](#8-step-3-look-at-what-you-got)
+- [9. See it: the figures and the interactive pages](#9-see-it-the-figures-and-the-interactive-pages)
+- [10. Checkpoint: did the phase work?](#10-checkpoint-did-the-phase-work)
+- [11. Notes from the build](#11-notes-from-the-build)
+- [12. The tests](#12-the-tests)
+- [13. Two ways to run everything](#13-two-ways-to-run-everything)
+- [14. Same task, different language (optional, 10 minutes)](#14-same-task-different-language-optional-10-minutes)
+- [15. What could go wrong (mini-FAQ)](#15-what-could-go-wrong-mini-faq)
+- [16. Save your work](#16-save-your-work)
+- [17. What you learned, and what's next](#17-what-you-learned-and-whats-next)
 
 ---
 
-## 1. Why this phase exists
+## 1. The ideas behind this phase
 
-It is tempting to think of "getting the data" as a chore before the
-real work. In practice it *is* real work, and it is where a
-disproportionate share of projects quietly go wrong.
+"Getting the data" sounds like a chore to get through before the real work starts. A surprising share of projects go wrong right here, without anyone noticing:
 
-Consider what can happen without care:
+- A download stops at 94 %. The file opens fine and is missing a fifth of its rows. Nothing complains, and every number afterwards is wrong.
+- Someone opens a data file in a spreadsheet program "just to look". The program turns a strain name into a date, the file gets saved on the way out, and the original is gone.
+- Six months later someone asks where a number came from, and the answer is "a spreadsheet on my old laptop".
 
-- The download is interrupted at 94%, leaving a file that opens
-  perfectly and is missing a fifth of the rows. Nothing errors. Every
-  number you produce afterwards is wrong.
-- You open a data file in Excel "just to look", it helpfully converts
-  a strain identifier into a date, you save without thinking, and the
-  original is gone.
-- Six months later somebody asks where a number came from and the
-  honest answer is "a spreadsheet on my old laptop".
+Each of those is ordinary, and each one destroys trust in a result. This phase builds three habits that prevent them:
 
-Each of those is mundane, common, and fatal to trust. This phase
-installs three habits that prevent all three:
-
-1. **Verify what you downloaded** against a published checksum.
-2. **Never edit raw data** — treat the downloaded copy as read-only.
+1. **Verify what you downloaded** against the checksum the authors published.
+2. **Never edit raw data.** The downloaded copy is read-only from the moment it arrives.
 3. **Write down where it came from**, automatically, at download time.
 
-*Analogy for the whole phase:* a laboratory receiving a sample.
-Somebody checks the seal is unbroken, logs the batch number and the
-date, and stores it in the freezer. Only then does anyone start
-pipetting. The logging feels bureaucratic right up until the day a
-result looks strange and the log is the only way to find out why.
+A hospital laboratory receiving a blood sample works the same way: check the label against the form, log the sample number and the date, store it, and only then start testing. The paperwork feels slow until the day a result looks odd and the log is the only way to find out why.
+
+![Phase 1 in six steps](../figures/fetch_pipeline.png)
 
 ---
 
-## 2. Where the data comes from
+## 2. Meet the source
 
 ### The study
 
-> Emmenegger, B., Massoni, J., Pestalozzi, C. M., Bortfeld-Miller, M.,
-> Maier, B. A., & Vorholt, J. A. (2023). Identifying microbiota
-> community patterns important for plant protection using synthetic
-> communities and machine learning. *Nature Communications*, **14**,
-> 7983. <https://doi.org/10.1038/s41467-023-43793-z>
+> Emmenegger, B., Massoni, J., Pestalozzi, C. M., Bortfeld-Miller, M., Maier, B. A., & Vorholt, J. A. (2023). Identifying microbiota community patterns important for plant protection using synthetic communities and machine learning. *Nature Communications*, **14**, 7983. <https://doi.org/10.1038/s41467-023-43793-z>
 
-Open access — you can read the whole thing for free, and it is worth
-skimming the figures before you continue. The work was done at the
-Institute of Microbiology, ETH Zurich.
+The article is open access, so anyone can read it for free; the figures are worth a look before you go on. The work was done at the Institute of Microbiology at ETH Zurich.
 
 ### The data deposit
 
-> <https://doi.org/10.5281/zenodo.10118600> — data and the original R
-> code, licensed CC-BY 4.0.
+> <https://doi.org/10.5281/zenodo.10118600>: the data and the authors' original R code, under a CC-BY 4.0 licence.
 
-**What Zenodo is.** A free, permanent public archive for research data
-and software, run by CERN. Researchers deposit their files and receive
-a **DOI** — a permanent identifier.
+**Zenodo** is a free, permanent public archive for research data and software, run by CERN. Researchers upload their files and get a **DOI**, a permanent address.
 
-**Why a DOI rather than a link.** Ordinary web links rot.
-Laboratories move, universities redesign their websites, hosting
-lapses. A 2019 paper pointing at `somelab.uni.edu/data/final.zip` is,
-today, quite often pointing at nothing at all. A DOI carries a promise:
-it will keep resolving to the same object.
+**Why a DOI rather than an ordinary link?** Links rot. Laboratories move, universities redesign their websites, hosting contracts end, and a link in an old paper often leads nowhere. A DOI comes with a promise to keep pointing at the same object, the way a book's ISBN identifies it no matter which shop has it in stock.
 
-*Analogy:* an ISBN identifies a book regardless of which shop stocks
-it. "Third shelf, corner shop" identifies a book only until someone
-rearranges the shop.
+**What the licence means.** CC-BY 4.0 allows anyone to reuse the work, including changing it and using it commercially, **as long as the creators are credited**. This project credits them in the README, in every guide, in the code that downloads their archive and in the log it writes. Reusing CC-BY data with credit is exactly what the licence is for.
 
-**What the licence means.** CC-BY 4.0 permits anyone to reuse the work —
-including commercially, including modified — **on condition that the
-creators are credited**. This project credits them in the README, in
-every document, in the code, and in the fetch log the script writes.
-Reuse under CC-BY is not a favour being granted quietly; it is the
-explicit purpose of the licence. Crediting properly is both the legal
-requirement and simply the right thing.
+**What this project doesn't do:** keep a copy of their data in its own repository. `scripts/fetch_data.py` downloads it from the original archive, so everyone gets it from the source, with the licence and the authors' names attached.
 
-**What we deliberately do not do:** we do not put a copy of their data
-in our repository. The script downloads it from the original archive so
-that everyone receives it from the source, with the licence and the
-authors' names attached. That keeps the chain of attribution intact
-rather than laundering it through us.
-
-### A note on the study being reproduced
-
-Reproducing someone's analysis is sometimes read as an accusation. It
-should not be. These authors did the thing that makes reproduction
-possible at all — they released their data and their code, publicly,
-permanently, openly licensed. That is still not universal. **A study
-you can check is a better study than one you cannot**, and engaging
-with it closely is a form of respect.
+**Reproducing a study isn't a criticism of it.** These authors made reproduction possible in the first place by releasing their data and code publicly, permanently and under an open licence, which many studies still don't.
 
 ---
 
-## 3. What is actually in the dataset (the science)
+## 3. What's in the dataset: the science
 
-You do not need a biology background. Here is the whole experiment.
+No biology background is needed. Here's the whole experiment.
 
-### The question
+**The question.** Plant leaves are covered in harmless bacteria, and some of them protect the plant against disease-causing ones. *Which ones?* The catch is that bacteria don't act alone: they compete, hold each other back and sometimes help each other. A strain that protects a plant on its own in a clean dish may do nothing on a real leaf among thirty other kinds.
 
-Plant leaves are covered in harmless bacteria. Some of those bacteria
-protect the plant against disease-causing ones. **Which ones?**
+**The design.** So the researchers never relied on testing one strain at a time. They assembled random teams and worked backwards from the results, as the picture below shows.
 
-The difficulty is that bacteria do not act alone — they compete, they
-inhibit one another, sometimes they help one another. So a strain that
-looks protective by itself in a laboratory dish may do nothing on a
-real leaf surrounded by others.
+![The screen: a pool of strains, random teams, plants and pathogen, then working backwards](../figures/screening_design.png)
 
-### The design
-
-*Analogy.* You manage a 5-a-side football league and want to know which
-individual players actually win matches. Testing a player alone against
-a wall tells you nothing, because football is not played against a
-wall. So instead: form many random 5-player teams, record every result,
-then work backwards — *which players keep appearing in winning teams?*
-
-That is the experiment, exactly:
-
-| Element | In the experiment |
+| Part of the experiment | What it was |
 |---|---|
-| The pool of players | **35 strains** of harmless leaf bacteria |
-| A team | **5 strains** applied together (a "Mini5SynCom") |
-| Matches played | **136 teams**, each on its own set of plants |
-| The opponent | *Pseudomonas syringae* DC3000, a plant pathogen |
-| The pitch | Sterile *Arabidopsis thaliana* plants in sealed boxes |
-| The final score | How much pathogen grew, 14 days after infection |
-| The rematch | **70 more teams** in a separate experiment, kept for testing |
+| the pool | **35 strains** of harmless leaf bacteria |
+| a team | **5 strains** applied together (the paper calls one a "Mini5SynCom") |
+| the screen | **136 teams**, each on its own set of plants, in two rounds |
+| the opponent | *Pseudomonas syringae* DC3000, a bacterium that causes leaf disease |
+| the plants | sterile *Arabidopsis thaliana* (thale cress) seedlings in sealed boxes |
+| the result | how much pathogen grew on each plant, 14 days after infection |
+| the test set | **70 more teams** in a separate third round, kept back to test the models |
 
-Every plant was also weighed, and the harmless bacteria were counted
-too — so the data records not just the score but the conditions.
+The plants were also weighed, and the harmless bacteria counted too, so the data records more than the final result.
 
-### Some vocabulary, in plain words
+**Some words, in plain terms** (all of them are in the [Glossary](GLOSSARY.md#group-1-the-biology)):
 
-- **Strain** — one specific, named type of bacterium kept in a
-  laboratory freezer. Like one named breed rather than "dog" in
-  general. Ours are called things like `Leaf15` and `Leaf76`, because
-  they were isolated from real leaves and numbered.
-- **SynCom** (synthetic community) — a team of known strains
-  deliberately combined. "Synthetic" means *assembled from known parts
-  by humans*, not artificial.
-- **Pathogen** — a microbe that causes disease.
-- **CFU** (colony-forming unit) — how live bacteria are counted. You
-  spread a diluted sample on a nutrient jelly; each living bacterium
-  grows into one visible dot; you count the dots and scale back up.
-  *Analogy:* estimating fish in a lake by netting one measured bucket.
-- **CFU per gram** — divided by the plant's weight, so a big plant is
-  not unfairly counted as "more infected" simply for offering more
-  surface. *Analogy:* crime per 100,000 residents rather than raw
-  counts.
+- A **strain** is one particular, named kind of bacterium kept in a laboratory freezer. The ones in this study are named after the leaves they came from and numbered: `Leaf15`, `Leaf76` and so on.
+- A **SynCom** (synthetic community) is a team of known strains put together on purpose. *Synthetic* here means "assembled by people from known parts", not artificial.
+- A **pathogen** is a microbe that causes disease.
+- A **CFU** (colony-forming unit) is how live bacteria get counted: spread a diluted sample on a nutrient jelly, let each living bacterium grow into a visible dot, count the dots and scale back up.
+- **CFU per gram** divides the count by the plant's weight, so a big plant isn't counted as "more infected" just for offering more surface.
 
-### One thing that will look strange in the numbers
+**One thing that looks strange in the numbers.** The pathogen counts run from about ten thousand to about a billion per gram. That isn't a mistake: bacterial populations really do span that range. It's why biologists read these counts on a **log scale**, where 10,000 is 4 and 1,000,000,000 is 9, and each step of 1 means ten times more. A column of values between about 4 and 9 is what to expect.
 
-Pathogen counts in this data range from roughly ten thousand to roughly
-a billion. That is not an error — bacterial populations genuinely span
-that range, and it is why biologists always work with these numbers on
-a **log10 scale**, where a tenfold difference is the same visual
-distance everywhere.
+![Why counts of bacteria are drawn on a log scale](../figures/log_scale.png)
 
-On a log10 scale, 10,000 becomes 4 and 1,000,000,000 becomes 9. So a
-column of numbers between about 4 and 9 is what you are expecting to
-see. Anything outside that is worth investigating.
-
-### The answer they found
-
-Three strains — *Pseudomonas* Leaf15, *Rhizobium* Leaf68 and
-*Acidovorax* Leaf76 — genuinely reduced the pathogen, confirmed
-afterwards by direct laboratory tests. One of them had never previously
-been identified as protective.
-
-**Our job is not to take their word for it.** In later phases we will
-train our own models, in a different language, and see whether the same
-three strains come out on top.
+**What they found.** Three strains, *Pseudomonas* Leaf15, *Rhizobium* Leaf68 and *Acidovorax* Leaf76, reduced the pathogen, and direct laboratory tests confirmed it afterwards. One of the three hadn't been known as protective before. **This project doesn't take that on trust:** Phase 5 trains its own models in a different language, and Phase 6 runs the authors' own code, to see whether the same three come out on top.
 
 ---
 
-## 4. Three ideas you need before running anything
+## 4. Three ideas to hold before running anything
 
-### Idea 1 — A checksum, and what it proves
+### A checksum, and what it proves
 
-A **checksum** is a short code calculated from a file's exact contents.
-Change one single byte and the code changes completely and
-unpredictably.
+A **checksum** is a short code calculated from every byte of a file, a fingerprint for the file. Change one byte and the code changes completely. **MD5** is the name of the method Zenodo uses. Zenodo publishes the archive's checksum, `f8061f230b621703f0f11be454c5167e`, and the script calculates the checksum of what you downloaded and compares the two.
 
-Zenodo publishes the checksum for this archive:
-`f8061f230b621703f0f11be454c5167e`. Our script computes the checksum of
-what we downloaded and compares.
+**What a match proves:** you hold exactly the file the authors deposited, not cut short, not damaged, not a different version.
 
-**What a match proves:** you have exactly the file the authors
-deposited — not truncated, not corrupted, not a different version.
+**What it doesn't prove:** that the data is right, or that the science holds. A fingerprint on a document shows who handled it, not whether what it says is true. Checks get oversold all the time, so it pays to know exactly what each one does and doesn't tell you.
 
-**What it does not prove:** that the data is *correct*, or that the
-science is right. *Analogy:* the tamper-evident seal on a medicine
-bottle tells you nobody opened it in transit. It says nothing about
-whether the medicine works.
+### Raw data is read-only
 
-That distinction matters, because a lot of technical checks get
-oversold. Knowing precisely what a check does and does not tell you is
-part of doing this well.
+Once downloaded, nothing ever changes `data/raw/`. Every other file in the project can be rebuilt by running code; the raw copy can't, because it's the starting point. A museum keeps the original manuscript in a vault and lets visitors read copies, for the same reason.
 
-### Idea 2 — Raw data is read-only
+**In practice:** don't open the unpacked files in a spreadsheet program and save them. If you want to look, close without saving, or better, look with code, which can't overwrite anything by accident.
 
-Once downloaded, nothing ever edits `data/raw/`. Every other file in
-the project can be regenerated by running code. The raw copy cannot.
+### Provenance
 
-*Analogy:* photographers keep the original negatives and edit prints.
-Make a hundred prints, throw ninety-nine away, start again. You cannot
-un-scribble on a negative.
-
-**In practice this means:** do not open the extracted files in Excel
-and save. If you want to look at one, look — and close it without
-saving. Better, look at it with code, which cannot accidentally
-overwrite anything.
-
-### Idea 3 — Provenance
-
-**Provenance** is the documented history of a piece of data: where it
-came from, when, and what has been done to it since.
-
-Our script writes a small `fetch_log.json` recording the source DOI,
-the date, the checksum and the file count. It takes no effort and it is
-the difference between a result and a rumour.
-
-*Analogy:* an artwork with documented ownership history versus one that
-"was in the attic". The painting may be identical. The value is not.
+**Provenance** is the written history of a piece of data: where it came from, when, and what has been done to it since. The script writes `data/raw/fetch_log.json` with the source, the DOI, the date, the checksum and the number of files. It costs nothing at download time and it's the only way to answer "where did this come from?" next year. An art dealer would put it this way: two identical paintings, one with documented ownership and one "found in an attic", are not worth the same.
 
 ---
 
-## 5. Create the download script
+## 5. The files for this phase
 
-The full script is `scripts/fetch_data.py`, provided with this project.
-**Read it before running it** — it is heavily commented, and every
-design decision in it is explained in place. If you are typing it out
-yourself rather than copying, that is excellent; you will remember more.
+They're already in the repository, so there's nothing to type in:
 
-The script does six things:
+| File | What it does |
+|---|---|
+| `scripts/fetch_data.py` | probes, downloads, verifies, unpacks, lists and logs the archive |
+| `notebooks/explore_raw.py` | summarises what the archive contains |
+| `tests/test_fetch_data.py` | checks the download script without the internet ([section 12](#12-the-tests)) |
+| `figures/make_concept_figures.py` | draws this guide's pictures and the combinations page ([section 9](#9-see-it-the-figures-and-the-interactive-pages)) |
+| `figures/make_illustrations.py` | draws the logo, the journey map and the interactive journey page |
+| `check-public-safe.sh` | the safety gate, run before every push ([`docs/01-setup.md` section 13](01-setup.md#13-the-safety-gate)) |
+| `pytest.ini` | tells the tests where to look |
+| `tests/test_safety_gate.py`, `tests/test_docs.py` | check the safety gate, and the documentation's links and characters |
+| `docs/index.html`, `docs/.nojekyll` | the front page of the optional GitHub Pages site ([section 9](#optional-publish-the-interactive-pages-with-github-pages)) |
 
-| Step | What it does | Why |
-|---|---|---|
-| 1. Probe | Asks the server how big the file is, without downloading | A 239 MB download deserves a warning first |
-| 2. Download | Streams the file to disk with a progress bar | Streaming means 1 MB of memory, not 239 MB |
-| 3. Verify | Computes the checksum and compares | Catches truncation and corruption |
-| 4. Extract | Unpacks the archive, safely | Zip files from anywhere are unpacked defensively |
-| 5. Inventory | Lists every file inside, writes a manifest | We do not guess what is in there — we look |
-| 6. Log | Writes the provenance record | So the source is written down, not remembered |
+**Read `scripts/fetch_data.py` before you run it.** Every decision in it is explained in a comment next to the code, and three of them are worth stopping at:
 
-Three details in the code are worth pausing on, because each represents
-a habit rather than a trick:
-
-**Streaming.** `requests.get(..., stream=True)` reads the response a
-megabyte at a time instead of loading all 239 MB into memory. The
-pattern matters far beyond this project: any time you handle a file
-bigger than comfortable, process it in pieces.
-
-**The `.part` rename.** The file downloads under a temporary name and
-is renamed only when complete. If your connection drops, you are left
-with something obviously unfinished rather than something that looks
-like a finished download. *Analogy:* not putting the label on the jar
-until it is full.
-
-**The zip-safety check.** A zip archive can contain entries with names
-like `../../.bashrc`, which — unpacked naively — escape the folder you
-intended and overwrite files elsewhere. It is called *zip slip*. This
-archive is from a trusted scientific source and is certainly fine, but
-"probably fine" is not a security model, and the check costs two lines.
+- **Streaming.** `requests.get(..., stream=True)` reads the download a megabyte at a time instead of loading all 239 MB into memory. Any time a file is bigger than is comfortable, process it in pieces.
+- **The `.part` file.** The download is saved as `Mini5SynCom_Repository.zip.part` and renamed only when it's complete. If the connection drops, what's left is obviously unfinished, never something that looks like a complete download.
+- **The zip-slip guard.** A zip file can contain names like `../../.bashrc` that, unpacked carelessly, land outside the intended folder and overwrite files elsewhere (`.bashrc` is a settings file a Linux terminal runs every time it opens, so overwriting it could make the terminal do anything). This archive comes from a trusted source, and the check costs two lines. The script also skips the `__MACOSX` folders and `.DS_Store` files that macOS adds to zip files made on a Mac.
 
 ---
 
-## 6. Run it — first look, then leap
+## 6. Step 1: probe before you fetch
 
-### Step 1 — Activate your environment
+Make sure `(.venv)` shows in your prompt. If not:
 
-Confirm `(.venv)` is in your prompt. If not:
+> **macOS / Linux**: `source .venv/bin/activate`
+> **Windows PowerShell**: `.\.venv\Scripts\Activate.ps1`
 
-> **🪟 Windows:** `.\.venv\Scripts\Activate.ps1`
-> **🍎 macOS / 🐧 Linux:** `source .venv/bin/activate`
-
-### Step 2 — Probe first
+Then:
 
 ```bash
 python scripts/fetch_data.py --probe
 ```
 
-**Expected output:**
+**You should see:**
 
 ```
 ======================================================================
-PROBE — what would be downloaded
+PROBE: what would be downloaded
 ======================================================================
 Source record : https://zenodo.org/records/10118600
 File          : Mini5SynCom_Repository.zip
-Published size: ~239.2 MB
+Published size: about 239.2 MB
 Published MD5 : f8061f230b621703f0f11be454c5167e
-Licence       : CC-BY 4.0 (reuse permitted with attribution)
-Destination   : /home/you/projects/realsignal/data/raw/Mini5SynCom_Repository.zip
+Licence       : CC-BY 4.0 (reuse allowed, with credit to the authors)
+Destination   : data/raw/Mini5SynCom_Repository.zip
 
 Server reports: 239.2 MB
 Reachable     : yes
 
-Nothing has been downloaded. To proceed:
+Nothing has been downloaded. To go ahead:
     python scripts/fetch_data.py
 ```
 
-**What just happened.** The script sent an HTTP `HEAD` request — "send
-me the headers, not the body". The label on the parcel, not the parcel.
-It costs a fraction of a second and almost no data.
+**What happened.** The script sent an HTTP `HEAD` request, which means "send me the headers, not the body". It takes a moment and almost no data. It catches the two most common failures (no internet, or the file has moved) in a second instead of after a five-minute download. If this step fails, don't go on: [section 15](#15-what-could-go-wrong-mini-faq) says what to do.
 
-**Why bother?** Because looking before leaping is a habit worth having
-with any external source you do not control. It also catches the two
-commonest failures — no internet, or the source having moved — in one
-second instead of after a five-minute download.
+---
 
-> If this step fails, do not continue. §9 covers what to do.
-
-### Step 3 — Download
+## 7. Step 2: download, verify, unpack, list
 
 ```bash
 python scripts/fetch_data.py
 ```
 
-**Expected output** (this takes several minutes; the bar updates in
-place):
+It takes several minutes; the progress bar updates on one line. **You should see** this (the two long lists are shortened here with `...`):
 
 ```
 ======================================================================
 DOWNLOAD
 ======================================================================
 From: https://zenodo.org/records/10118600/files/Mini5SynCom_Repository.zip?download=1
-To  : /home/you/projects/realsignal/data/raw/Mini5SynCom_Repository.zip
+To  : data/raw/Mini5SynCom_Repository.zip
 This is a large file. Expect several minutes on a typical connection.
 
   [########################################] 100.0%  239.2 MB / 239.2 MB
 Download complete: 239.2 MB
 
 ======================================================================
-VERIFY — is this exactly the file the authors deposited?
+VERIFY: is this exactly the file the authors deposited?
 ======================================================================
-Computing checksum (this takes a few seconds)...
+Computing the checksum (a few seconds)...
   Expected: f8061f230b621703f0f11be454c5167e
   Actual  : f8061f230b621703f0f11be454c5167e
 
-MATCH. This is provably the published archive, byte for byte.
+MATCH. This is the published archive, byte for byte.
 
 ======================================================================
 EXTRACT
 ======================================================================
-Unpacking ... entries...
-Extracted to: /home/you/projects/realsignal/data/raw/extracted
+Entries in the archive : 368
+macOS clutter skipped  : 0
+Unpacking              : 368
+Unpacked into data/raw/extracted/
 
 ======================================================================
-INVENTORY — what is actually inside
+INVENTORY: what is actually inside
 ======================================================================
-Total files: ...
+Files: 342
+
+Type          Count   Total size
+--------------------------------
+.txt            141       3.9 MB
+.pdf             76     153.6 MB
+.rdata           32      30.0 MB
+.tsv             32     775.0 KB
+.r               22     342.9 KB
+.rds             19      62.6 MB
+.xlsx            12     418.3 KB
+.tre              3      10.0 KB
+(none)            1        0.0 B
+.png              1      83.6 KB
+.sh               1      156.0 B
+.tree             1       3.5 MB
+.tree-table       1       5.7 MB
+
+Likely data files (236):
+----------------------------------------------------------------------
+     37.8 KB  Data/CleanData/2023-01-16Mini5SynComScreen_CommentsFile.txt
+    222.1 KB  Data/CleanData/2023-01-16Mini5SynComScreen_IndividualStrainColonization.txt
 ...
+  ... and 211 more (all of them are in data/raw/manifest.csv)
+
+The authors' R code (22):
+----------------------------------------------------------------------
+     24.6 KB  Rscripts/Analysis_CommunityPropCorrelations.R
+     41.1 KB  Rscripts/Analysis_MachineLearning.R
+...
+
+Full list written to data/raw/manifest.csv
+Provenance log written to data/raw/fetch_log.json
+
+======================================================================
+DONE
+======================================================================
+The published dataset is on this computer, verified.
+
+  data/raw/Mini5SynCom_Repository.zip   the archive (never edit it)
+  data/raw/extracted/                   its contents, unpacked
+  data/raw/manifest.csv                 a list of every file inside
+  data/raw/fetch_log.json               where it came from, and when
+
+Next: docs/02-phase-1-data-acquisition.md, section 8 (look at what you got).
 ```
 
-🎉 **The `MATCH` line is the moment worth pausing on.** You have not
-just downloaded a file — you have *proved* you have the same bytes the
-authors deposited on 13 November 2023. That is a different and stronger
-claim than "I downloaded it and it seemed fine", and it is the
-foundation everything else in this project rests on.
+**Reading it.** The archive has 368 entries but 342 files: zip archives list folders as entries too, and 26 of these entries are folders. Nothing was skipped (no macOS clutter, nothing unsafe). The `MATCH` line is worth stopping at. It shows you hold the same bytes the authors deposited on 13 November 2023, which is more than "it downloaded and seemed fine". Everything later in the project rests on it.
 
-### Step 4 — Confirm it is idempotent
-
-Run exactly the same command again:
+### Run it again
 
 ```bash
 python scripts/fetch_data.py
 ```
 
+**You should see** it check instead of download:
+
 ```
-Archive already present: .../data/raw/Mini5SynCom_Repository.zip
-Verifying it rather than downloading again (use --force to re-download).
+The archive is already here: data/raw/Mini5SynCom_Repository.zip
+Checking it instead of downloading again (add --force to download anyway).
 ...
-MATCH. This is provably the published archive, byte for byte.
-Already extracted at .../data/raw/extracted — skipping.
+MATCH. This is the published archive, byte for byte.
+...
+Already unpacked in data/raw/extracted/, skipping.
+(Delete that folder and run the script again for a clean unpack.)
+...
 ```
 
-**No second download.** A script that is safe to run repeatedly is
-called **idempotent**, and it is a genuinely important property: it
-means you can re-run a pipeline without fear, which in turn means you
-will actually re-run it, which is how errors get caught.
+The inventory, the two "written to" lines and the DONE block follow, as before. The log keeps the date of the download and adds the date of this check (`downloaded_at_utc` and `last_verified_utc` in `data/raw/fetch_log.json`).
 
-*Analogy:* a light switch that is already on. Pressing it again does
-not turn the light "more on", and it does not break anything.
+A script that's safe to run again and again is called **idempotent**. Pressing a lift button twice doesn't call two lifts, and it doesn't break anything either. It matters because people re-run a pipeline they trust not to break anything, and re-running is how mistakes get caught.
 
 ---
 
-## 7. Look at what you got
-
-The inventory step printed a summary and wrote
-`data/raw/manifest.csv`. Now explore it properly — this is genuine
-analysis work, not a formality.
-
-### Step 1 — Read the manifest
-
-Create `notebooks/explore_raw.py` (a plain script, not a notebook — we
-introduce notebooks in Phase 3):
-
-```python
-"""
-explore_raw.py — a first look at what the archive actually contains.
-
-WHY THIS EXISTS: never assume the shape of data you did not create.
-Before writing a single line of analysis, find out what you have.
-"""
-
-import pandas as pd
-from pathlib import Path
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = PROJECT_ROOT / "data" / "raw" / "manifest.csv"
-
-# Read the manifest the fetch script produced.
-manifest = pd.read_csv(MANIFEST)
-
-print(f"Total files in the archive: {len(manifest)}")
-print()
-
-# How is the archive made up? Grouping by file type is the fastest way
-# to understand an unfamiliar folder.
-print("Files by type:")
-by_type = (
-    manifest
-    .groupby("extension")
-    .agg(count=("relative_path", "size"),
-         total_mb=("size_bytes", lambda s: round(s.sum() / 1024 / 1024, 1)))
-    .sort_values("count", ascending=False)
-)
-print(by_type)
-print()
-
-# Which files are likely to hold the measurements we need?
-# Spreadsheets and delimited text are the usual homes for tabular data.
-data_like = manifest[manifest["extension"].isin(
-    [".csv", ".tsv", ".txt", ".xlsx", ".xls"]
-)]
-print(f"Tabular data files: {len(data_like)}")
-print(data_like[["size_human", "relative_path"]].to_string(index=False))
-print()
-
-# The archive also contains the authors' original R code. Reading it later
-# is how we check our interpretation of their method against what they
-# actually did — a resource most reproduction attempts do not have.
-code_like = manifest[manifest["extension"].isin([".r", ".rmd"])]
-print(f"R script files (the authors' original analysis): {len(code_like)}")
-print(code_like[["size_human", "relative_path"]].head(20).to_string(index=False))
-```
-
-Run it:
+## 8. Step 3: look at what you got
 
 ```bash
 python notebooks/explore_raw.py
 ```
 
-### Step 2 — Actually read the output
+It reads `data/raw/manifest.csv` and summarises the archive four ways: files by type, files per folder, and then the two lists that matter most, the files that probably hold data and the authors' R code. **You should see** (long lists shortened with `...`):
 
-Do not skim past this. Ask yourself, and write the answers in a plain
-text file as you go:
+```
+Files in the archive : 342
+Total size unpacked  : 260.9 MB
 
-1. **How many files, and of what types?** An archive that is mostly
-   `.R` files is a code deposit with data attached; one that is mostly
-   `.csv` is the reverse. Which is this?
-2. **Which files plausibly hold the 136 teams and their outcomes?**
-   Look at names and sizes. A file of a few hundred kilobytes is about
-   right for a few hundred rows; a 40 MB file is something else.
-3. **Is the authors' R code present?** If so, you have something rare:
-   the ability to check your reading of the method against what they
-   actually ran. Note where it is.
-4. **Is anything conspicuously missing** compared with what the paper's
-   Methods section describes?
+Files by type:
+  .txt            141      3.9 MB
+  .pdf             76    153.6 MB
+  .rdata           32     30.0 MB
+  .tsv             32    775.0 KB
+  .r               22    342.9 KB
+  .rds             19     62.6 MB
+  .xlsx            12    418.3 KB
+  ...
 
-**Why do this by hand rather than automate it?** Because the goal here
-is understanding, and understanding does not come from a script. In
-Phase 2 you will write code that reads specific files — and you can
-only write that code once you know which files, which is what this step
-establishes. Skipping it means guessing filenames, which is exactly how
-scripts break silently on someone else's machine.
+Files per folder (first two levels):
+  Output/MachineLearning                        102
+  Output/PropCommCorrelations                    63
+  Output/ValidationExperimentsAnalysis           22
+  Rscripts                                       22
+  Data/MetaData                                  18
+  Output/MachineLearning_PerformanceOutput       18
+  Data/EditedData                                16
+  Data/CleanData                                 13
+  Data/RawData                                   12
+  ...
 
-*Analogy:* unpacking a delivery of ingredients and reading the labels
-before starting to cook, rather than tipping everything into the pan
-and finding out.
+Files that probably hold data: 236
+  in Data/, what the authors started from (53):
+     37.8 KB  Data/CleanData/2023-01-16Mini5SynComScreen_CommentsFile.txt
+    222.1 KB  Data/CleanData/2023-01-16Mini5SynComScreen_IndividualStrainColonization.txt
+  ...
+  in Output/, what the authors' code wrote: 183 files
+  (results, tables and saved models; all listed in data/raw/manifest.csv)
 
-### Step 3 — A note on the alternative source
+The authors' R code (22 files):
+     24.6 KB  Rscripts/Analysis_CommunityPropCorrelations.R
+  ...
+```
 
-The paper also publishes its **Source Data** — the numbers behind each
-figure — as spreadsheet files on the article page itself
-(<https://doi.org/10.1038/s41467-023-43793-z>, in the "Source data"
-section). Those files are much smaller than the full archive.
+**Then read the output properly**, and write your own answers down before reading mine below. A good place is a file in `.local-notes/`, a folder `.gitignore` keeps out of Git, so your notes stay private (in VS Code: **File, New File**, then save it as `.local-notes/phase-1.md` in the project folder). A plain-text editor is better than a word processor here, because word processors swap in curly quotes.
 
-If the Zenodo download is impractical on your connection, the Source
-Data is a viable alternative route to the same measurements. If you use
-it, **say so in your README** — the point of this project is that
-choices are documented, not that one particular route is correct.
+1. **How many files, of what types?** An archive that's mostly `.R` files is a code deposit with data attached; one that's mostly tables is the reverse.
+2. **Which files probably hold the 136 communities and their results?** Look at names, folders and sizes: a few hundred kilobytes is about right for a few hundred rows; tens of megabytes is something else.
+3. **Where's the authors' R code?** Phase 6 runs it, so note the folder.
+4. **Is anything missing, or more there than you expected,** compared with what the paper's Methods section describes?
+
+**Why do this by hand?** Phase 2 writes code that reads particular files, and that code can only be written once you know which files exist and what they hold. Code written around guessed file names tends to break quietly on someone else's computer.
+
+### What the archive holds
+
+Read from the file names and folders only; Phase 2 opens the files. The authors' R code stays closed until Phase 6, so the Python rebuild in Phase 5 is written from the paper alone.
+
+| Folder | Files | What the names suggest |
+|---|---|---|
+| `Data/RawData/` | 12 | the measurements as first recorded: pathogen and strain counts (CFU) and plant weights, for the screen, the pilot experiment and two validation experiments |
+| `Data/CleanData/` | 13 | the same measurements after the authors' cleaning, plus comment files, a tree of the strains and a small shell script |
+| `Data/EditedData/` | 16 | `ML_DataInput/`: the tables the machine-learning step read, in several versions (strain presence, categories or counts; per plant or median; classification or regression) |
+| `Data/MetaData/` | 18 | which strains went into which community (`..._Mixes.txt`), which box each plant sat in, harvest comments, and information about the strain collection |
+| `Output/` | 260 | what the authors' code wrote: model results for each random seed, most of the paper's supplementary tables (file names starting `TableS`), saved models, and 76 figure PDFs |
+| `Rscripts/` | 22 | the analysis: data preparation, one script per figure, a shared `RFunctions.R`, and `sessioninfo.R` |
+
+The answers to the four questions, from this run:
+
+1. **342 files.** Mostly tables (141 `.txt`, 32 `.tsv`, 12 `.xlsx`) and R's own data files (32 `.rdata`, 19 `.rds`). The 76 PDFs are figures and make up more than half the size (153.6 of 260.9 MB). It's a data deposit with the code that analysed it.
+2. **The screen** is in `Data/RawData/Mini5SynComScreen/` (as recorded) and `Data/CleanData/2023-01-16Mini5SynComScreen_*.txt` (cleaned), with the community make-up in `Data/MetaData/Mini5SynComScreen/20200828_Mixes.txt`. Where the 70 test communities sit isn't clear from the names alone: `Output/TestData/` holds only figures of them, so the table behind those figures is somewhere else. Finding it, by opening the data files, is the first job of Phase 2.
+3. **The R code** is in `Rscripts/`. Two more things for Phase 6: `Rscripts/sessioninfo.R` and an image `Output/StrainSelection/20230911_SessionInfo_LaptopWorkstation.PNG` probably record the R version and packages the authors used.
+4. **More than expected.** The authors also deposited everything their code produced. File names such as `Output/MachineLearning/RFClassOverall_seed5_2023-06-21.txt` show results for eight random seeds, and `Output/MachineLearning_PerformanceOutput/TableS6_ClassificationPerformance.tsv` holds published performance numbers as a table, which the comparisons in Phases 5 and 6 can read directly. And `Data/MetaData/AtSPHERE/` holds a file called `41564_2021_997_MOESM3_ESM (1).xlsx`: by its name, a supplementary file of the 2021 *Nature Microbiology* paper behind Layer 5 (each strain tested alone). Phase 2 checks what it contains and on what terms it may be reused.
+
+One practical detail: that last file name contains spaces and brackets. Code that reads it has to quote the name properly, which is one more reason Phase 2 reads names from `data/raw/manifest.csv` instead of typing them.
+
+### The paper's Source Data, an alternative route
+
+The article also publishes **Source Data**, the numbers behind each figure, as spreadsheet files on the article page (<https://doi.org/10.1038/s41467-023-43793-z>, in the "Source data" section). They're much smaller than the full archive. If the Zenodo download is impractical on your connection, they're a workable route to the same measurements; if you take it, say so in the README, because the point is that choices get written down.
 
 ---
 
-## 8. Checkpoint
+## 9. See it: the figures and the interactive pages
 
-You have finished Phase 1 when all of these are true:
+```bash
+python figures/make_concept_figures.py
+python figures/make_illustrations.py
+```
 
-- [ ] `python scripts/fetch_data.py --probe` reports the archive is
-      reachable
-- [ ] `data/raw/Mini5SynCom_Repository.zip` exists
-- [ ] The verify step printed **MATCH**
-- [ ] `data/raw/extracted/` contains the unpacked files
-- [ ] `data/raw/manifest.csv` exists and lists every file
-- [ ] `data/raw/fetch_log.json` exists and records the DOI and date
-- [ ] Running the script a second time does **not** re-download
-- [ ] `python notebooks/explore_raw.py` runs and prints a summary
-- [ ] You have written down which files look like they hold the
-      measurements
-- [ ] `git status` does **not** list anything inside `data/`
+**You should see:**
 
-**That last one matters most.** Confirm it explicitly:
+```
+  drew figures/combinations.png
+  drew figures/screening_design.png
+  drew figures/three_way.png
+  drew figures/data_layers.png
+  drew figures/fetch_pipeline.png
+  drew figures/log_scale.png
+  wrote docs/interactive/combinations.html
+```
+
+and, from the second script:
+
+```
+  drew docs/img/realsignal_logo.svg
+  drew docs/img/realsignal_icon.svg
+  drew docs/img/realsignal_wordmark.svg
+  drew docs/img/journey_map.svg
+  wrote docs/interactive/journey.html (22 stages, read from docs/HANDBOOK.md)
+```
+
+These pictures explain ideas, so they need no data. The one most worth a minute is the combinations picture: 35 strains in teams of five make 324,632 possible communities, and the study tested 206 of them.
+
+![Every 5-strain community from 35 strains](../figures/combinations.png)
+
+`docs/interactive/combinations.html` is the same arithmetic with sliders (pool size, team size, communities tested per year). Open it by double-clicking the file in your file browser; it works offline.
+
+### Optional: publish the interactive pages with GitHub Pages
+
+GitHub can serve the `docs/` folder as a small website, so the interactive pages open from a link instead of a download. Once, in a browser:
+
+1. Open your repository on GitHub, then **Settings**, then **Pages** (in the left-hand list).
+2. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
+3. Set **Branch** to `master` and the folder to `/docs`, then **Save**.
+4. After a minute or two the page shows the site's address, `https://<you>.github.io/realsignal/`.
+
+`docs/index.html` is the front page; `docs/.nojekyll` tells GitHub to publish the folder as it is. From then on every push to `master` updates the site.
+
+---
+
+## 10. Checkpoint: did the phase work?
+
+- [ ] `python scripts/fetch_data.py --probe` reports `Reachable     : yes`
+- [ ] the download ended with **MATCH**, and the inventory says `Files: 342`
+- [ ] `data/raw/extracted/` holds the unpacked files
+- [ ] `data/raw/manifest.csv` and `data/raw/fetch_log.json` exist
+- [ ] a second run checks the archive instead of downloading it again
+- [ ] `python notebooks/explore_raw.py` prints its summary, and you've written down where the community table, the results and the R code are
+- [ ] `pytest -q` passes (19 tests)
+- [ ] `git status` shows **nothing** under `data/`
+
+That last one matters most. Check it explicitly:
 
 ```bash
 git status
 ```
 
-You should see `scripts/fetch_data.py` and `notebooks/explore_raw.py`
-as new files, and **nothing** from `data/`. If `data/` appears,
-`.gitignore` is not doing its job — go back to
-[`01-setup.md`](01-setup.md) §11 before committing anything, because a
-239 MB file committed once stays in the history forever.
-
-### What you learned in this phase
-
-- What a permanent research archive is, and why DOIs exist
-- What a checksum proves — and, just as importantly, what it does not
-- Why raw data is treated as read-only, and what goes wrong otherwise
-- What provenance means and how little it costs to record
-- Why streaming a large file matters, and what idempotence buys you
-- How to approach unfamiliar data: look first, guess never
+If anything under `data/` appears, `.gitignore` isn't working: go back to [`docs/01-setup.md` section 11](01-setup.md#11-keep-things-out-of-git-with-gitignore) before you commit anything, because a 239 MB file committed once stays in the history for good.
 
 ---
 
-## 9. What could go wrong
+## 11. Notes from the build
 
-### The probe fails: "Could not reach the archive"
+Things that really happened while this phase was built, kept because they teach something:
 
-- Check your internet connection (open any website).
-- On a corporate network, a proxy may be blocking the request. Try from
-  a different network to confirm, and speak to your IT team if so.
-- Zenodo occasionally goes down for maintenance. Check
-  <https://zenodo.org> in a browser; if the site is down, wait and
-  retry.
+- **The scripts' first output wasn't safe to quote.** The first versions of `scripts/fetch_data.py` and `scripts/check_env.py` printed long dashes and the full path of the project folder, including the home folder's name. Before this guide quoted their output, both were changed to print plain characters and paths from the project folder (`data/raw/...`), so the output is the same on every computer and safe to paste. A test now checks the download script's output.
+- **The safety gate's first run found two files that shouldn't be public.** Two macOS `.DS_Store` files had reached Git in the project's second commit. The gate flagged them, and this phase's commit takes them out of Git (`git rm --cached`) without deleting them from the disk.
+- **It also flagged the guides themselves.** Twelve example paths in the earlier versions of three guides used made-up home-folder names (`yourname`, `you`, `me`) that the gate can't tell apart from real ones. They now write the name as `<you>`, which the gate accepts and nobody can mistake for a real folder.
+- **Pictures with a hidden record.** When the drawings were first copied into the project folder, the copying step added a hidden "content credentials" record to each SVG file. Nothing showed on screen, and the record would have been published with them. The safety gate gained a check for hidden records in pictures (item 6 of its output), and the pictures are now always drawn by the project's own scripts on the computer that commits them ([section 9](#9-see-it-the-figures-and-the-interactive-pages)).
+- **Megabytes of two sizes.** Before the first real run, a read through the code showed the script dividing by 1,024 where Zenodo divides by 1,000. The archive is 239,154,876 bytes: 239.2 MB on Zenodo's scale, 228.1 on the other, so the probe would have printed a size that looked wrong next to the published one. The script now uses Zenodo's units, and the first probe printed `Server reports: 239.2 MB`.
+- **The credential check found nothing on a Mac.** On the first run on a Mac, one of the 19 tests failed: the safety gate missed a fake key the test had planted. Its pattern used two regular-expression features, `{20,}` ("twenty or more") and `^` inside a group, that regex engines treat differently from system to system, and there it matched nothing. The check now writes the twenty characters out in full and lets Git test the word boundaries (`git grep -w`), and a test also makes sure a link anchor such as `#task-...` isn't taken for a key.
+- **The second run blanked two numbers.** Reading `data/raw/fetch_log.json` after the first real run showed `null` for the macOS clutter and unsafe entries: the second run skips unpacking, so it had nothing to count, and it overwrote the first run's zeros. It now keeps the numbers from the run that unpacked, and a test checks it.
+- **A line too long for the terminal.** The lines under DONE were 85 characters long; an 80-character terminal wrapped them, and the copied text ran "never" and "edit" together. They're shorter now.
+- **A script that only existed on the page.** The first version of this guide asked you to type `notebooks/explore_raw.py` in from the page. It's now a file in the repository, so what you run is exactly what the guide describes.
 
-### The download stops partway
+---
 
-Re-run the command. The partial file is named `...zip.part` and is
-simply overwritten. If it fails repeatedly at the same point, your
-connection is dropping — try a wired connection, or a different
-network.
-
-### `MISMATCH` on the checksum
-
-Nearly always an incomplete download. Delete the archive and try again:
-
-> **🪟 Windows:** `Remove-Item data\raw\Mini5SynCom_Repository.zip`
-> **🍎 macOS / 🐧 Linux:** `rm data/raw/Mini5SynCom_Repository.zip`
+## 12. The tests
 
 ```bash
-python scripts/fetch_data.py
+pytest -q
 ```
 
-If a second clean download gives the same mismatch, the archive itself
-may have been updated by its authors. Check the record page — the
-current checksum is shown next to the file — and **note the discrepancy
-in your README**. A changed source is a finding worth reporting, not a
-nuisance to be worked around silently.
+**You should see:**
 
-### `ModuleNotFoundError: No module named 'requests'`
+```
+..................                                                       [100%]
+19 passed in 1.86s
+```
 
-The virtual environment is not active. Look for `(.venv)` in your
-prompt, activate, and re-run. See [`01-setup.md`](01-setup.md) §15.
+(The time varies. Run from Windows PowerShell, it says `12 passed, 7 skipped` with a line giving the reason: the safety-gate tests need bash, so on Windows they run only when pytest is started from Git Bash.) `pytest.ini` tells pytest to look only in `tests/`, so it never wanders into `data/`.
 
-### "No space left on device"
+**Why the tests don't need the internet.** The real archive is 239 MB on someone else's server, and a test that downloads it would be slow, would fail whenever the network does, and would put load on Zenodo every time. So `tests/test_fetch_data.py` builds a tiny stand-in archive in a temporary folder, with two traps in it (an entry trying to land outside the folder, and macOS clutter), and checks the parts that protect us: the zip-slip guard, the checksum against Python's own MD5, the unpacking, the inventory, that a second run checks instead of downloading, that a wrong checksum stops the run before anything is unpacked, and that the output holds no home-folder paths or look-alike characters.
 
-You need roughly 700 MB free: 239 MB for the archive, plus its
-extracted contents. Free some space and re-run — nothing is lost.
+`tests/test_safety_gate.py` checks the gate ([`docs/01-setup.md` section 13](01-setup.md#13-the-safety-gate)), and `tests/test_docs.py` checks the documentation: every link between the guides leads somewhere, no file contains long dashes or curly quotes, and the Handbook's stage table agrees with the journey map.
 
-### The extraction is slow
+---
 
-239 MB of compressed files takes a little while to unpack, especially
-on a network drive or an older disk. Let it finish. If it is
-*extremely* slow, check you are not working inside a cloud-synced
-folder (OneDrive, Dropbox) — see [`01-setup.md`](01-setup.md) §7.
+## 13. Two ways to run everything
 
-### Windows: "The filename or extension is too long"
+| Capability | By hand, one step at a time | In one go |
+|---|---|---|
+| look before downloading | `python scripts/fetch_data.py --probe` | n/a |
+| download, verify, unpack, list, log | the functions in `scripts/fetch_data.py`, one by one, from a Python session | `python scripts/fetch_data.py` |
+| check the checksum yourself | your operating system's own tool ([section 14](#14-same-task-different-language-optional-10-minutes)) | part of the command above |
+| summarise the archive | `notebooks/explore_raw.py`, line by line in VS Code | `python notebooks/explore_raw.py` |
 
-Windows has a historic 260-character path limit and deeply-nested
-archives can exceed it. Two fixes: move the project closer to the drive
-root (`C:\projects\realsignal`), or enable long paths — in PowerShell
-**as administrator**:
+### Running the steps by hand
+
+A **Python session** is Python waiting for instructions one line at a time. Start one from the project folder with `python`; the prompt changes to `>>>`, which means Python, not the terminal, is reading what you type. Then:
+
+```python
+import sys
+sys.path.insert(0, "scripts")   # scripts/ isn't a package, so tell Python where to look
+import fetch_data
+fetch_data.probe()              # the same as: python scripts/fetch_data.py --probe
+fetch_data.verify()             # recompute and compare the checksum
+exit()
+```
+
+`exit()` takes you back to the terminal. Each function prints what it does, so you can stop and look between steps.
+
+Later phases add a third way: Phase 12 runs every step in order with one command, and later through Airflow.
+
+---
+
+## 14. Same task, different language (optional, 10 minutes)
+
+The script calculates the MD5 checksum in Python. Every operating system can do the same with its own tool, and getting the same fingerprint four ways shows that a checksum depends only on the file's bytes.
+
+**Python**, what the script does (start a Python session with `python` in the project folder, paste the lines at the `>>>` prompt, then `exit()`):
+
+```python
+import hashlib
+from pathlib import Path
+
+digest = hashlib.md5()
+with open(Path("data/raw/Mini5SynCom_Repository.zip"), "rb") as handle:
+    for piece in iter(lambda: handle.read(1024 * 1024), b""):
+        digest.update(piece)
+print(digest.hexdigest())
+```
+
+**macOS:**
+
+```bash
+md5 data/raw/Mini5SynCom_Repository.zip
+```
+
+**Linux (including RHEL 8):**
+
+```bash
+md5sum data/raw/Mini5SynCom_Repository.zip
+```
+
+**Windows PowerShell:**
 
 ```powershell
-New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
-  -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+Get-FileHash data\raw\Mini5SynCom_Repository.zip -Algorithm MD5
 ```
 
-Then restart, and re-run.
+All four show `f8061f230b621703f0f11be454c5167e` (PowerShell writes it in capital letters, `F8061F23...`; it's the same number). The one-line tools are quicker for a single check; the Python version wins inside a program, where the result has to be compared, logged and acted on.
 
 ---
 
-## 10. Commit this phase
+## 15. What could go wrong (mini-FAQ)
 
-You have added two scripts and a lot of understanding. Save the work.
+**The probe says `Could not reach the archive`.** Check the internet connection by opening any website. On a company network, a proxy may block the request: try another network, and if that works, ask your IT team. Zenodo also goes down for maintenance now and then: open <https://zenodo.org> in a browser, and if it's down, wait and try again.
+
+**The download stops partway.** Run the same command again; the `.part` file is replaced. If it keeps stopping at the same place, the connection is dropping: try a wired connection or another network.
+
+**`MISMATCH` after the download.** Nearly always a download that was cut short. Delete the archive and run the script again:
+
+> **macOS / Linux**: `rm data/raw/Mini5SynCom_Repository.zip`
+> **Windows PowerShell**: `Remove-Item data\raw\Mini5SynCom_Repository.zip`
+
+If a second clean download gives the same mismatch, the authors may have updated the archive. The record page shows the current checksum next to the file; write the difference down in the README, so anyone using the project knows the source changed.
+
+**`ModuleNotFoundError: No module named 'requests'`.** The virtual environment isn't active: look for `(.venv)`, activate it, run again.
+
+**"No space left on device".** You need about 700 MB: the archive plus its unpacked contents. Free some space and run again; nothing is lost.
+
+**Unpacking is very slow.** Normal on an older disk or a network drive. If it's extremely slow, check the project isn't inside a cloud-synced folder ([`docs/01-setup.md` section 7](01-setup.md#7-create-the-project-folder)).
+
+**Windows: "The filename or extension is too long".** Windows has an old limit of 260 characters per path, and deeply nested archives can pass it. Either move the project closer to the drive's top level (`C:\projects\realsignal`), or switch long paths on, in PowerShell **run as administrator**:
+
+```powershell
+New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+```
+
+Restart the computer, then run the script again.
+
+**`notebooks/explore_raw.py` says the manifest doesn't exist yet.** The download hasn't run, or it stopped before the inventory: run `python scripts/fetch_data.py`.
+
+**`pytest -q` fails in `tests/test_docs.py`.** It names the file and line: a link to a heading that was renamed, or a long dash or curly quote that came in with pasted text. Fix that line.
+
+---
+
+## 16. Save your work
+
+This phase completes the project's first version, **v0.1.0**, so it gets a tag. Three blocks, in order; read the result of each before going on.
+
+**1. Two one-off steps,** because this is the commit that adds the safety gate: take the two `.DS_Store` files out of Git (they stay on your disk), and record the gate and the setup script as runnable.
+
+> **macOS / Linux**
+> ```bash
+> git switch develop
+> git rm --cached --ignore-unmatch .DS_Store src/.DS_Store
+> chmod +x check-public-safe.sh setup.sh
+> ```
+
+> **Windows PowerShell**
+> ```powershell
+> git switch develop
+> git rm --cached --ignore-unmatch .DS_Store src/.DS_Store
+> git update-index --chmod=+x check-public-safe.sh setup.sh
+> ```
+
+(`--ignore-unmatch` keeps `git rm` quiet if the files aren't in Git, which is the case in any copy made after this commit.)
+
+**2. Check.** Stop here if either one fails:
 
 ```bash
-# 1. Make sure you are on the working branch.
+pytest -q                     # 19 passed
+./check-public-safe.sh        # must end with: SAFE TO PUSH (Windows: bash check-public-safe.sh in Git Bash)
+```
+
+**3. Save,** with the ritual from [`docs/GIT_WORKFLOW.md` section 6](GIT_WORKFLOW.md#6-the-end-of-phase-ritual):
+
+```bash
 git switch develop
-
-# 2. Check what will be committed — read this output.
-git status
-
-# 3. Stage everything.
 git add -A
-
-# 4. Commit with a message that explains what and why.
-git commit -m "feat: add verified download of the published dataset
-
-Fetches the Zenodo archive (DOI 10.5281/zenodo.10118600), verifies it
-against the published MD5, extracts it safely, writes a file manifest
-and a provenance log. Idempotent: a second run verifies rather than
-re-downloads. Data itself stays out of Git by design."
-
-# 5. Push develop, and update beta and master to match.
+git commit -m "feat: verified download of the published dataset, Handbook, safety gate and illustrations"
 git push origin develop develop:beta develop:master
-
-# 6. Bring local master in line with the master you just pushed.
+## --tags is optional, only when required: this phase completes v0.1.0
+git tag -a v0.1.0 -m "v0.1.0: verified data, documentation and a reproducible setup"
+git push origin develop develop:beta develop:master --tags
+## then switch back to local master and pull in the remote changes
 git switch master
 git pull --ff-only origin master
-
-# 7. Return to the working branch, ready for Phase 2.
 git switch develop
 ```
 
-**Verify it worked:**
+**Check it worked:**
 
 ```bash
-git log --oneline -3
+git log --oneline -1
 ```
 
-```
-c3d4e5f (HEAD -> develop, origin/master, origin/develop, origin/beta, master) feat: add verified download of the published dataset
-b2c3d4e chore: verified environment setup on this machine
-a1b2c3d chore: initial project structure, documentation and environment
-```
-
-The fact that `origin/master`, `origin/develop`, `origin/beta` and
-`master` all appear on the same line means every branch is pointing at
-the same commit — exactly what the push was meant to achieve.
-
-Every command above is explained word by word in
-[`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) §6.
+You should see your commit with branch names beside it, something like `(HEAD -> develop, tag: v0.1.0, origin/master, origin/develop, origin/beta, master)`. All of them on one line means every branch points at the same commit, which is what the push was for. (Your local `beta` isn't in the list, because you never work on it; `origin/HEAD` may appear too.)
 
 ---
 
-## What comes next
+## 17. What you learned, and what's next
 
-**Phase 2 — Building the analysis table.** Taking the files you have
-just identified and reshaping them into the one tidy table the models
-need: 136 rows (one per team), 35 columns of 1s and 0s (which strains
-were on it), and the measured outcome. You will meet SQL and DuckDB,
-write your first data-quality checks, and discover — as everyone does —
-that turning real published data into a clean rectangle is most of the
-work in any data project.
+- What a permanent research archive is, and why DOIs exist
+- What a checksum proves, and what it doesn't
+- Why raw data is read-only, and what goes wrong otherwise
+- What provenance is, and how little it costs to record
+- Why a large file is processed in pieces, and what idempotent means
+- How to approach data you didn't create: look first, never guess
+- Why tests that protect the download don't need the download
 
----
-
-**Previous:** [`01-setup.md`](01-setup.md) ·
-**Glossary:** [`GLOSSARY.md`](GLOSSARY.md) ·
-**Architecture:** [`00-architecture.md`](00-architecture.md)
+**Next: Phase 2, the other data layers.** Four more layers (the strains' genomes, their predicted gene clusters, the network of which strain holds back which, and every strain tested alone) come from three more papers. Some of those sit behind journal subscriptions, so Phase 2 starts by finding out what can actually be obtained, and records the answer either way. See [Stage 4 in the Handbook](HANDBOOK.md#stage-4-phase-2-the-other-four-layers-or-a-record-of-why-not).

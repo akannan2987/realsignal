@@ -1,20 +1,14 @@
-# 01 — Setup: from a blank laptop to a working workshop
+[Handbook](HANDBOOK.md) · [README](../README.md) · [Glossary](GLOSSARY.md) · [Git workflow](GIT_WORKFLOW.md)
 
-**Prerequisites:** a computer running Windows 10/11, macOS, or Linux
-(these instructions are tested against RHEL 8 and work on Ubuntu and
-Fedora too), an internet connection, and permission to install software
-on it. **No programming experience is assumed.** If you have never
-opened a terminal in your life, start here and do not skip anything.
+# 01 · Setup: from a blank laptop to a working workshop
 
-**Learning goal:** by the end you will have Python, Git, a code editor,
-a GitHub account and a sealed project environment — and, more
-importantly, you will understand *what each one is for*, so that when
-something breaks you can reason about it instead of searching blindly.
+**Prerequisites:** a computer running Windows 10 or 11, macOS, or Linux (RHEL 8 is covered step by step, and Ubuntu and Fedora get their own commands), an internet connection, and permission to install software. **No programming experience is assumed.** If you've never opened a terminal, start here and skip nothing.
 
-**Time:** 60–90 minutes the first time. You do this once per machine.
-After that, starting work takes ten seconds.
+**Learning goal:** by the end you'll have Python, Git, a code editor, a GitHub account, a sealed project environment and a safety check that runs before every upload. You'll also know *what each one is for*, so when something breaks you can reason about it instead of searching blindly.
 
-> Every term here is defined in [`GLOSSARY.md`](GLOSSARY.md).
+**Time:** 60 to 90 minutes the first time, once per computer. After that, starting work takes ten seconds.
+
+**Where this sits:** Stages 1 and 2 of the [Handbook](HANDBOOK.md). Every term is defined in the [Glossary](GLOSSARY.md).
 
 ---
 
@@ -22,7 +16,7 @@ After that, starting work takes ten seconds.
 
 - [0. How to read this document](#0-how-to-read-this-document)
 - [1. What we are installing, and why](#1-what-we-are-installing-and-why)
-- [2. Opening a terminal](#2-opening-a-terminal)
+- [2. Open a terminal](#2-open-a-terminal)
 - [3. Install Python](#3-install-python)
 - [4. Install Git](#4-install-git)
 - [5. Install a code editor (recommended)](#5-install-a-code-editor-recommended)
@@ -31,308 +25,220 @@ After that, starting work takes ten seconds.
 - [8. Create the virtual environment](#8-create-the-virtual-environment)
 - [9. Install the project's packages](#9-install-the-projects-packages)
 - [10. Verify everything works](#10-verify-everything-works)
-- [11. Protect the repository with .gitignore](#11-protect-the-repository-with-gitignore)
-- [12. Connect to GitHub and create the branches](#12-connect-to-github-and-create-the-branches)
-- [13. Checkpoint](#13-checkpoint)
-- [14. Starting work on any later day](#14-starting-work-on-any-later-day)
-- [15. Troubleshooting](#15-troubleshooting)
+- [11. Keep things out of Git with `.gitignore`](#11-keep-things-out-of-git-with-gitignore)
+- [12. Connect to GitHub and create the three branches](#12-connect-to-github-and-create-the-three-branches)
+- [13. The safety gate](#13-the-safety-gate)
+- [14. Copy commands safely](#14-copy-commands-safely)
+- [15. Checkpoint](#15-checkpoint)
+- [16. Starting work on any later day](#16-starting-work-on-any-later-day)
+- [17. Troubleshooting](#17-troubleshooting)
 
 ---
 
 ## 0. How to read this document
 
-**Commands are shown one per box.** Copy the whole line, paste it into
-your terminal, press Enter. Commands are shown *without* the prompt
-symbol (`$`, `>`, `PS>`), so what you see is exactly what you type.
+**Commands are shown one per box.** Copy the whole line, paste it into your terminal and press Enter. Commands are shown *without* the prompt symbol (`$`, `>`, `PS>`), so what you see is exactly what you type.
 
-**After most commands there is an "Expected output" block.** Compare
-what you got against it. It will rarely match word for word — version
-numbers and paths differ between machines — but it should match in
-*shape*. If it does not, §15 covers what to do.
+**Most commands are followed by "You should see".** Compare what you get with it. It rarely matches word for word (version numbers and folder names differ between computers), but it should match in shape. If it doesn't, [section 17](#17-troubleshooting) covers what to do.
 
 **Platform blocks look like this:**
 
-> **🪟 Windows** — instructions for PowerShell
-> **🍎 macOS** — instructions for Terminal
-> **🐧 Linux** — instructions for bash (RHEL 8, Ubuntu, Fedora)
+> **Windows**: instructions for PowerShell
+> **macOS**: instructions for Terminal
+> **Linux**: instructions for bash (RHEL 8, Ubuntu, Fedora)
 
-Do only your own platform's block. Everything *outside* these blocks is
-identical on all three.
+Do only your own platform's block. Everything outside these blocks is the same on all three.
 
-**One rule above all:** do not skip a verification step because the
-install "looked fine". Verifying takes five seconds; debugging a
-silently broken environment three phases later takes an evening. That
-habit — *check, don't assume* — is worth more than any single command
-in this document.
+**One rule above all:** don't skip a check because an installer "looked fine". A check takes five seconds; tracking down a quietly broken setup three phases later takes an evening.
 
 ---
 
 ## 1. What we are installing, and why
 
-Five things. Here is what each one is for, in plain words, before you
-install anything.
+Five things. Here's what each is for, before you install anything.
 
-| # | Thing | What it is | Everyday analogy |
+| # | Thing | What it is | In everyday terms |
 |---|---|---|---|
-| 1 | **Python** | The programming language everything is written in | The language the recipes are written in |
-| 2 | **Git** | Records every change to your files, permanently | A save-game system for your work |
-| 3 | **A code editor** (VS Code) | A comfortable place to write and read code | A word processor, but for code |
-| 4 | **A GitHub account** | An online home for your project | The shared photo album |
-| 5 | **A virtual environment** | A sealed toolbox of packages, for this project only | A chef's knife roll per restaurant, not one shared drawer |
+| 1 | **Python** | the programming language every script here is written in | the language the recipes are written in |
+| 2 | **Git** | records every change to your files, permanently | an undo history that never forgets, with a note on every step |
+| 3 | **A code editor** (VS Code) | a comfortable place to read and write code | a word processor, but for code |
+| 4 | **A GitHub account** | an online home for the project | a shared shelf where other people can see your work |
+| 5 | **A virtual environment** | a sealed box of Python packages for this project only | your own pencil case, so nobody borrows your pens |
 
-The fifth one is the one beginners skip, and it is the one that saves
-the most pain. §8 explains it properly.
+The fifth is the one people skip and the one that saves the most trouble. [Section 8](#8-create-the-virtual-environment) explains why.
 
 ---
 
-## 2. Opening a terminal
+## 2. Open a terminal
 
-The **terminal** is a window where you type commands as text instead of
-clicking. *Analogy:* ordering at a counter by saying exactly what you
-want, rather than pointing at pictures. Slower to learn; far faster and
-far more precise afterwards — and crucially, every instruction can be
-written down exactly, which is why documentation uses it.
+The **terminal** is a window where you give the computer instructions by typing instead of clicking. It's slower to learn and much more precise afterwards, and it has one big advantage for a guide like this: every instruction can be written down exactly.
 
-> **🪟 Windows**
-> Press the Windows key, type `powershell`, and click **Windows
-> PowerShell**. (Not "Command Prompt" — PowerShell is the modern one
-> and these instructions assume it.)
+> **Windows**: press the Windows key, type `powershell`, and click **Windows PowerShell**. (Not "Command Prompt": PowerShell is the newer one and this guide assumes it.)
+> **macOS**: press `Cmd + Space`, type `terminal`, press Enter.
+> **Linux**: press `Ctrl + Alt + T`, or find "Terminal" among your applications. On a server or virtual machine you are usually in one already.
 
-> **🍎 macOS**
-> Press `Cmd + Space`, type `terminal`, press Enter.
+**Your first command** asks "which folder am I in?". It changes nothing and can't break anything.
 
-> **🐧 Linux**
-> Press `Ctrl + Alt + T`, or find "Terminal" in your applications. On a
-> server or VM you are usually already in one.
-
-**Your first command.** This asks "which folder am I in?" It changes
-nothing and cannot break anything.
-
-> **🪟 Windows**
+> **Windows**
 > ```powershell
 > Get-Location
 > ```
-> Expected output:
-> ```
-> Path
-> ----
-> C:\Users\yourname
-> ```
+> You should see something like `C:\Users\<you>`.
 
-> **🍎 macOS / 🐧 Linux**
+> **macOS / Linux**
 > ```bash
 > pwd
 > ```
-> Expected output:
-> ```
-> /Users/yourname          (macOS)
-> /home/yourname           (Linux)
-> ```
+> You should see something like `/Users/<you>` (macOS) or `/home/<you>` (Linux).
 
-That folder is your **home directory** — your personal space on the
-machine. Two more commands worth knowing right now:
+That folder is your **home folder**, your personal space on the computer. Four more commands are enough terminal for this whole project:
 
-| Purpose | Windows | macOS / Linux |
+| Purpose | Windows PowerShell | macOS / Linux |
 |---|---|---|
-| List what's in this folder | `ls` | `ls` |
-| Move into a folder | `cd foldername` | `cd foldername` |
-| Move up one folder | `cd ..` | `cd ..` |
-| Go home | `cd ~` | `cd ~` |
+| list what's in this folder | `ls` | `ls` |
+| go into a folder | `cd foldername` | `cd foldername` |
+| go up one folder | `cd ..` | `cd ..` |
+| go back home | `cd ~` | `cd ~` |
 
-That is genuinely enough terminal to complete this entire project.
+### macOS only: let the terminal skip the notes in commands
+
+Command blocks in these guides carry short notes after a `#`, such as `pytest -q   # all tests pass`. Terminals normally ignore everything from `#` to the end of the line. Whether yours does depends on the **shell**, the program inside the terminal that reads your commands. Macs come with two:
+
+- If your prompt ends with **`$`**, the shell is **bash**. It already skips the notes: nothing to do.
+- If your prompt ends with **`%`**, the shell is **zsh** (the default on Macs set up since 2019). zsh doesn't skip notes in commands you type or paste, unless told to once:
+
+  ```bash
+  echo 'setopt interactivecomments' >> ~/.zshrc
+  ```
+
+  Then close the terminal window and open a new one. `~/.zshrc` is a settings file zsh reads each time a terminal opens, and `>>` adds the line to its end.
+
+Not sure which you have? `echo $0` prints the shell's name (`-bash` or `-zsh`). To check the result either way, `echo hello   # a note` should print just `hello`. Windows PowerShell and Linux terminals need nothing.
 
 ---
 
 ## 3. Install Python
 
-**What Python is:** the programming language this project is written
-in. Free, open source, and by a wide margin the standard language for
-data work and machine learning.
+**What it is:** the programming language this project is written in. It's free and open source, and it's the most widely used language for data work and machine learning.
 
-**Which version:** **3.11 or newer.** Not 3.8 (too old for some
-packages we use), not "whatever is already there" without checking.
+**Which version:** **3.11 or newer.** The project was built on Python 3.14.
 
 ### First, check whether you already have it
 
-```bash
-python3 --version
-```
+> **macOS / Linux**
+> ```bash
+> python3 --version
+> ```
 
-> **🪟 Windows** — try both of these, as Windows names it differently:
+> **Windows** (Windows names it differently, so try both)
 > ```powershell
 > python --version
 > py --version
 > ```
 
-**Expected output if you have a suitable version:**
+**You should see** something like `Python 3.14.7`. If the number is 3.11 or higher, skip to [section 4](#4-install-git). If it's lower, or you get "command not found", install it below.
 
-```
-Python 3.11.9
-```
+> **A trap on macOS and Linux.** These systems often come with a Python that the operating system itself uses, and it's usually old (RHEL 8 ships 3.6). Don't remove it, don't upgrade it, and don't install project packages into it, because parts of the system rely on it. Install a newer Python *next to* it, which is what the steps below do.
 
-Anything 3.11 or higher: skip to §4. Anything lower, or
-"command not found": install it below.
+### Install it
 
-> ⚠️ **A trap on macOS and Linux.** These systems ship with a Python
-> that the *operating system itself* uses. It is often old (RHEL 8
-> ships 3.6). Do not remove it, do not upgrade it in place, and do not
-> install project packages into it — parts of your OS depend on it.
-> Install a newer Python alongside it. That is exactly what the
-> instructions below do.
+> **Windows**
+> 1. Go to <https://www.python.org/downloads/> and click the yellow **Download Python 3.x** button.
+> 2. Run the installer.
+> 3. **On the first screen, tick "Add python.exe to PATH".** This is the most important click in this guide. Without it, Windows can't find Python when you type `python`. (PATH is the list of folders Windows searches when you type a command: the program can be installed and still unknown if its folder isn't on that list.)
+> 4. Click **Install Now** and wait.
+> 5. **Close PowerShell completely and open a new one.** PATH changes only reach windows opened afterwards; this catches almost everybody.
+> 6. Check: `python --version`
 
-### Install
+> **macOS**
+> - The installer (simplest): download it from <https://www.python.org/downloads/>, run it with the default answers, open a *new* Terminal window, and check with `python3 --version`.
+> - Or, if you already use Homebrew: `brew install python@3.12`, then `python3 --version`.
 
-> **🪟 Windows**
+> **Linux: RHEL 8, Rocky, AlmaLinux**
 >
-> 1. Go to <https://www.python.org/downloads/>
-> 2. Click the yellow **Download Python 3.x** button.
-> 3. Run the downloaded installer.
-> 4. **On the first screen, tick "Add python.exe to PATH".** This is the
->    single most important click in this entire document. Without it,
->    Windows will not find Python when you type `python`, and you will
->    get "command not found" for reasons that make no sense.
->    *Analogy:* the shop exists, but it isn't on the map your driver is
->    using.
-> 5. Click **Install Now** and wait.
-> 6. **Close PowerShell completely and open a new one.** PATH changes
->    only apply to windows opened afterwards. (This catches almost
->    everyone.)
-> 7. Verify:
->    ```powershell
->    python --version
->    ```
-
-> **🍎 macOS**
->
-> **Option A — the installer (simplest):**
-> 1. Go to <https://www.python.org/downloads/>
-> 2. Download and run the macOS installer, accepting the defaults.
-> 3. Open a *new* Terminal window and verify:
->    ```bash
->    python3 --version
->    ```
->
-> **Option B — Homebrew** (if you already have it):
+> RHEL 8's own Python is 3.6, too old for this project. Install a newer one from Red Hat's standard repositories; it sits *next to* the system Python without disturbing it. Try 3.12 first:
 > ```bash
-> brew install python@3.12
-> python3 --version
+> sudo dnf install -y python3.12 python3.12-pip
 > ```
-
-> **🐧 Linux — RHEL 8 / Rocky / AlmaLinux**
->
-> RHEL 8 ships Python 3.6, which is too old. Install 3.11 from the
-> standard AppStream repository — this sits *alongside* the system
-> Python without disturbing it:
+> If that says "No match for argument", your system's repositories don't have it yet; 3.11 works just as well:
 > ```bash
 > sudo dnf install -y python3.11 python3.11-pip
 > ```
-> `sudo` means "run as administrator". You will be asked for your
-> password; nothing appears as you type it, which is normal and
-> deliberate.
+> `sudo` means "run this as administrator". It asks for your password, and nothing appears on screen while you type it (that's normal).
 >
-> Verify — note the explicit `3.11`, which is how you will refer to it:
+> Check, naming the version explicitly (on RHEL, plain `python3` still means the old 3.6, on purpose, so system tools keep working):
 > ```bash
-> python3.11 --version
+> python3.12 --version
 > ```
-> ```
-> Python 3.11.5
-> ```
->
-> **If `sudo` is not available to you** (common on managed corporate
-> machines), ask whoever administers the machine for `python3.11`. If
-> that is not possible, `pyenv` (<https://github.com/pyenv/pyenv>) can
-> install Python into your home directory with no administrator rights.
+> **Without `sudo` rights** (common on a company virtual machine), ask whoever runs the machine to install `python3.12` or `python3.11`, and later `git`. Everything after installation works without special rights.
 
-> **🐧 Linux — Ubuntu / Debian**
+> **Linux: Ubuntu, Debian**
 > ```bash
 > sudo apt update
 > sudo apt install -y python3 python3-venv python3-pip
 > python3 --version
 > ```
-> If that gives less than 3.11, add the deadsnakes archive:
+> If that's older than 3.11, add the deadsnakes package archive and install 3.12:
 > ```bash
 > sudo add-apt-repository ppa:deadsnakes/ppa
 > sudo apt update
-> sudo apt install -y python3.11 python3.11-venv
+> sudo apt install -y python3.12 python3.12-venv
 > ```
 
-> **🐧 Linux — Fedora**
+> **Linux: Fedora**
 > ```bash
-> sudo dnf install -y python3.11
+> sudo dnf install -y python3
+> python3 --version
 > ```
 
-### ⚠️ Remember your Python command
+### Remember your Python command
 
-From here on, this document writes **`python3`**. Substitute whatever
-worked on *your* machine:
+Until [section 8](#8-create-the-virtual-environment), this guide writes `python3`. Use whatever worked on your computer:
 
-| Your platform | Your command |
+| Your computer | Your command |
 |---|---|
 | Windows | `python` |
 | macOS | `python3` |
-| RHEL 8 | `python3.11` |
-| Ubuntu (if you installed 3.11 explicitly) | `python3.11` |
+| RHEL 8 | `python3.12` (or `python3.11`) |
+| Ubuntu with an added version | `python3.12` |
 
-Write it on a sticky note. This one substitution is the source of most
-early confusion, and it disappears entirely after §8 — once the virtual
-environment is active, `python` means the right thing everywhere.
+Once the virtual environment is active, plain `python` means the right one everywhere, and this difference disappears.
 
 ---
 
 ## 4. Install Git
 
-**What Git is:** the save-game system for your work. Full explanation
-in [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md); for now, install it.
+**What it is:** the program that records every change to your files. [`docs/GIT_WORKFLOW.md`](GIT_WORKFLOW.md) explains it properly; for now, install it.
 
-**Check first:**
+Check first:
 
 ```bash
 git --version
 ```
 
-**Expected:** `git version 2.39.3` (any 2.x is fine).
+**You should see** something like `git version 2.39.3` (any 2.x is fine). If it's missing:
 
-> **🪟 Windows**
-> Download from <https://git-scm.com/download/win> and run the
-> installer. **Accept every default** — the defaults are sensible and
-> the option screens are genuinely confusing on a first pass. Then close
-> and reopen PowerShell.
-
-> **🍎 macOS**
-> ```bash
-> git --version
-> ```
-> If Git is missing, macOS will pop up a dialogue offering to install
-> the developer tools. Click **Install** and wait. That is the whole
-> procedure.
-
-> **🐧 Linux — RHEL 8 / Rocky / Fedora**
-> ```bash
-> sudo dnf install -y git
-> ```
-> **Ubuntu / Debian:**
-> ```bash
-> sudo apt install -y git
-> ```
+> **Windows**: download it from <https://git-scm.com/download/win> and run the installer. **Accept every default answer**: they're sensible, and the option screens are confusing on a first visit. It also installs *Git Bash*, a small terminal you'll use for the safety gate in [section 13](#13-the-safety-gate). Close and reopen PowerShell afterwards.
+> **macOS**: type `git --version`. If Git is missing, macOS offers to install the command-line developer tools. Click **Install** and wait; that's all.
+> **Linux (RHEL 8, Rocky, Fedora)**: `sudo dnf install -y git`
+> **Linux (Ubuntu, Debian)**: `sudo apt install -y git`
 
 ### Tell Git who you are
 
-Once per machine. Every commit records its author, which is why this is
-required.
+Once per computer. Every save Git makes records who made it, which is why it asks.
 
 ```bash
 git config --global user.name "Your Name"
 git config --global user.email "your-email@example.com"
 ```
 
-Use the email you will register with GitHub, so your commits are linked
-to your account.
-
-**Verify:**
+Use the email address you'll register on GitHub with, so your work is linked to your account. Check:
 
 ```bash
 git config --global --list
 ```
+
+**You should see** your two lines among the output:
 
 ```
 user.name=Your Name
@@ -343,69 +249,52 @@ user.email=your-email@example.com
 
 ## 5. Install a code editor (recommended)
 
-**Optional but strongly recommended.** Everything in this project works
-in any text editor, but a proper editor colours your code, highlights
-mistakes as you type, and has a built-in terminal so you are not
-switching windows constantly.
+Everything here works in any text editor, but a proper code editor colours your code, points out mistakes as you type, and has a terminal built in, so you aren't switching windows all the time.
 
-**VS Code** (Visual Studio Code) is free, made by Microsoft, and behaves
-identically on all three operating systems.
+**VS Code** (Visual Studio Code) is free and behaves the same on all three systems.
 
-1. Download from <https://code.visualstudio.com/>
-2. Install with the defaults.
-   > **🪟 Windows** — tick **"Add to PATH"** if offered.
-3. Open it, click the **Extensions** icon in the left bar (four small
-   squares), search for **Python**, and install the one published by
-   Microsoft.
-
-That extension gives you syntax colouring, error highlighting and the
-ability to run a file with one click.
+1. Download it from <https://code.visualstudio.com/> and install it with the default answers. On Windows, tick **"Add to PATH"** if offered.
+2. Open it, click the **Extensions** icon in the left bar (four small squares), search for **Python**, and install the one published by Microsoft.
+3. To open the project later: **File, Open Folder**, then pick the project folder. VS Code finds the virtual environment by itself.
 
 ---
 
 ## 6. Create a GitHub account and an empty repository
 
-**What GitHub is:** a website that stores a copy of your project
-online — backed up, shareable, and visible to anyone you point at it.
+**What GitHub is:** a website that keeps a copy of your project online, backed up and visible to anyone you send the link to.
 
-### Create the account
+### The account
 
-1. Go to <https://github.com/signup>
-2. Use the same email as in §4.
-3. Choose a username you would be comfortable putting on professional
-   work. It becomes part of every link to everything you publish.
-4. Verify your email address.
+1. Go to <https://github.com/signup> and sign up with the email address from [section 4](#4-install-git).
+2. Choose a username you'd be happy to see in every link to your work.
+3. Confirm your email address.
 
-### Create the repository
+### The repository
 
-1. Once signed in, click the **+** at the top right → **New
-   repository**.
+1. Signed in, click **+** at the top right, then **New repository**.
 2. Fill in:
    - **Repository name:** `realsignal`
    - **Description:** `Independent reproduction and extension of a published machine-learning study on plant-protective bacteria`
-   - **Public** — this is work you want to be able to share.
-   - **Do NOT tick** "Add a README file".
-   - **Do NOT** add a `.gitignore` or a licence here.
-3. Click **Create repository**.
+   - **Public**
+   - **Don't** tick "Add a README file", and **don't** add a `.gitignore` or a licence here.
+3. Click **Create repository**, and leave the page open: [section 12](#12-connect-to-github-and-create-the-three-branches) needs the address it shows (`https://github.com/<you>/realsignal.git`).
 
-> **Why create it empty?** Because we are going to build the project on
-> your machine first and then connect it. If GitHub creates files too,
-> both sides have history the other does not, and your first push fails
-> with an error about unrelated histories. Starting empty avoids a
-> confusing problem you would otherwise have to solve before you had
-> learned enough Git to understand it.
-
-4. GitHub now shows a page of setup commands. **Leave this page open** —
-   you need the URL from it in §12. It looks like:
-   `https://github.com/YOURNAME/realsignal.git`
+> **Why empty?** The project is built on your computer first and connected afterwards. If GitHub also creates files, both sides have a history the other doesn't know about, and the first upload fails with an error about "unrelated histories". Starting empty avoids a confusing problem you'd otherwise meet before you know enough Git to solve it.
 
 ---
 
 ## 7. Create the project folder
 
-Pick a sensible home for your projects.
+> **Rebuilding this project from its repository instead of from nothing?** Then the folder, the files and the history already exist, and one command fetches them all. In the folder where you keep projects:
+> ```bash
+> git clone https://github.com/akannan2987/realsignal.git
+> cd realsignal
+> ```
+> Skip the rest of this section and section 6, carry on at [section 8](#8-create-the-virtual-environment), and in [section 12](#12-connect-to-github-and-create-the-three-branches) only run the step that creates your local `develop` branch.
 
-> **🪟 Windows**
+Pick a sensible home for your projects:
+
+> **Windows**
 > ```powershell
 > cd $HOME
 > mkdir projects -Force
@@ -414,7 +303,7 @@ Pick a sensible home for your projects.
 > cd realsignal
 > ```
 
-> **🍎 macOS / 🐧 Linux**
+> **macOS / Linux**
 > ```bash
 > cd ~
 > mkdir -p projects
@@ -423,600 +312,290 @@ Pick a sensible home for your projects.
 > cd realsignal
 > ```
 
-**Confirm where you are** — this matters, because every later command
-assumes you are inside `realsignal`:
+Check where you are (every later command assumes you're inside `realsignal`): `Get-Location` on Windows, `pwd` on macOS and Linux. **You should see** a path ending in `projects/realsignal` (Windows: `projects\realsignal`). Any folder works, by the way; the project was built in `~/Documents/Work/projects/realsignal`.
 
-> **🪟 Windows:** `Get-Location` → `C:\Users\yourname\projects\realsignal`
-> **🍎 macOS / 🐧 Linux:** `pwd` → `/home/yourname/projects/realsignal`
+> **Avoid cloud-synced folders** such as OneDrive, Dropbox, iCloud Drive or Google Drive. They copy files in the background while Git and the virtual environment are changing them, which causes baffling errors. Git already gives you a backup on GitHub.
 
-> ⚠️ **A word of warning about cloud-synced folders.** Avoid putting the
-> project inside OneDrive, Dropbox, iCloud Drive or Google Drive. Those
-> tools continuously copy files in the background, which conflicts with
-> Git's own file management and with virtual environments, producing
-> genuinely baffling errors. Git already gives you backup and sync —
-> that is its job. Keep the two apart.
+### The folder structure
 
-### Create the folder structure
+These are the folders described in [`docs/00-architecture.md` section 14](00-architecture.md#14-what-lives-where-and-why). The ones for later phases start empty.
 
-These are the folders described in
-[`00-architecture.md`](00-architecture.md).
-
-> **🪟 Windows**
+> **Windows**
 > ```powershell
-> mkdir docs, scripts, notebooks, tests, app, figures
-> mkdir src\realsignal
+> mkdir docs, scripts, notebooks, tests, figures, src\realsignal, R, dbt, api, app, frontend, airflow, mcp
 > mkdir data\raw, data\processed
 > ```
 
-> **🍎 macOS / 🐧 Linux**
+> **macOS / Linux**
 > ```bash
-> mkdir -p docs scripts notebooks tests app figures src/realsignal data/raw data/processed
+> mkdir -p docs scripts notebooks tests figures src/realsignal R dbt api app frontend airflow mcp data/raw data/processed
 > ```
 
-Git does not track empty folders (it tracks files, not directories), so
-add a placeholder to the ones that will be empty for a while. The name
-`.gitkeep` is a convention, not a Git feature — any file would do.
+Git keeps track of files, not folders, so an empty folder would vanish from the repository. A tiny empty file called `.gitkeep` holds each one in place (the name is a habit, not a Git feature):
 
-> **🪟 Windows**
+> **Windows**
 > ```powershell
-> "" | Out-File -Encoding utf8 notebooks\.gitkeep
-> "" | Out-File -Encoding utf8 tests\.gitkeep
-> "" | Out-File -Encoding utf8 app\.gitkeep
-> "" | Out-File -Encoding utf8 figures\.gitkeep
-> "" | Out-File -Encoding utf8 src\realsignal\__init__.py
+> foreach ($d in "R","dbt","api","app","frontend","airflow","mcp") { New-Item -ItemType File "$d\.gitkeep" -Force }
+> New-Item -ItemType File src\realsignal\__init__.py -Force
 > ```
 
-> **🍎 macOS / 🐧 Linux**
+> **macOS / Linux**
 > ```bash
-> touch notebooks/.gitkeep tests/.gitkeep app/.gitkeep figures/.gitkeep
+> for d in R dbt api app frontend airflow mcp; do touch "$d/.gitkeep"; done
 > touch src/realsignal/__init__.py
 > ```
 
-> **What is `__init__.py`?** An empty file that tells Python "this
-> folder is a package you can import from". Without it, `import
-> realsignal` fails. It stays empty for now, and that is correct.
+`__init__.py` tells Python "this folder is a package you can import from". It holds a short description and a version number, and the reusable code grows next to it from Phase 3.
 
-**Now copy the documentation files into `docs/`** — this document,
-`00-architecture.md`, `GIT_WORKFLOW.md` and `GLOSSARY.md` — and
-`README.md` into the project root.
+**Then put the project's files in place:** `README.md`, `LICENSE`, `.gitignore`, `requirements.txt`, `pytest.ini`, `check-public-safe.sh`, `setup.sh` and `setup.ps1` in the project folder, the guides in `docs/`, the scripts in `scripts/`, and so on. The [Handbook's file index](HANDBOOK.md#every-file-in-the-repository-and-where-it-is-explained) lists every file and its folder.
 
 ---
 
 ## 8. Create the virtual environment
 
-This is the section people skip. Read it; it is short and it will save
-you an evening.
-
 ### The problem it solves
 
-You install a package for this project. Next month, a different project
-needs an older version of the same package. You install that. **The
-first project silently breaks** — not with a clear message, but with
-subtly different results or a crash in a place that used to work.
+You install a package for this project. A month later another project needs an older version of the same package, and you install that. **The first project now breaks**, often without a clear message: results shift slightly, or something crashes in a place that used to work.
 
-*Analogy:* one shared kitchen drawer where every restaurant in the
-street keeps its knives. Someone sharpens one differently, someone else
-takes one home, and nobody can cook reliably.
+Picture a shared stationery cupboard where everyone takes and swaps pens: sooner or later the red pen you rely on is gone or replaced with a different red.
 
-### The solution
+### The fix
 
-A **virtual environment** is a private, sealed copy of Python and its
-packages that belongs to one project only. Its own knife roll. Projects
-cannot interfere with each other, and — just as importantly — the exact
-contents can be written down and rebuilt by somebody else, which is what
-makes the project reproducible at all.
+A **virtual environment** is a private copy of Python with its own packages, belonging to one project. Projects can't interfere with each other, and the exact contents can be written down and rebuilt by somebody else, which is what makes the project reproducible. This project's lives in a folder called `.venv` inside the project folder.
 
 ### Create it
 
-Run this **inside the `realsignal` folder**, using *your* Python
-command from §3:
+Inside the `realsignal` folder, with your Python command from [section 3](#3-install-python):
 
-> **🪟 Windows**
-> ```powershell
-> python -m venv .venv
-> ```
+> **Windows**: `python -m venv .venv`
+> **macOS**: `python3 -m venv .venv`
+> **RHEL 8**: `python3.12 -m venv .venv` (or `python3.11`). If it fails with a message about `ensurepip`, run `sudo dnf install -y python3.12-devel` and try again.
 
-> **🍎 macOS**
-> ```bash
-> python3 -m venv .venv
-> ```
-
-> **🐧 Linux — RHEL 8**
-> ```bash
-> python3.11 -m venv .venv
-> ```
-> If that fails with a message about `ensurepip`, install the venv
-> module first:
-> ```bash
-> sudo dnf install -y python3.11-devel
-> ```
-
-It prints nothing and takes a few seconds. A hidden folder `.venv`
-now exists. Confirm:
-
-> **🪟 Windows:** `ls -Force` (the `-Force` reveals hidden items)
-> **🍎 macOS / 🐧 Linux:** `ls -a`
-
-You should see `.venv` listed.
-
-> **Why the name `.venv`?** The leading dot makes it hidden on
-> macOS/Linux, and it is the near-universal convention, which means
-> tools like VS Code find it automatically. Do not rename it.
+It prints nothing and takes a few seconds. Check that the folder exists: `ls -Force` on Windows (`-Force` shows hidden items), `ls -a` on macOS and Linux. You should see `.venv` in the list. (The leading dot hides it on macOS and Linux, and tools such as VS Code look for that exact name, so keep it.)
 
 ### Activate it
 
-Creating the toolbox is not the same as picking it up. **Activating**
-tells this terminal session: "for now, `python` means *this* project's
-Python".
+Creating the environment isn't the same as using it. **Activating** tells this terminal window: "from now on, `python` means this project's Python".
 
-> **🪟 Windows PowerShell**
+> **Windows PowerShell**
 > ```powershell
 > .\.venv\Scripts\Activate.ps1
 > ```
-> If you get a red error mentioning *execution policies*, Windows is
-> blocking scripts by default. Allow them for your own account only:
+> If you get a red error about *execution policies*, Windows is blocking scripts. Allow scripts you wrote yourself, for your account only:
 > ```powershell
 > Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 > ```
-> Answer `Y`, then run the activate command again. This is a normal,
-> safe adjustment: it permits scripts you wrote locally, while still
-> requiring downloaded scripts to be signed.
+> Answer `Y`, then activate again.
 
-> **🍎 macOS / 🐧 Linux**
+> **macOS / Linux**
 > ```bash
 > source .venv/bin/activate
 > ```
 
-**How you know it worked:** your prompt gains a `(.venv)` prefix.
+**How you know it worked:** your prompt now starts with `(.venv)`. (In some terminal setups, such as the one this project was built in, it appears on a line of its own after the command.) **That marker is your most useful status light.** Without it, packages install in the wrong place and imports fail in confusing ways. Whenever something behaves oddly, look at the prompt first.
 
-```
-(.venv) yourname@machine realsignal %
-```
+Check where Python now comes from:
 
-**That prefix is your single most useful status light.** No `(.venv)`
-means the environment is not active, which means packages will install
-in the wrong place and imports will fail with confusing errors. If
-anything ever behaves strangely, look at the prompt first.
+> **Windows**: `where.exe python` should show a path ending in `realsignal\.venv\Scripts\python.exe`.
+> **macOS / Linux**: `which python` should show a path ending in `realsignal/.venv/bin/python`.
 
-**Verify Python now points inside the project:**
-
-> **🪟 Windows**
-> ```powershell
-> where.exe python
-> ```
-> ```
-> C:\Users\yourname\projects\realsignal\.venv\Scripts\python.exe
-> ```
-
-> **🍎 macOS / 🐧 Linux**
-> ```bash
-> which python
-> ```
-> ```
-> /home/yourname/projects/realsignal/.venv/bin/python
-> ```
-
-The path must contain `.venv`. If it does not, activation did not take
-effect — see §15.
-
-**To leave the environment** (rarely needed): type `deactivate`.
-
-> **You must activate again in every new terminal window.** It is not
-> permanent, and that is by design — it is a per-session choice, not a
-> machine-wide setting. Forgetting is the most common beginner
-> confusion, which is why the `(.venv)` prefix exists.
+> **Activate again in every new terminal window.** It's a choice per window, not a setting for the whole computer. `deactivate` leaves the environment, which you'll rarely need.
 
 ---
 
 ## 9. Install the project's packages
 
-### First, a note on `pip` and pinning
-
-**pip** is Python's package installer — it fetches libraries from
-**PyPI**, the public warehouse of Python packages.
-
-We list what we need in a file called `requirements.txt` so that anyone
-(including you, on another machine, in a year) can rebuild the identical
-toolbox with one command. *Analogy:* the parts list that comes with
-flat-pack furniture.
-
-### Create `requirements.txt`
-
-Create a file called `requirements.txt` in the project root — in VS
-Code: **File → New File**, paste, save with that exact name — containing:
+**pip** is Python's package installer: it fetches libraries from **PyPI**, the public warehouse of Python packages. The project lists what it needs in `requirements.txt`, so anyone can rebuild the same toolbox with one command. It looks like this:
 
 ```
-# RealSignal — Python dependencies
-# Install with:  pip install -r requirements.txt
-#
-# Version ranges: the lower bound is the oldest version known to work;
-# the upper bound keeps a future major release from silently breaking
-# the project. After a successful install, run
-#     pip freeze > requirements.lock.txt
-# to record the exact versions you actually got. That lock file is what
-# makes an install truly reproducible; this file is what makes it
-# installable in the first place.
-
-# --- Core data handling -------------------------------------------------
 pandas>=2.2,<4.0          # tables of data, driven by code
 numpy>=1.24,<3.0          # fast arithmetic underneath everything else
 openpyxl>=3.1,<4.0        # lets pandas read .xlsx files (the published data)
-
-# --- Storage ------------------------------------------------------------
 duckdb>=1.0,<2.0          # a complete SQL database in a single file
-
-# --- Modelling ----------------------------------------------------------
 scikit-learn>=1.4,<2.0    # the machine-learning models and evaluation tools
 scipy>=1.11,<2.0          # statistics used for confidence intervals
-
-# --- Charts -------------------------------------------------------------
 matplotlib>=3.8,<4.0      # charts, saved as image files by code
-
-# --- Getting the data ---------------------------------------------------
 requests>=2.31,<3.0       # downloading files over the internet
-
-# --- The application ----------------------------------------------------
 streamlit>=1.36,<2.0      # turns a Python script into a clickable web app
-
-# --- Quality ------------------------------------------------------------
 pytest>=8.0,<9.0          # automated tests
 ```
 
-> **Why ranges rather than exact `==` versions?** Because exact pins can
-> fail to install on a platform where that precise build isn't
-> available — a real problem when a project must run on Windows, macOS
-> *and* RHEL 8. So we install with sensible ranges, then *record* what
-> we actually got in a lock file. You get both reliability and
-> reproducibility, and you learn the distinction professionals make
-> between the two.
+> **Why ranges, not exact versions?** An exact version can fail to install on a system where that precise build doesn't exist, which matters for a project that has to work on Windows, macOS and RHEL 8. So the file gives a range that works, and after installing you record what you actually got in a second file. The ranges make the install work; the record makes it repeatable.
 
-### Install
-
-With `(.venv)` visible in your prompt:
+With `(.venv)` in your prompt:
 
 ```bash
 python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
+
+**You should see** a few minutes of downloads, ending with a line that starts `Successfully installed` and lists the packages with their versions.
+
+> **Why `python -m pip` instead of `pip`?** It guarantees you use the pip that belongs to the Python you're running. On a computer with several Pythons, a bare `pip` can belong to another one, and then packages install "successfully" and still can't be imported.
+
+Now record exactly what you got:
 
 ```bash
-pip install -r requirements.txt
+python -m pip freeze > requirements.lock.txt
 ```
 
-**Expected output** — several minutes of download progress, ending with:
-
-```
-Successfully installed duckdb-1.1.3 matplotlib-3.9.2 numpy-2.1.3
-openpyxl-3.1.5 pandas-2.2.3 pytest-8.3.3 requests-2.32.3
-scikit-learn-1.5.2 scipy-1.14.1 streamlit-1.39.0 ...
-```
-
-Your version numbers will differ. That is expected and fine.
-
-> **Why `python -m pip` rather than just `pip`?** It guarantees you are
-> using the pip belonging to the Python you are actually running. On a
-> machine with several Pythons, a bare `pip` can belong to a different
-> one — a genuinely maddening bug where packages install successfully
-> and then cannot be imported.
-
-### Record exactly what you got
-
-```bash
-pip freeze > requirements.lock.txt
-```
-
-That writes a file listing every package with its exact version. Commit
-it. In a year, if something breaks, this file tells you precisely what
-"working" looked like.
+`requirements.lock.txt` lists every installed package with its exact version. Commit it. If something breaks in a year, it tells you what a working setup looked like.
 
 ---
 
 ## 10. Verify everything works
 
-Trust nothing; check everything. Create `scripts/check_env.py` with the
-content below.
-
-```python
-"""
-check_env.py — proves this machine is set up correctly for RealSignal.
-
-WHY THIS FILE EXISTS
---------------------
-An installation that "seemed to work" is not the same as one that does.
-This script imports every package the project needs and prints a clear
-verdict, so that a problem is found now — in ten seconds, with a short
-list of possible causes — rather than in three weeks, buried inside an
-analysis, where it will look like a bug in your own code.
-
-Run it with:   python scripts/check_env.py
-"""
-
-import platform
-import sys
-
-# The minimum Python version this project supports.
-# 3.11 because some of our dependencies dropped support for older ones.
-REQUIRED_PYTHON = (3, 11)
-
-# Every package the project needs, mapped to a one-line reminder of why.
-# The key is the name used in `import`, which is NOT always the name used
-# by pip (scikit-learn installs, but you import sklearn).
-REQUIRED_PACKAGES = {
-    "pandas": "tables of data",
-    "numpy": "fast arithmetic",
-    "openpyxl": "reading Excel files",
-    "duckdb": "the local SQL database",
-    "sklearn": "machine learning (installed as 'scikit-learn')",
-    "scipy": "statistics",
-    "matplotlib": "charts",
-    "requests": "downloading the dataset",
-    "streamlit": "the interactive application",
-    "pytest": "automated tests",
-}
-
-
-def check_python_version() -> bool:
-    """Confirm the running Python is new enough. Returns True if OK."""
-    actual = sys.version_info[:2]
-    ok = actual >= REQUIRED_PYTHON
-    symbol = "OK  " if ok else "FAIL"
-    print(f"[{symbol}] Python {actual[0]}.{actual[1]} "
-          f"(need {REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]} or newer)")
-    return ok
-
-
-def check_virtual_environment() -> bool:
-    """
-    Confirm we are running inside a virtual environment.
-
-    HOW THIS WORKS: when a venv is active, Python sets `sys.prefix` to the
-    venv folder while `sys.base_prefix` still points at the original
-    system Python. If the two are equal, no venv is active.
-    """
-    inside = sys.prefix != sys.base_prefix
-    symbol = "OK  " if inside else "WARN"
-    print(f"[{symbol}] Virtual environment: "
-          f"{'active' if inside else 'NOT ACTIVE — see docs/01-setup.md section 8'}")
-    print(f"       Python executable: {sys.executable}")
-    return inside
-
-
-def check_packages() -> list[str]:
-    """Try to import each required package. Returns the list that failed."""
-    missing = []
-    for module_name, purpose in REQUIRED_PACKAGES.items():
-        try:
-            module = __import__(module_name)
-            # Most packages expose their version; a few do not, so be tolerant.
-            version = getattr(module, "__version__", "version unknown")
-            print(f"[OK  ] {module_name:<12} {version:<12} — {purpose}")
-        except ImportError:
-            print(f"[FAIL] {module_name:<12} {'MISSING':<12} — {purpose}")
-            missing.append(module_name)
-    return missing
-
-
-def main() -> int:
-    """Run every check and print a single, unambiguous verdict."""
-    print("=" * 68)
-    print("RealSignal — environment check")
-    print("=" * 68)
-    print(f"Operating system: {platform.system()} {platform.release()}")
-    print("-" * 68)
-
-    python_ok = check_python_version()
-    venv_ok = check_virtual_environment()
-    print("-" * 68)
-    missing = check_packages()
-    print("=" * 68)
-
-    if python_ok and venv_ok and not missing:
-        print("ALL CHECKS PASSED — your workshop is ready.")
-        print("Next: docs/02-phase-1-data-acquisition.md")
-        return 0
-
-    print("SOMETHING NEEDS ATTENTION:")
-    if not python_ok:
-        print("  - Python is too old. See docs/01-setup.md section 3.")
-    if not venv_ok:
-        print("  - The virtual environment is not active.")
-        print("    See docs/01-setup.md section 8 ('Activate it').")
-    if missing:
-        print(f"  - Missing packages: {', '.join(missing)}")
-        print("    Fix with: pip install -r requirements.txt")
-    print("Full troubleshooting: docs/01-setup.md section 15.")
-    return 1
-
-
-if __name__ == "__main__":
-    # `sys.exit` with a number lets other tools know whether this passed.
-    # 0 means success by long-standing convention; anything else is failure.
-    sys.exit(main())
-```
-
-**Run it:**
+The repository includes `scripts/check_env.py`. It checks the Python version, whether the virtual environment is active, and imports each of the ten packages, then gives one verdict. Read it first; it's short and its comments explain every check.
 
 ```bash
 python scripts/check_env.py
 ```
 
-**Expected output:**
+**You should see** (this is the output on the MacBook Pro the project was built on; your version numbers and operating system will differ):
 
 ```
 ====================================================================
-RealSignal — environment check
+RealSignal: environment check
 ====================================================================
-Operating system: Linux 4.18.0-513.el8.x86_64
+Operating system: Darwin 24.6.0
 --------------------------------------------------------------------
-[OK  ] Python 3.11 (need 3.11 or newer)
+[OK  ] Python 3.14 (need 3.11 or newer)
 [OK  ] Virtual environment: active
-       Python executable: /home/you/projects/realsignal/.venv/bin/python
+       Python program in use: .venv/bin/python3
 --------------------------------------------------------------------
-[OK  ] pandas       2.2.3        — tables of data
-[OK  ] numpy        2.1.3        — fast arithmetic
-[OK  ] openpyxl     3.1.5        — reading Excel files
-[OK  ] duckdb       1.1.3        — the local SQL database
-[OK  ] sklearn      1.5.2        — machine learning (installed as 'scikit-learn')
-[OK  ] scipy        1.14.1       — statistics
-[OK  ] matplotlib   3.9.2        — charts
-[OK  ] requests     2.32.3       — downloading the dataset
-[OK  ] streamlit    1.39.0       — the interactive application
-[OK  ] pytest       8.3.3        — automated tests
+[OK  ] pandas      3.0.5       tables of data
+[OK  ] numpy       2.5.2       fast arithmetic
+[OK  ] openpyxl    3.1.5       reading Excel files
+[OK  ] duckdb      1.5.5       the local SQL database
+[OK  ] sklearn     1.9.0       machine learning (installed as scikit-learn)
+[OK  ] scipy       1.18.1      statistics
+[OK  ] matplotlib  3.11.1      charts
+[OK  ] requests    2.34.2      downloading the dataset
+[OK  ] streamlit   1.62.0      the interactive app
+[OK  ] pytest      8.4.2       automated tests
 ====================================================================
-ALL CHECKS PASSED — your workshop is ready.
-Next: docs/02-phase-1-data-acquisition.md
+ALL CHECKS PASSED. Your workshop is ready.
+Next: docs/HANDBOOK.md, the stage after the one you are on.
 ```
 
-🎉 **If you see that, stop and appreciate it.** You have installed a
-programming language, a version-control system, an isolated
-environment, and ten libraries — and you have *proved* it rather than
-assumed it. That verification habit is the thing separating people who
-can debug from people who can only hope.
+(`Darwin` is the name macOS gives its core; Windows shows `Windows 11`, RHEL shows `Linux` and a version.)
+
+If you see that, stop for a moment: you've installed a programming language, a version-control system, an isolated environment and ten libraries, and you've *proved* it works rather than assumed it.
 
 ---
 
-## 11. Protect the repository with `.gitignore`
+## 11. Keep things out of Git with `.gitignore`
 
-Before the first commit — because it is far easier to keep something
-out of history than to remove it afterwards.
+Before the first save in Git, decide what must never go into it. It's far easier to keep something out of the history than to remove it afterwards.
 
-`.gitignore` lists things Git must never record. Create it in the
-project root:
+`.gitignore` (in the project folder) lists what Git must never record. The project's file, with the reason for each part:
 
 ```gitignore
-# ---------------------------------------------------------------------
-# RealSignal — files Git must never track
-# ---------------------------------------------------------------------
-
-# The virtual environment. Hundreds of megabytes, machine-specific, and
-# fully rebuildable from requirements.txt. Never commit it.
+# The virtual environment: hundreds of megabytes, specific to one computer,
+# and rebuilt from requirements.txt in minutes.
 .venv/
 venv/
 env/
 
-# Downloaded and generated data. Rebuilt by scripts/fetch_data.py,
-# verified by checksum. Keeping it out is deliberate: the script working
-# is the proof the project works. (See README, "Repository map".)
+# Downloaded and generated data. scripts/fetch_data.py rebuilds it and checks
+# its checksum, so the script working is the proof the project works.
 data/
 
-# Python's compiled cache files — generated automatically, never useful
-# to anyone else.
+# R's package library is rebuilt from renv.lock, the way .venv is rebuilt
+# from requirements.txt. renv.lock itself is committed.
+renv/library/
+renv/staging/
+.Rhistory
+.RData
+.Rproj.user/
+
+# Files Python and pytest generate by themselves.
 __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
-
-# Jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-# Secrets. This project uses only public data and needs no credentials,
-# but the rule belongs here permanently: a secret committed once is
-# compromised forever, because history is permanent.
+# Secrets. This project needs none so far, but the rule stays: anything
+# committed once stays in the history for good.
 .env
+*.env.local
 *.key
 secrets.*
+.container-data/
 
-# Operating-system clutter
-.DS_Store          # macOS Finder
-Thumbs.db          # Windows Explorer
+# Logs and personal working notes.
+*.log
+.local-notes/
+
+# Operating-system clutter.
+.DS_Store
+Thumbs.db
 desktop.ini
 
-# Editor settings — personal, not project-wide
+# Personal editor settings.
 .vscode/
 .idea/
 *.swp
 ```
 
-**Verify it is working** — this is worth doing, because a `.gitignore`
-with a typo silently does nothing:
-
-```bash
-git status
-```
-
-At this stage Git is not yet initialised, so you will see
-`fatal: not a git repository`. That is expected; §12 fixes it, and you
-will re-run `git status` there.
+> **On Windows, check the file's name.** Notepad likes to save it as `.gitignore.txt`, which Git ignores entirely. Create or edit it in VS Code, which keeps the exact name.
 
 ---
 
-## 12. Connect to GitHub and create the branches
+## 12. Connect to GitHub and create the three branches
 
-Now the project becomes a real repository with the three branches
-described in [`GIT_WORKFLOW.md`](GIT_WORKFLOW.md).
+Now the folder becomes a repository with three branches. [`docs/GIT_WORKFLOW.md`](GIT_WORKFLOW.md) explains what a branch is and why there are three; this section is the one-time setup.
 
-**Step 1 — start tracking the folder:**
+**Step 1.** Start tracking the folder:
 
 ```bash
 git init
 ```
-```
-Initialized empty Git repository in /home/you/projects/realsignal/.git/
-```
 
-**Step 2 — name the first branch `master`:**
+You should see `Initialized empty Git repository in` followed by your folder's path.
+
+**Step 2.** Name the first branch `master`:
 
 ```bash
 git branch -M master
 ```
 
-**Step 3 — check what Git proposes to record.** Read this output
-carefully; it is the moment to catch a `.gitignore` mistake:
+**Step 3.** Check what Git is about to record. Read this output carefully; it's the moment to catch a `.gitignore` mistake:
 
 ```bash
 git status
 ```
 
-You should see `README.md`, `requirements.txt`, `requirements.lock.txt`,
-`.gitignore`, `docs/`, `scripts/` and the `.gitkeep` placeholders.
+You should see `README.md`, `requirements.txt`, `.gitignore`, `docs/`, `scripts/` and the other files and folders. **You must not see `.venv/` or `data/`.** If you do, `.gitignore` isn't in the project folder or has the wrong name; fix that before going on.
 
-> ⚠️ **You must NOT see `.venv/` or `data/`.** If you do, `.gitignore`
-> is not in the project root, or its name is wrong (a common Windows
-> trap: Notepad saving it as `.gitignore.txt`). Fix that before
-> continuing — this is exactly the check that stops a 239 MB accident.
-
-**Step 4 — the first commit:**
+**Step 4.** The first commit (a permanent, labelled save):
 
 ```bash
 git add -A
 git commit -m "chore: initial project structure, documentation and environment"
 ```
-```
-[master (root-commit) a1b2c3d] chore: initial project structure, documentation and environment
- 8 files changed, 1247 insertions(+)
-```
 
-**Step 5 — connect to your GitHub repository.** Use the URL from §6:
+You should see a line starting `[master (root-commit)` and a count of files changed.
+
+**Step 5.** Connect the folder to your GitHub repository, with the address from [section 6](#6-create-a-github-account-and-an-empty-repository):
 
 ```bash
-git remote add origin https://github.com/YOURNAME/realsignal.git
-```
-
-Replace `YOURNAME`. Verify:
-
-```bash
+git remote add origin https://github.com/<you>/realsignal.git
 git remote -v
 ```
-```
-origin  https://github.com/YOURNAME/realsignal.git (fetch)
-origin  https://github.com/YOURNAME/realsignal.git (push)
-```
 
-**Step 6 — push `master`:**
+You should see that address twice, once marked `(fetch)` and once `(push)`. `origin` is the usual nickname for "my repository on GitHub".
+
+**Step 6.** Upload `master`:
 
 ```bash
 git push -u origin master
 ```
 
-> **You will be asked to sign in.** GitHub no longer accepts your
-> account password here. On Windows and macOS a browser window opens —
-> sign in and approve. On Linux, or if no window appears, create a
-> **personal access token**: GitHub → your avatar → **Settings** →
-> **Developer settings** → **Personal access tokens** → **Tokens
-> (classic)** → **Generate new token**, tick the `repo` scope, set an
-> expiry, and copy the token. Paste it when asked for your *password*.
-> Store it in a password manager — GitHub will never show it again.
+> **You'll be asked to sign in.** GitHub doesn't accept your account password here. On Windows and macOS a browser window usually opens: sign in and approve. On Linux, or if no window appears, create a **personal access token**: on GitHub, your picture at the top right, **Settings**, **Developer settings**, **Personal access tokens**, **Tokens (classic)**, **Generate new token**; tick the `repo` box, choose an expiry date, and copy the token. Paste it when the terminal asks for your *password*, and keep it in a password manager: GitHub shows it only once.
 
-**Step 7 — create and push `beta` and `develop`:**
+**Step 7.** Create `beta` and `develop` from `master`, and upload them:
 
 ```bash
 git branch beta
@@ -1025,21 +604,22 @@ git push -u origin beta
 git push -u origin develop
 ```
 
-**Step 8 — move to the working branch:**
+(If you cloned the repository in section 7, the branches already exist on GitHub, and this one command creates your local `develop` from them instead: `git switch -c develop --track origin/develop`.)
+
+**Step 8.** Move to the working branch, where all your work happens from now on:
 
 ```bash
 git switch develop
 ```
-```
-Switched to branch 'develop'
-Your branch is up to date with 'origin/develop'.
-```
 
-**Step 9 — verify all six branch references exist:**
+You should see `Switched to branch 'develop'` and `Your branch is up to date with 'origin/develop'.`
+
+**Step 9.** Check that all three exist, here and on GitHub:
 
 ```bash
 git branch -a
 ```
+
 ```
   beta
 * develop
@@ -1049,28 +629,140 @@ git branch -a
   remotes/origin/master
 ```
 
-**Step 10 — look at it in a browser.** Open
-`https://github.com/YOURNAME/realsignal`. Your README is rendered on the
-front page, and a branch dropdown offers all three branches.
+The `*` marks the branch you're on. **Step 10:** open `https://github.com/<you>/realsignal` in a browser. Your README shows on the front page, and the branch menu offers all three.
 
 ---
 
-## 13. Checkpoint
+## 13. The safety gate
 
-Tick these off honestly:
+The repository is **public**: the moment you upload, anyone can read it. `.gitignore` stops accidents with whole files, but it can't stop a file someone adds on purpose with `git add -f`, or a password pasted into a guide. So the project has a small script, `check-public-safe.sh` (in the project folder), that you run **before every push**. It looks at everything your next commit could publish and refuses to give the all-clear if something private is among it.
 
-- [ ] `python --version` reports 3.11 or newer
-- [ ] `git --version` works, and `git config --global --list` shows your
-      name and email
-- [ ] The folder `~/projects/realsignal` exists with the full structure
-- [ ] Your terminal prompt shows `(.venv)` after activation
-- [ ] `which python` / `where.exe python` points inside `.venv`
+Think of airport security: the airline's rules say what may go in your bag, and the scanner checks the bag anyway, because rules get forgotten.
+
+**Which files it reads.** Every file in your project folder is one of three kinds, and the gate reads the two kinds that can become public:
+
+```mermaid
+flowchart LR
+    subgraph FOLDER["Your project folder"]
+        T["Tracked files<br/>already in Git<br/>for example README.md"]
+        N["New files<br/>not in Git yet, not ignored<br/>for example a new script"]
+        I["Ignored files<br/>listed in .gitignore<br/>for example .venv/, data/"]
+    end
+    G{{"check-public-safe.sh<br/>reads tracked + new"}}
+    C["git add -A, commit, push<br/>what becomes public"]
+    T --> G
+    N --> G
+    G -->|"SAFE TO PUSH"| C
+    I -. "never added by git add -A;<br/>forced in with git add -f,<br/>it becomes tracked and is read" .-> G
+
+    classDef laptop fill:#E8F0FE,stroke:#5B8DEF,color:#0B2545;
+    classDef newfile fill:#FFF3CD,stroke:#C9A227,color:#4A3B00;
+    classDef ok fill:#E6F4EA,stroke:#4CAF7D,color:#0B3D2E;
+    classDef ignored fill:#F5F5F5,stroke:#B0B0B0,color:#555555,stroke-dasharray:4 3;
+    class T laptop
+    class N newfile
+    class I ignored
+    class G,C ok
+```
+
+**What it checks** (always for tracked and new files):
+
+1. **Folders and files that must stay private**: `.venv`, `renv/library`, `.env`, `.local-notes`, and anything under `data/`.
+2. **File types** that hold secrets, databases or downloads, anywhere: `.key`, `.pem`, `.duckdb`, `.sqlite`, `.zip`, `.part`, `.rds` and similar. (The downloaded archive belongs in `data/raw/`, where Git never looks.)
+3. **Text shaped like a real credential**: the actual formats of keys (`sk-...`, `ghp_...`, `AKIA...`, private-key blocks). It matches formats, not the word "key", so documents that talk about keys don't set it off.
+4. **Paths from one particular computer**, such as `/Users/<name>/`, `/home/<name>/` or `C:\Users\<name>\`. They reveal your machine and break the project for everyone else. Examples in the guides use `<you>`, which the gate accepts.
+5. **Operating-system clutter**: macOS `.DS_Store` files and Windows `Thumbs.db` and `desktop.ini`. They can list the names of files nearby and mean nothing to anyone else.
+6. **Hidden records inside pictures**: image files can carry information nobody sees on screen, such as the GPS position where a photo was taken, or a record left by the program that last edited or exported the file (called *content credentials*, or C2PA). This project's pictures are drawn by its own scripts, so a flagged picture is redrawn by running the script again.
+7. **Large files** over 5 MB (a warning only).
+8. **Your name and GitHub handle**: listed for information, so you can see they appear only where intended (the licence, links to the repository).
+
+**Set it up once (macOS and Linux):** a downloaded or copied file loses its "allowed to run" mark, so give it back:
+
+```bash
+chmod +x check-public-safe.sh
+```
+
+**Run it:**
+
+```bash
+./check-public-safe.sh
+```
+
+**You should see** this shape (the counts and the list in item 8 depend on your files):
+
+```
+Checking whether this checkout is safe to publish...
+Scanning 40 tracked file(s) and 0 new file(s) that 'git add -A' would add.
+
+1. Environments, data, private notes and secrets
+   ✓ none
+
+2. Secret, database and archive file types
+   ✓ none
+
+3. Credential-shaped text
+   ✓ none found
+
+4. Paths from one particular computer
+   ✓ none found
+
+5. Operating-system clutter
+   ✓ none
+
+6. Hidden records inside images
+   ✓ none
+
+7. Large files (information only)
+   ✓ nothing oversized
+
+8. Name and handle (information only; fine where intended)
+     LICENSE:3:Copyright (c) 2026 Abhilash Kannan
+     ...
+
+✓ SAFE TO PUSH to the public repository
+```
+
+> **On Windows**, run it in **Git Bash**, the small terminal that came with Git ([section 4](#4-install-git)). Right-click in the project folder in File Explorer, choose **Open Git Bash here**, and run `bash check-public-safe.sh`. No `chmod` is needed there.
+
+**If it flags something,** read the flagged line first: most "false alarms" turn out to be real (an example path that names a real home folder, a test key that looks too real). The fix is to change the content, for example writing `<you>` in a path, never to weaken the check. The message for item 5 names the command that takes a clutter file out of Git without deleting it: `git rm --cached <file>`.
+
+**The gate has tests of its own**, in `tests/test_safety_gate.py`: each test builds a small throw-away repository, plants one thing that must stay private (a key-shaped string, a forced data file, a real-looking home path, a `.DS_Store`, a picture with a hidden record) and checks that the gate refuses. They run with every `pytest -q`; on Windows they run only when pytest is started from Git Bash, and are skipped from PowerShell.
+
+---
+
+## 14. Copy commands safely
+
+Every command, commit message and tag message in this project's documentation uses **only characters you can type on a plain keyboard** (letters, digits and the usual punctuation; the technical name is *ASCII*).
+
+Text from word processors, web pages and chat often contains *look-alike* characters: a long dash instead of a hyphen, curly quotes instead of straight ones. A person reads them the same way; a terminal may not, and a pasted command can fail or a commit message can arrive garbled.
+
+| Looks like | Type this instead | Name |
+|---|---|---|
+| &mdash; or &ndash; | `-` | long dash, en dash: use a hyphen |
+| &ldquo; &rdquo; | `"` | curly double quotes: use straight quotes |
+| &lsquo; &rsquo; | `'` | curly single quotes: use an apostrophe |
+| &hellip; | `...` | one ellipsis character: use three dots |
+
+**The rule for your own commands and messages:** type them, or copy them only from code blocks in this repository, which follow the rule (`tests/test_docs.py` checks every file for these characters). In "You should see" blocks, the program's own ticks (`✓`, `✗`) are fine: you read those, you never paste them.
+
+---
+
+## 15. Checkpoint
+
+Tick these off:
+
+- [ ] `python --version` (inside the environment) reports 3.11 or newer
+- [ ] `git config --global --list` shows your name and email
+- [ ] the project folder has the structure from [section 7](#7-create-the-project-folder)
+- [ ] your prompt shows `(.venv)` after activating
+- [ ] `which python` (Windows: `where.exe python`) points inside `.venv`
 - [ ] `python scripts/check_env.py` prints **ALL CHECKS PASSED**
 - [ ] `git status` does **not** list `.venv/` or `data/`
-- [ ] `git branch -a` shows all three branches locally and on `origin`
-- [ ] Your README is visible on GitHub in a browser
+- [ ] `git branch -a` shows all three branches here and on `origin`
+- [ ] `./check-public-safe.sh` ends with **SAFE TO PUSH**
+- [ ] your README shows on GitHub
 
-**Commit the checkpoint:**
+**Save the checkpoint** with the ritual you'll use at the end of every stage, once every box above is ticked (the safety gate included). Every line is explained in [`docs/GIT_WORKFLOW.md` section 6](GIT_WORKFLOW.md#6-the-end-of-phase-ritual).
 
 ```bash
 git switch develop
@@ -1078,147 +770,87 @@ git add -A
 git commit -m "chore: verified environment setup on this machine"
 git push origin develop develop:beta develop:master
 
+## --tags is optional, only when required: none for the setup
+
+## then switch back to local master and pull in the remote changes
 git switch master
 git pull --ff-only origin master
 git switch develop
 ```
 
-Every line of that is explained in
-[`GIT_WORKFLOW.md`](GIT_WORKFLOW.md) §6.
-
 ---
 
-## 14. Starting work on any later day
+## 16. Starting work on any later day
 
-Three commands. Put them somewhere you can find them.
+Three commands and one check:
 
-> **🪟 Windows**
+> **Windows PowerShell**
 > ```powershell
 > cd $HOME\projects\realsignal
 > .\.venv\Scripts\Activate.ps1
 > git switch develop
+> git status
 > ```
 
-> **🍎 macOS / 🐧 Linux**
+> **macOS / Linux**
 > ```bash
 > cd ~/projects/realsignal
 > source .venv/bin/activate
 > git switch develop
+> git status
 > ```
 
-Then confirm you are where you think you are:
+(Use the path of your own project folder in the first line.)
 
-```bash
-git status
-```
+### Setting up a second computer
 
-Three commands and one check. That is the whole start-up ritual, for
-the rest of the project.
+Once you've done this guide by hand at least once and know what each step does, two scripts in the project folder do sections 8 to 10 in one go on a new computer, after Python and Git are installed and the repository is cloned:
 
----
+> **macOS / Linux**: `bash setup.sh`
+> **Windows PowerShell**: `.\setup.ps1`
 
-## 15. Troubleshooting
-
-### `python: command not found` / `'python' is not recognized`
-
-Python is not installed, or not on your PATH.
-
-- **Windows:** almost always the "Add python.exe to PATH" tick box was
-  missed in §3. Re-run the installer, choose **Modify**, and ensure it
-  is ticked. Then **open a new PowerShell window** — PATH changes never
-  apply to already-open windows.
-- **macOS/Linux:** try `python3` instead of `python`. On RHEL 8 use
-  `python3.11`.
-
-### `pip: command not found`
-
-Use `python -m pip` instead of bare `pip`. This always works, because
-it explicitly asks the Python you are running for its own pip.
-
-### PowerShell: "running scripts is disabled on this system"
-
-Windows blocks scripts by default. Allow them for your own account:
-
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
-
-### No `(.venv)` in the prompt after activating
-
-- Check you are in the right folder (`Get-Location` / `pwd`).
-- Check `.venv` exists (`ls -Force` / `ls -a`).
-- Windows users: the path uses `\` and `Scripts`; macOS/Linux use `/`
-  and `bin`. They are not interchangeable.
-- If `.venv` is missing or corrupted, delete it and rebuild — this is
-  always safe, because it is fully rebuildable:
-  ```bash
-  rm -rf .venv                    # macOS/Linux
-  Remove-Item -Recurse -Force .venv   # Windows
-  ```
-  then repeat §8 and §9.
-
-### `ModuleNotFoundError: No module named 'pandas'`
-
-The environment is not active, or packages went somewhere else. Check
-the prompt for `(.venv)`, activate, and re-run
-`pip install -r requirements.txt`. Then `python scripts/check_env.py`.
-
-This error is nearly always the venv, not the package.
-
-### `SSL: CERTIFICATE_VERIFY_FAILED` when pip downloads
-
-Usually a corporate network inspecting traffic. Ask your IT team for the
-company certificate bundle; they will have handled this before. Do not
-disable certificate verification — that turns off the check that the
-code you are downloading is genuinely from PyPI.
-
-### `Permission denied` on Linux
-
-You are trying to write somewhere you do not own. Work inside your home
-directory (`~/projects/...`), and never use `sudo pip install` — that
-installs into the system Python, which is precisely what the virtual
-environment exists to avoid.
-
-### RHEL 8: `python3.11 -m venv` fails mentioning `ensurepip`
-
-```bash
-sudo dnf install -y python3.11-devel
-```
-then retry.
-
-### Git asks for a password and rejects the right one
-
-GitHub removed password authentication for Git operations. Use a
-personal access token as your password — see §12, Step 6.
-
-### `git push` rejected: "Updates were rejected"
-
-The remote has commits you do not. Pull first:
-
-```bash
-git pull --ff-only origin develop
-```
-
-Then push again. Do not use `--force` to make the message disappear; it
-overwrites history on GitHub permanently.
-
-### `.gitignore` seems to be ignored
-
-Two usual causes:
-
-1. **Wrong filename.** On Windows, Notepad may have saved it as
-   `.gitignore.txt`. Check with `ls -Force` (Windows) or `ls -a`
-   (macOS/Linux). Create it in VS Code instead, which saves the exact
-   name.
-2. **The file was already committed before you ignored it.** `.gitignore`
-   only affects *untracked* files. Untrack it, keeping the file on disk:
-   ```bash
-   git rm -r --cached data/
-   git commit -m "chore: stop tracking data directory"
-   ```
+Each one finds a Python that is new enough, creates `.venv` if it doesn't exist, installs the packages, writes `requirements.lock.txt` and runs `scripts/check_env.py`. Then activate the environment as in [section 8](#activate-it).
 
 ---
 
-**Next:** [`02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md)
-— downloading the real published dataset, verifying it by checksum, and
-seeing what is actually inside it.
+## 17. Troubleshooting
+
+**`python: command not found`, or `'python' is not recognized`.** Python isn't installed, or its folder isn't on the PATH. On Windows, the "Add python.exe to PATH" box was probably missed: run the installer again, choose **Modify**, make sure the box is ticked, then open a **new** PowerShell window. On macOS and Linux, try `python3`; on RHEL 8, `python3.12` or `python3.11`.
+
+**`pip: command not found`.** Use `python -m pip` instead of `pip`. It always works, because it asks the Python you're running for its own pip.
+
+**PowerShell: "running scripts is disabled on this system".** Run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`, answer `Y`, and activate again.
+
+**No `(.venv)` after activating.** Check you're in the project folder (`Get-Location` or `pwd`) and that `.venv` exists (`ls -Force` or `ls -a`). Windows uses `\` and `Scripts`, macOS and Linux use `/` and `bin`; they aren't interchangeable. If `.venv` is broken, delete it and make it again, which is always safe because it's rebuilt from `requirements.txt`:
+
+> **macOS / Linux**: `rm -rf .venv`
+> **Windows PowerShell**: `Remove-Item -Recurse -Force .venv`
+
+Then repeat sections 8 and 9.
+
+**`ModuleNotFoundError: No module named 'pandas'`** (or another package). Almost always the environment, not the package: check the prompt for `(.venv)`, activate, run `python -m pip install -r requirements.txt`, then `python scripts/check_env.py`.
+
+**`SSL: CERTIFICATE_VERIFY_FAILED` when pip downloads.** Usually a company network that inspects traffic. Ask your IT team for the company's certificate bundle; they'll have dealt with it before. Don't switch certificate checking off: it's what proves the packages really come from PyPI.
+
+**`Permission denied` on Linux.** You're writing somewhere you don't own. Work inside your home folder, and never use `sudo pip install`, which installs into the system Python that the virtual environment exists to protect.
+
+**RHEL 8: `python3.12 -m venv` fails and mentions `ensurepip`.** Run `sudo dnf install -y python3.12-devel` (or the `3.11` version) and try again.
+
+**Git asks for a password and rejects the right one.** GitHub needs a personal access token instead of your password: see [section 12, step 6](#12-connect-to-github-and-create-the-three-branches).
+
+**`git push` is rejected with "Updates were rejected".** GitHub has commits your computer doesn't, usually because a file was edited on the website. Run `git pull --ff-only origin develop`, then push again. Never add `--force` to make the message go away: it overwrites history on GitHub for good.
+
+**`.gitignore` seems to be ignored.** Either the name is wrong (on Windows, check for `.gitignore.txt` with `ls -Force`), or the file was already committed before it was ignored: `.gitignore` only affects files Git doesn't track yet. Take it out of Git without deleting it from your disk, for example for `data/`:
+
+```bash
+git rm -r --cached data/
+git commit -m "chore: stop tracking the data folder"
+```
+
+**`./check-public-safe.sh: Permission denied`.** Run `chmod +x check-public-safe.sh` once (macOS and Linux). On Windows, use `bash check-public-safe.sh` in Git Bash.
+
+**The safety gate lists `.DS_Store` files.** macOS created them, and they reached Git before `.gitignore` was in place. `git rm --cached <path>` for each file the gate names; they stay on your disk, and `.gitignore` keeps them out from then on.
+
+---
+
+**Next:** [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md), downloading the published dataset and proving you hold exactly the authors' bytes. The [Handbook](HANDBOOK.md) shows where that sits in the journey.

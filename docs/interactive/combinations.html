@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How many communities?</title>
+<style>
+  :root { --ink:#1F2933; --soft:#5F6B7A; --line:#D5DCE6; --bg:#FBFCFE; --card:#FFFFFF; --accent:#4CAF7D; --gold:#C9A227; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#E8ECF1; --soft:#A9B4C2; --line:#3A4350; --bg:#16191D; --card:#1E2228; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:"Segoe UI", Helvetica, Arial, sans-serif; color:var(--ink); background:var(--bg); }
+  main { max-width:880px; margin:0 auto; padding:24px 16px 40px; }
+  h1 { font-size:24px; margin:0 0 6px; }
+  p { line-height:1.55; }
+  .soft { color:var(--soft); }
+  .controls { display:grid; gap:16px; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px 20px; margin:18px 0; }
+  label { display:flex; justify-content:space-between; font-weight:600; gap:12px; }
+  label output { font-variant-numeric:tabular-nums; }
+  input[type=range] { width:100%; accent-color:var(--accent); }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+  .tile { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:14px 16px; }
+  .tile .big { font-size:28px; font-weight:700; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+  .tile .what { color:var(--soft); font-size:14px; }
+  .presets { display:flex; flex-wrap:wrap; gap:8px; }
+  .presets button { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:6px 14px; cursor:pointer; font:inherit; }
+  .presets button:focus-visible, input:focus-visible { outline:3px solid #5B8DEF; outline-offset:2px; }
+  code { background:rgba(127,127,127,.15); padding:1px 5px; border-radius:5px; }
+</style></head>
+<body><main>
+  <h1>How many communities could you build?</h1>
+  <p class="soft">Pick how many strains you have, how many go into each community, and how many communities
+  a laboratory can test in a year. The page does the arithmetic: <code>n choose k</code>, the number of
+  different ways to pick k strains out of n when the order doesn't matter.</p>
+
+  <div class="presets" role="group" aria-label="Examples">
+    <button data-n="35" data-k="5" data-r="100">The published screen (35 strains, teams of 5)</button>
+    <button data-n="224" data-k="5" data-r="100">The whole leaf collection (224 strains)</button>
+    <button data-n="35" data-k="3" data-r="100">Teams of 3 instead</button>
+  </div>
+
+  <section class="controls" aria-label="Settings">
+    <div><label for="n">Strains in the pool <output id="nOut"></output></label>
+      <input id="n" type="range" min="5" max="400" value="35"></div>
+    <div><label for="k">Strains in each community <output id="kOut"></output></label>
+      <input id="k" type="range" min="1" max="10" value="5"></div>
+    <div><label for="r">Communities tested per year <output id="rOut"></output></label>
+      <input id="r" type="range" min="0" max="30" value="10" aria-describedby="rHelp">
+      <div id="rHelp" class="soft" style="font-size:13px">An assumption you choose: the slider moves in growing steps from
+      10 to 10,000 a year. For scale, each round of the published screen fitted 80 sealed boxes into one growth
+      chamber, and the plants grew for about five and a half weeks.</div></div>
+  </section>
+
+  <div class="tiles" aria-live="polite">
+    <div class="tile"><div class="big" id="combos"></div><div class="what">different communities</div></div>
+    <div class="tile"><div class="big" id="years"></div><div class="what">years to test every one</div></div>
+    <div class="tile"><div class="big" id="share"></div><div class="what">of them tested in a year</div></div>
+  </div>
+
+  <p id="sentence"></p>
+  <p class="soft">This is why the study tested a random sample of 136 communities and let a model work out which
+  strains matter, instead of testing everything. Part of the RealSignal project; the same numbers appear in
+  <code>figures/combinations.png</code>.</p>
+</main>
+<script>
+function choose(n, k) {            // exact, with whole numbers of any size
+  if (k > n) return 0n;
+  k = Math.min(k, n - k);
+  let result = 1n;
+  for (let i = 1; i <= k; i++) result = result * BigInt(n - k + i) / BigInt(i);
+  return result;
+}
+const rate = v => Math.round(10 * Math.pow(10, v / 10));          // 0..30 -> 10..10,000; 10 -> 100
+const fmt = x => x.toLocaleString("en-US");
+const n = document.getElementById("n"), k = document.getElementById("k"), r = document.getElementById("r");
+function update() {
+  const N = +n.value, K = +k.value, R = rate(+r.value);
+  document.getElementById("nOut").textContent = N;
+  document.getElementById("kOut").textContent = K;
+  document.getElementById("rOut").textContent = fmt(R);
+  const c = choose(N, K);
+  const years = Number(c) / R;
+  document.getElementById("combos").textContent = fmt(c);
+  document.getElementById("years").textContent = years < 1 ? "under 1" : years > 1e12 ? years.toExponential(1) : fmt(Math.round(years));
+  const share = R / Number(c) * 100;
+  document.getElementById("share").textContent = share >= 100 ? "all" : share >= 0.01 ? share.toFixed(2) + " %" : "under 0.01 %";
+  document.getElementById("sentence").textContent =
+    `With ${N} strains and ${K} in each community there are ${fmt(c)} possible communities. ` +
+    `Testing ${fmt(R)} a year, you would need ${years < 1 ? "less than a year" : "about " + fmt(Math.round(years)) + " years"} to try them all.`;
+}
+[n, k, r].forEach(el => el.addEventListener("input", update));
+document.querySelectorAll(".presets button").forEach(b => b.addEventListener("click", () => {
+  n.value = b.dataset.n; k.value = b.dataset.k;
+  r.value = Math.round(10 * Math.log10(b.dataset.r / 10));
+  update();
+}));
+update();
+</script>
+</body></html>

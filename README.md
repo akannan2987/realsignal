@@ -1,33 +1,42 @@
-# RealSignal 🌱🔬
+# RealSignal
 
-**v0.1.0** · ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white) ![scikit-learn](https://img.shields.io/badge/scikit--learn-modelling-F7931E?logo=scikitlearn&logoColor=white) ![R](https://img.shields.io/badge/R-original%20analysis-276DC3?logo=r&logoColor=white) ![dbt](https://img.shields.io/badge/dbt-transforms-FF694B?logo=dbt&logoColor=white) ![DuckDB](https://img.shields.io/badge/DuckDB-analytics-FFF000?logo=duckdb&logoColor=black) ![Postgres](https://img.shields.io/badge/PostgreSQL-serving-4169E1?logo=postgresql&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?logo=fastapi&logoColor=white) ![React](https://img.shields.io/badge/React%20%2B%20TS-frontend-61DAFB?logo=react&logoColor=black) ![Data](https://img.shields.io/badge/data-real%20%C2%B7%20published%20%C2%B7%20CC--BY-1a7f37) ![containers](https://img.shields.io/badge/containers-Docker%20%7C%20Podman-2496ED?logo=docker&logoColor=white) ![license](https://img.shields.io/badge/license-MIT-blue) ![status](https://img.shields.io/badge/status-phase%201%20of%2018-orange)
+![RealSignal: reproduce, check and extend a published result](docs/img/realsignal_logo.svg)
 
-**Can a published machine-learning result in biology be rebuilt from
-scratch, in a different language, by one person — and does it survive
-being checked against evidence it never saw? RealSignal finds out, in
-public, fully explained, from four linked open datasets.**
+**Version:** v0.1.0 (Phase 1 of 18 done: the published data, downloaded and verified) · **Interactive figures:** [`docs/interactive/`](docs/interactive/), or online once GitHub Pages is switched on ([how](docs/02-phase-1-data-acquisition.md#optional-publish-the-interactive-pages-with-github-pages))
+· ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
+![tests](https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white)
+![data](https://img.shields.io/badge/data-real%2C%20published%2C%20CC--BY%204.0-1a7f37)
+![license](https://img.shields.io/badge/license-MIT-blue)
+![status](https://img.shields.io/badge/status-phase%201%20of%2018%20done-orange)
+![platform](https://img.shields.io/badge/runs%20on-Windows%20%7C%20macOS%20%7C%20Linux%20(RHEL%208)-informational)
 
-> Every term used anywhere in this repository — biological or
-> technical — is defined in plain language in
-> [`docs/GLOSSARY.md`](docs/GLOSSARY.md). If a word isn't there, that's
-> a documentation bug. Please open an issue.
+Rebuilding a published machine-learning study about bacteria that protect plants, from its released data, in another language; checking its conclusion against evidence the model never saw; and turning it into a tool that helps decide which experiments are worth running. Built from scratch in public, with every step explained.
+
+> **New here? Start with the [Handbook](docs/HANDBOOK.md).** It's one document that walks the whole journey from a blank laptop to the finished product, explains *why* at every step, and links to every specialised guide.
+>
+> Every term used anywhere in this repository, biological or technical, is defined in plain language in [`docs/GLOSSARY.md`](docs/GLOSSARY.md). If a word isn't there, that's a documentation bug.
+
+![The RealSignal journey, from a blank laptop to a finished product](docs/img/journey_map.svg)
 
 ---
 
 ## Contents
 
+- [**The Handbook**](docs/HANDBOOK.md): the whole journey in one document (read this first)
 - [What is a plant microbiome? (start here)](#what-is-a-plant-microbiome-start-here)
 - [The problem this project tackles](#the-problem-this-project-tackles)
-- [What "reproduction" means, and why it is the whole point](#what-reproduction-means-and-why-it-is-the-whole-point)
+- [Reproduction, replication and extension](#reproduction-replication-and-extension)
 - [How it works](#how-it-works)
-- [The four data layers](#the-four-data-layers)
-- [The product](#the-product)
-- [Build status](#build-status) — what exists today, and what is planned
-- [**The tutorial, in order**](#the-tutorial-in-order)
-- [About the data (honesty notes)](#about-the-data-honesty-notes)
-- [Repository map](#repository-map)
+- [The five data layers](#the-five-data-layers)
+- [The product](#the-product), and [the part that generalises](#the-part-that-generalises)
+- [Results, phase by phase](#results-phase-by-phase) (fills in as each phase is finished)
+- [Build status](#build-status): all 18 phases, with their version tags
+- [The tutorial, in order](#the-tutorial-in-order)
+- [About the data: what it is and what it isn't](#about-the-data-what-it-is-and-what-it-isnt)
+- [Repository map](#repository-map), with every file annotated
 - [How to run](#how-to-run)
-- [How this repository is developed (branches)](#how-this-repository-is-developed-branches)
+- [Changelog](CHANGELOG.md): what changed, version by version
+- [How I work on this repository (branches)](#how-i-work-on-this-repository-branches)
 - [Why the documentation is so detailed](#why-the-documentation-is-so-detailed)
 - [Credits and licence](#credits-and-licence)
 
@@ -35,154 +44,77 @@ public, fully explained, from four linked open datasets.**
 
 ## What is a plant microbiome? (start here)
 
-*No biology background needed. If you can picture a garden, you can
-follow this.*
+*No biology background needed.*
 
-Look closely at the leaf of any plant growing outdoors. It looks clean.
-It isn't. Every square centimetre carries millions of bacteria — mostly
-harmless, many helpful. That resident population is the plant's
-**microbiome**.
+Look closely at the leaf of any plant growing outdoors. It looks clean, but every square centimetre carries millions of bacteria, most of them harmless and many of them useful. That resident population is the plant's **microbiome**.
 
-Think of the bacteria on your own skin. You are covered in them. Most
-do nothing bad, and some are actively useful, because by occupying the
-space and eating the available food they leave no room for the nasty
-ones to move in.
+Your own skin works the same way. It's covered in bacteria, most of which do nothing bad, and some help: by taking up the space and eating the food, they leave no room for harmful ones to move in.
 
-Now the trouble. Some bacteria *are* nasty — they attack the plant,
-multiply inside the leaf, and it sickens and dies. A bacterium that
-causes disease is called a **pathogen**, and pathogens destroy a serious
-share of the world's food crops every year.
+Some bacteria do attack plants. They multiply inside the leaf, and the plant sickens and can die. A microbe that causes disease is a **pathogen**, and plant pathogens destroy a large share of the world's crops every year.
 
-The conventional answer is a chemical spray. The alternative scientists
-are now chasing: if some of the plant's *own* harmless residents
-already keep pathogens out, could we identify those particular
-residents, grow them, and deliberately apply them to crops — using life
-to protect against life? That is **biocontrol**.
+The usual answer is a chemical spray. The alternative scientists are working on: if some of the plant's own harmless residents already keep pathogens out, could we find those residents, grow them, and apply them to crops on purpose? That's called **biocontrol**.
 
-A **strain** is one specific, named, genetically distinct type of
-bacterium kept alive in a laboratory freezer — the microbial equivalent
-of one particular breed rather than "dog" in general. Ours have names
-like `Leaf15` and `Leaf68`, because they were isolated from real leaves
-and numbered.
+A **strain** is one particular, named kind of bacterium kept alive in a laboratory freezer: one named breed, not "dog" in general. The strains in this project have names like `Leaf15` and `Leaf68`, because they were isolated from real leaves and numbered.
 
-So the practical question is: **which strains actually protect the
-plant?**
+So the practical question is: **which strains actually protect the plant?**
 
 ---
 
 ## The problem this project tackles
 
-### The pain point
+### Bacteria don't act alone
 
-Answering that is far harder than it sounds, for an interesting reason.
+Answering that is hard. Bacteria compete for food, hold each other back with chemicals, and sometimes help each other. A strain that protects a plant on its own in a clean laboratory dish may do nothing on a real leaf among thirty other kinds, and a strain that looks useless alone may matter a lot in company.
 
-Bacteria do not live alone. They compete for food, chemically inhibit
-one another, sometimes help one another. A strain that looks protective
-by itself in a clean laboratory dish may do nothing on a real leaf
-surrounded by thirty other species. A strain that looks useless alone
-may be a quiet hero in company.
+Suppose you run a 5-a-side football league and want to know which players win games. Testing a player alone against a wall tells you little, because football isn't played against a wall. So you form many random five-player teams, record every result, and work backwards: which players keep turning up in the teams that win?
 
-**An everyday analogy.** You manage a 5-a-side football league and want
-to know which individual players actually win games. Testing a player
-alone against a wall tells you nothing, because football is not played
-against a wall. So instead: form many random 5-player teams, record
-every result, then work backwards — *which players keep appearing in
-the teams that win?*
+That's the design of the study RealSignal rebuilds. Researchers at ETH Zurich took **35** harmless leaf bacteria, assembled **136 random five-strain communities**, put each one on its own set of plants, infected all of them with the same pathogen and measured how much pathogen grew. Then they used machine learning to work out which strains drove the good outcomes, tested the predictions on **70 more communities** kept back for the purpose, and went back to the laboratory to check.
 
-That is exactly the design of the study RealSignal rebuilds.
-Researchers at ETH Zurich took **35** harmless leaf bacteria, assembled
-**136 random 5-strain communities**, applied each to its own set of
-plants, infected all of them with the same pathogen, measured how much
-pathogen grew — then used machine learning to work out which
-individual strains drove the good outcomes, and went back to the
-laboratory to check.
+![The screen: a pool of strains, random teams of five, plants and pathogen, then working backwards](figures/screening_design.png)
 
-It held up. Three strains — *Pseudomonas* Leaf15, *Rhizobium* Leaf68
-and *Acidovorax* Leaf76 — genuinely reduced the pathogen, and one had
-never been identified as protective before.
+Three strains, *Pseudomonas* Leaf15, *Rhizobium* Leaf68 and *Acidovorax* Leaf76, reduced the pathogen, and one of them hadn't been known as protective before.
 
-### Why it matters
+### Why the design matters
 
-That is a template for finding useful microbes without brute-force
-testing every possibility — and brute force is the field's current
-bottleneck. A pool of 35 strains yields over 300,000 possible 5-strain
-communities. A laboratory can test perhaps a hundred a year.
+Testing every possibility is out of reach. Thirty-five strains taken five at a time make **324,632** possible communities. At a hundred communities a year (an assumption; [`docs/interactive/combinations.html`](docs/interactive/combinations.html) lets you change it), testing them all would take over 3,000 years.
 
-### The second pain point: does it reproduce?
+![Every 5-strain community from 35 strains, and the 206 the study tested](figures/combinations.png)
 
-A published result is a *claim*. Independently rebuilding it from the
-released data — by someone else, on another machine, in another
-language — is what turns a claim into knowledge. Surveys across many
-fields keep finding that a large share of published computational
-results are hard or impossible to rebuild: code goes missing, software
-versions drift, an undocumented manual step existed.
+So the real question is which few communities to test, and how to learn the most from them. The study's answer, random communities plus machine learning, is a template for finding useful microbes without testing everything.
 
-Reproduction work is genuinely valuable and genuinely rare — and almost
-nobody does it in public, step by step, in a way a newcomer can follow.
+### Does the result reproduce?
 
-### What RealSignal is
+A published result is a claim. Rebuilding it from the released data, by someone else, on another computer, in another language, is how a claim gets checked. Studies across many fields keep finding that a large share of published computational results are hard to rebuild: code goes missing, software versions drift, a manual step was never written down.
 
-An end-to-end, open, independent reproduction **and extension**, built
-in Python from four linked published datasets:
+### What RealSignal does
 
-1. **Acquire** all four sources from their permanent public archives,
-   each verified by checksum.
-2. **Harmonise** them onto one strain key with a tested, documented
-   transformation pipeline — four laboratories, years apart, spell the
-   same strain differently.
-3. **Reproduce** the published machine learning in Python (the original
-   was written in R), evaluated honestly on communities the model never
-   saw.
-4. **Compare** our numbers to the published numbers, plainly, including
-   where they disagree — then go further and **run the authors' own R
-   code**, which ships with their data. That gives a three-way
-   comparison (paper → their code → our rebuild) which can distinguish
-   a mistake in our rebuild from a gap in the original, where a
-   two-way comparison can only shrug.
-5. **Integrate** the genomic and network layers: do the strains the
-   model ranks highly carry more antibiotic-producing gene clusters?
-   That turns a statistical result into a mechanism.
-6. **Validate externally** against a separate study that measured every
-   strain *alone* — evidence our model never touched.
-7. **Serve** it as a real product: an API, an interface, a knowledge
-   graph, and an AI layer that can answer *why*.
+An open, independent reproduction and extension, built from five data layers out of four published sources:
 
-Every step is documented so a complete beginner can rebuild all of it
-and understand why each piece exists. **The repository is the
-tutorial.**
+1. **Acquire** every source from its permanent public archive, verified by checksum.
+2. **Harmonise** them onto one strain name with a tested, documented pipeline, because laboratories working years apart spell the same strain differently.
+3. **Reproduce** the published machine learning in Python (the original is in R), judged on communities the model never saw.
+4. **Compare** the numbers with the published ones, including where they disagree, and then **run the authors' own R code**, which ships with their data. That gives three results side by side (the paper, their code, the rebuild), which can tell a mistake in the rebuild apart from a gap in the original.
+5. **Integrate** the genome and network layers: do the strains the model ranks highly carry more antibiotic-producing gene clusters?
+6. **Validate** the ranking against a separate experiment that tested every strain *alone*, and measure how many communities were needed to reach the conclusion.
+7. **Serve** it as a product: an API, a web app, a knowledge graph, and AI features that answer *why* with sources.
 
 ---
 
-## What "reproduction" means, and why it is the whole point
+## Reproduction, replication and extension
 
-Three words get used loosely. This project uses them precisely:
+Three words get used loosely. This project uses them carefully:
 
-| Word | Plain meaning | Everyday analogy |
+| Word | What it means | In the kitchen |
 |---|---|---|
-| **Reproduction** | Same data, same question, rebuilt analysis | Re-cooking a dish from the published recipe, in your own kitchen |
-| **Replication** | New data from a new experiment, same question | Growing your own tomatoes and cooking it again |
-| **Extension** | Same data, new questions the original didn't ask | Asking whether it still works with half the cooking time |
+| **Reproduction** | same data, same question, analysis rebuilt | cooking a published recipe again in your own kitchen |
+| **Replication** | new data from a new experiment, same question | growing your own tomatoes and cooking it again |
+| **Extension** | same data, questions the original didn't ask | trying the recipe with half the cooking time |
 
-RealSignal does **reproduction** and **extension**. It cannot do
-replication — that needs a greenhouse, thirty-five bacterial cultures
-and six months. Stated plainly here and in every document, because
-overstating what a project proves is the fastest way to lose a reader's
-trust.
+RealSignal does **reproduction** and **extension**. Replication would need a growth chamber, thirty-five bacterial cultures and months of work, so it's out of scope.
 
-One honest subtlety worth understanding before you start. Our
-reproduction is **cross-language**: the authors worked in R (`caret`,
-`randomForest`, `glmnet`); we work in Python (`scikit-learn`). The
-mathematics is the same; the defaults, random-number generators and
-small implementation choices are not. So expect *close agreement in the
-conclusions* and **not** digit-for-digit identical numbers. A
-cross-language reproduction landing in the same place is arguably
-stronger evidence than a same-language one, because it shows the
-finding does not depend on one toolbox.
+The reproduction crosses languages. The authors worked in R; the rebuild uses Python (`scikit-learn`). The mathematics is the same, but default settings, random-number generators and small implementation choices differ, so expect the same conclusions and close numbers, not identical digits. Where the numbers differ, the job is to explain why, without adjusting settings until they match a number already known (a well-known way to fool yourself, called *hindsight fitting*).
 
-Where our numbers differ, the job is to explain why — not to quietly
-tune settings until they match. Tuning until you agree with an answer
-you already know is a well-known way to fool yourself, and it has a
-name: *hindsight fitting*.
+![Three results, three comparisons](figures/three_way.png)
 
 ---
 
@@ -190,401 +122,290 @@ name: *hindsight fitting*.
 
 ```mermaid
 flowchart LR
-    A["Four published<br/>datasets"] -->|"verified<br/>download"| B["Raw landing zone<br/><i>never edited</i>"]
-    B -->|"dbt: harmonise<br/>+ test"| C[("DuckDB<br/>analytics")]
-    B -->|"dbt"| D[("Neo4j<br/>knowledge graph")]
-    C --> E["Models<br/>RF + elastic net<br/><i>tracked in MLflow</i>"]
-    E --> F["Honest evaluation<br/>held-out · baselines<br/>external validation"]
+    A["Four published<br/>sources"] -->|"verified<br/>download"| B["Raw copies<br/>(never edited)"]
+    B -->|"dbt: harmonise<br/>and test"| C[("DuckDB<br/>analysis")]
+    C --> D[("Neo4j<br/>knowledge graph")]
+    C --> E["Models: random forest,<br/>elastic net<br/>(tracked in MLflow)"]
+    E --> F["Evaluation: held-out<br/>communities, baselines,<br/>external validation"]
     F --> G[("PostgreSQL")]
     G --> H["FastAPI"]
     D --> H
-    H --> I["Streamlit<br/><i>internal</i>"]
-    H --> J["React + TS<br/><i>the product</i>"]
-    H --> K["AI layer<br/>GraphRAG · MCP · agent"]
-    L["Airflow"] -.->|"runs it all,<br/>on schedule"| B
+    H --> I["Streamlit<br/>(prototype)"]
+    H --> J["React + TypeScript<br/>(the web app)"]
+    H --> K["AI features:<br/>GraphRAG, MCP, agent"]
+    L["Airflow"] -.->|"runs it all,<br/>on a schedule"| B
 ```
 
-Take four published datasets about the same bacteria; keep untouched
-copies; harmonise them onto one key with a tested pipeline; store the
-result as tables *and* as a graph; train on the training communities
-only; judge against communities never seen and against an independent
-study; serve it through an API to a prototype, a product and an AI
-layer; and have an orchestrator run the whole thing.
-
-The full walkthrough — what every box is, why it exists, and what would
-break without it — is in
-[`docs/00-architecture.md`](docs/00-architecture.md).
+Download the published data and keep untouched copies; harmonise every source onto one strain name with a tested pipeline; store the result as tables and as a graph; train only on the training communities; judge the models on communities they never saw and against a separate experiment; serve the results through an API to a prototype, a web app and the AI features; and let an orchestrator run the whole chain. Every box, what it does and why it's there, is in [`docs/00-architecture.md`](docs/00-architecture.md).
 
 ---
 
-## The four data layers
+## The five data layers
 
-RealSignal is **multi-source**, and that is the point: one dataset
-answers one question, four linked datasets answer questions none of
-them could alone. All four describe the **same strain collection** —
-the *At*-LSPHERE, isolated from wild *Arabidopsis* leaves — which is
-what makes joining them possible.
+One dataset answers one question. Several linked datasets can answer questions none of them could alone. All of these describe the **same strain collection**, the *At*-LSPHERE, isolated from the leaves of wild *Arabidopsis* plants, and that shared collection is what makes joining them possible.
 
-| # | Layer | What it contributes | Source | Status |
+![Five layers of data from four published sources, joined on one strain name](figures/data_layers.png)
+
+| # | Layer | What it adds | Source | Status |
 |---|---|---|---|---|
-| 1 | Community composition + pathogen outcome | 136 training + 70 independent test communities | Emmenegger *et al.* 2023, *Nat Commun* 14:7983 · [Zenodo](https://doi.org/10.5281/zenodo.10118600) · CC-BY 4.0 | ✅ downloaded, checksum verified |
-| 2 | Strain genomes | The genetic blueprint of each strain | Bai *et al.* 2015, *Nature* 528:364 · [at-sphere.com](https://www.at-sphere.com/) | ⏳ access to be confirmed |
-| 3 | Biosynthetic gene clusters + strain–strain inhibition network | >1,000 predicted natural-product clusters; ~50,000 pairwise interactions | Helfrich *et al.* 2018, *Nat Microbiol* · [doi:10.1038/s41564-018-0200-0](https://doi.org/10.1038/s41564-018-0200-0) | ⏳ access to be confirmed |
-| 4 | Single-strain protection scores | 224 strains each tested **alone** | Vogel *et al.* 2021, *Nat Microbiol* · [doi:10.1038/s41564-021-00997-7](https://doi.org/10.1038/s41564-021-00997-7) | ⏳ access to be confirmed |
+| 1 | community make-up and pathogen outcome | 136 training and 70 test communities | Emmenegger *et al.* 2023, *Nat Commun* 14:7983; data and code on [Zenodo](https://doi.org/10.5281/zenodo.10118600), CC-BY 4.0 | ✅ downloaded and verified (Phase 1) |
+| 2 | strain genomes | the genetic blueprint of each strain | Bai *et al.* 2015, *Nature* 528:364 | ⬜ access checked in Phase 2 |
+| 3 | biosynthetic gene clusters | 1,053 predicted clusters for natural products such as antibiotics | Helfrich *et al.* 2018, *Nat Microbiol* 3:909, [doi:10.1038/s41564-018-0200-0](https://doi.org/10.1038/s41564-018-0200-0) | ⬜ access checked in Phase 2 |
+| 4 | strain-against-strain inhibition | more than 50,000 pairings of 224 strains, 725 of them inhibitory | the same Helfrich *et al.* 2018 study | ⬜ access checked in Phase 2 |
+| 5 | single-strain protection | 224 strains, each tested **alone** against the pathogen | Vogel *et al.* 2021, *Nat Microbiol* 6:1537, [doi:10.1038/s41564-021-00997-7](https://doi.org/10.1038/s41564-021-00997-7) | ⬜ access checked in Phase 2 |
 
-**Why each earns its place.** Layer 1 asks *which communities protect?*
-Layers 2–3 ask *why* — genes encode the chemistry a strain can make, so
-if the highly-ranked strains carry more antibiotic gene clusters, the
-statistical result gains a mechanism. Layer 3's network asks *how do
-they interact?* And Layer 4 is the prize: our model learns which
-strains matter **from communities only**, never seeing a strain tested
-alone — so comparing its ranking against Layer 4 tests the conclusion
-against evidence it never touched. That is a stronger claim than
-reproducing the original numbers.
+**What each one is for.** Layer 1 asks *which communities protect?* Layers 2 and 3 ask *why*: genes encode the chemistry a strain can make, so if the highly ranked strains carry more antibiotic gene clusters, the statistical result gains a possible mechanism. Layer 4 asks *how they interact*. Layer 5 is the strongest check: the model learns which strains matter from communities only and never sees a strain tested alone, so comparing its ranking with Layer 5 tests the conclusion against evidence it never touched. (Layer 5 comes from the same research group, so it's an independent dataset, not an independent laboratory, and the validation guide says so.)
 
-> **Honesty note.** Only Layer 1 is confirmed and downloaded. Layers
-> 2–4 come from papers whose supplementary data may or may not be
-> freely accessible; that has not yet been checked. **Phase 2 begins by
-> verifying access and recording the result — including any layer that
-> proves unobtainable.** A source that cannot be obtained is a finding
-> to report, not a gap to paper over. Layer 1 alone supports a complete
-> reproduction; every further layer is an enhancement, not a
-> dependency.
+> **Only Layer 1 is confirmed.** Some of the papers behind Layers 2 to 5 sit behind journal subscriptions, and whether their supplementary data can be downloaded freely hasn't been checked yet. Phase 2 starts by finding out and writing the answer down, including for any layer that turns out to be unobtainable. Layer 1 alone supports a complete reproduction; the others add to it.
 
 ---
 
 ## The product
 
-A system is not a product until you can name the user and the decision.
+A system becomes a product when you can name its user and the decision it helps with.
 
 - **User:** a scientist choosing which strain combinations to test next.
-- **Problem:** each combination costs weeks of glasshouse work, and
-  there are over 300,000 possibilities.
-- **Decision supported:** *which handful should I test next?*
-- **Value:** ranking candidates before committing laboratory time turns
-  an intractable search into a shortlist.
-- **Success metric:** hit rate of recommended communities versus
-  randomly chosen ones, measured on held-out data. A real number, not a
-  claim.
+- **Problem:** each combination costs weeks of growth-chamber work, and there are hundreds of thousands of them.
+- **Decision it supports:** which handful to test next.
+- **Value:** ranking candidates before committing laboratory time turns an impossible search into a shortlist.
+- **How success is measured:** the hit rate of recommended communities against randomly chosen ones, on communities the model never saw.
 
-**What it deliberately does not claim.** The plants were grown sterile,
-in sealed boxes, with exactly five known bacteria — a scientific
-simplification that is precisely what allows cause and effect to be
-established. But "Leaf76 protects *Arabidopsis* in a box" does not mean
-"Leaf76 will protect wheat in a field in July". The application says so
-on screen. A product that overstates its scope is worse than no
-product, because it will be believed.
+**What it doesn't claim.** The plants were grown sterile, in sealed boxes, with exactly five known bacteria. That simplification is what lets cause and effect be pinned down, but "Leaf76 protects *Arabidopsis* in a box" doesn't mean "Leaf76 will protect wheat in a field in July". The app says so on screen.
 
 ### The part that generalises
 
-The trained model is specific to these 35 strains, this pathogen and
-this plant. **The method is not.**
+The trained model belongs to these 35 strains, this pathogen and this plant. The method underneath carries over.
 
-Underneath the biology sits a problem that has nothing to do with
-bacteria: *you have N components, you can combine k of them, N-choose-k
-is astronomically larger than what you can afford to test, and each
-test is slow and expensive. Which handful do you test next?*
+The problem has a shape that has nothing to do with bacteria: you have N components, you can combine k of them, the number of combinations is far larger than what you can afford to test, and every test is slow and expensive. Which handful do you test next? The same shape turns up wherever combinations of living components are designed: protective mixtures in agriculture, multi-strain formulations in health, starter cultures in fermentation, production consortia in industrial biotechnology.
 
-Thirty-five strains taken five at a time gives over 300,000
-combinations. Testing a hundred a year, exhaustive search takes three
-thousand years. **No amount of laboratory funding solves that; only a
-better choice of which experiments to run does.**
+So the project is built to keep the method reusable:
 
-The same shape of problem appears wherever combinations of living
-components are designed — protective consortia in agriculture, defined
-multi-strain formulations in health, starter blends in fermentation,
-production consortia in industrial biotechnology. The organisms differ;
-the arithmetic does not.
+- **Nothing hard-codes 35 strains, five per community, one pathogen or one measurement.** The strain library, the community size and the measured outcome are inputs to the data model, from Phase 3 on.
+- **The useful loop is predict, test a shortlist, feed the results back, retrain, predict again.** The pipeline (Phase 12) is built so that a new file of results can go in and the models retrain from it.
+- **It can run entirely on your own computer.** Containerised, with no outside service and nothing uploaded. (The online copy from Phase 7 is for trying it with the published data.) I chose that for reproducibility, and it's also what anyone with a confidential strain library would need.
 
-So this project is built to make the *method* portable, not just the
-result:
+Where a larger version could go, technology by technology, is in [`docs/PRODUCT_ROADMAP.md`](docs/PRODUCT_ROADMAP.md).
 
-- **Nothing assumes 35 strains, five members, one pathogen or one
-  readout.** The data model treats the strain library, the community
-  size and the measured outcome as inputs, not constants. Hard-coding
-  them would be marginally simpler now and would make the whole thing
-  single-use.
-- **The interesting loop is not a single prediction.** It is *predict →
-  test a shortlist → feed the results back → retrain → predict better*.
-  A tool that only answers once is a calculator; one that improves with
-  every round of experiments is worth returning to.
-- **It runs entirely on your own machine.** Containerised, no external
-  service, nothing uploaded anywhere. That is a design choice made for
-  reproducibility, and it happens to be the only arrangement acceptable
-  to anyone whose strain library is confidential.
+---
+
+## Results, phase by phase
+
+Results appear here as each phase is finished, including the published numbers beside the rebuilt ones and the places where they disagree.
+
+| Phase | Result |
+|---|---|
+| 1 | the published archive (239,154,876 bytes) downloads and matches its published MD5 checksum. It holds 342 files: 53 data files the authors started from, 183 that their code wrote (results for eight random seeds and most of the supplementary tables), 22 R scripts and 76 figure PDFs ([details](docs/02-phase-1-data-acquisition.md#what-the-archive-holds)) |
+| 2 onwards | not run yet |
 
 ---
 
 ## Build status
 
-**Phase 1 of 18 complete.** The full plan, with effort estimates and
-the reasoning behind every tool chosen *and* rejected, is in
-[`docs/ROADMAP.md`](docs/ROADMAP.md).
+The full plan, with effort estimates and the reasons behind every tool chosen and left out, is in [`docs/ROADMAP.md`](docs/ROADMAP.md). Science and platform phases alternate, so there's always something working to show, and a first app arrives halfway through the science while there's still time to act on what it teaches. Stopping at any version tag leaves something complete.
 
-Phases alternate between the science track and the platform track, so
-that there is always something working to show and the two keep
-correcting each other.
+| # | Phase | Track | Version | Status |
+|---|---|---|---|---|
+| 1 | Data acquisition: verified, logged, safe to re-run | Data | v0.1.0 | ✅ done |
+| 2 | The other data layers, or a record of why not | Data | n/a | ⬜ |
+| 3 | Harmonisation with dbt: one strain name, tested, documented | Data | v0.2.0 | ⬜ |
+| 4 | Exploration: distributions, data quality, first figures | Data | n/a | ⬜ |
+| 5 | Reproduction of the published models in Python, with MLflow | Science | v0.3.0 | ⬜ |
+| 6 | **The original R analysis:** run the authors' code in R and RStudio; the three-way comparison | Science | v0.4.0 | ⬜ |
+| 7 | Streamlit prototype, online | Product | v0.5.0 | ⬜ |
+| 8 | Multi-omics integration: genome, gene-cluster and network features | Science | n/a | ⬜ |
+| 9 | External validation and the data-efficiency curve | Science | v0.6.0 | ⬜ |
+| 10 | PostgreSQL and FastAPI, the first container | Platform | n/a | ⬜ |
+| 11 | React and TypeScript frontend | Platform | n/a | ⬜ |
+| 12 | Orchestration: a plain runner, then Airflow | Platform | v0.7.0 | ⬜ |
+| 13 | Knowledge graph and ontology (Neo4j) | AI | n/a | ⬜ |
+| 14 | GraphRAG: answers with cited sources | AI | n/a | ⬜ |
+| 15 | MCP server: the project's tools for AI assistant apps | AI | n/a | ⬜ |
+| 16 | Recommendation agent | AI | v0.8.0 | ⬜ |
+| 17 | The whole system in containers, Docker or Podman | Release | v0.9.0 | ⬜ |
+| 18 | Tests on three operating systems, release 1.0 | Release | v1.0.0 | ⬜ |
 
-| # | Phase | Track | Status |
-|---|---|---|---|
-| 1 | Data acquisition — verified, logged, idempotent | Science | ✅ **done** |
-| 2 | Multi-source ingestion (Layers 2–4) | Science | ⏳ |
-| 3 | Harmonisation with dbt — one key, tested, documented | Science | ⏳ |
-| 4 | Exploration — distributions, quality, first figures | Science | ⏳ |
-| 5 | Reproduction of the published models + MLflow | Science | ⏳ |
-| 6 | **The original R analysis** — run the authors' own code; the three-way comparison | Science | ⏳ |
-| 7 | Streamlit prototype — the first clickable thing | Platform | ⏳ |
-| 8 | **Multi-omics integration** — genomic + network features | Science | ⏳ |
-| 9 | **External validation** against single-strain scores | Science | ⏳ |
-| 10 | PostgreSQL + FastAPI, containerised | Platform | ⏳ |
-| 11 | React + TypeScript frontend | Platform | ⏳ |
-| 12 | Airflow orchestration | Platform | ⏳ |
-| 13 | Knowledge graph + ontology (Neo4j) | AI | ⏳ |
-| 14 | GraphRAG chatbot — grounded, cited answers | AI | ⏳ |
-| 15 | MCP server — the project, queryable by an AI assistant | AI | ⏳ |
-| 16 | Recommendation agent | AI | ⏳ |
-| 17 | **Containerise the whole system** — one command, Docker *or* Podman | Industrialisation | ⏳ |
-| 18 | CI/CD and release | Industrialisation | ⏳ |
-
-**Estimated total: ~170 hours.** That is stated rather than softened —
-a plan claiming this fits into three weekends would be describing
-something much smaller. Milestones are defined so that stopping at any
-of them leaves something coherent; the science is complete at v0.8.0,
-after Phase 9.
-
-**Results will be published here as each phase completes**, including
-our numbers beside the published ones, and including the places they
-disagree. A reproduction that reports only its successes is not a
-reproduction.
+**About 174 hours in all**, so at four to five hours a week, eight to ten months. The science is complete at v0.6.0, after Phase 9. [`docs/ROADMAP.md` section 5](docs/ROADMAP.md#5-effort-and-schedule) shows where the estimate comes from.
 
 ---
 
 ## The tutorial, in order
 
-Every step — from an empty laptop to a working system — is taught in
-`docs/`, written for someone with no programming and no biology
-background, with every term defined and every command shown with the
-output you should expect.
+Every step from an empty laptop to a working system is taught in `docs/`, for someone with no programming and no biology background. Every term is defined and every command is shown with the output you should expect.
 
 | # | Guide | What it teaches |
 |---|---|---|
-| — | [Roadmap](docs/ROADMAP.md) | The full 16-phase plan, effort estimates, and why some popular tools are deliberately excluded |
-| 00 | [Architecture](docs/00-architecture.md) | Every piece of the system, why it exists, and how data moves between them |
-| 01 | [Setup](docs/01-setup.md) | Blank laptop → working workshop: Python, Git, virtual environments, GitHub — on Windows, macOS and RHEL 8 |
-| 02 | [Phase 1 — Data acquisition](docs/02-phase-1-data-acquisition.md) | Permanent archives, DOIs, checksums, read-only raw data, provenance |
-| — | [Containers](docs/CONTAINERS.md) | What a container is, from zero; Docker vs Podman; installing either on Windows, macOS or RHEL 8; running the whole system with one command |
-| — | [Git workflow](docs/GIT_WORKFLOW.md) | Branches from zero, and the exact commands used at the end of every phase |
-| — | [Glossary](docs/GLOSSARY.md) | Every term, biological and technical, in plain language |
+| ★ | [Handbook](docs/HANDBOOK.md) | the whole journey in one document: read it first |
+| 00 | [Architecture](docs/00-architecture.md) | every part of the system, why it exists, and how data moves between them |
+| 01 | [Setup](docs/01-setup.md) | blank laptop to working workshop: Python, Git, a virtual environment, GitHub and the safety gate, on Windows, macOS and RHEL 8 |
+| 02 | [Phase 1: data acquisition](docs/02-phase-1-data-acquisition.md) | permanent archives, DOIs, checksums, read-only raw data, provenance |
+| 03 to 19 | the phase guides for Phases 2 to 18 | one guide per phase, added as each phase is built |
+| n/a | [Git workflow](docs/GIT_WORKFLOW.md) | branches from zero, and the commands at the end of every phase |
+| n/a | [Containers](docs/CONTAINERS.md) | what a container is, Docker and Podman, and running the whole system with one command |
+| n/a | [Roadmap](docs/ROADMAP.md) | the 18 phases, the version tags, the effort, and the tools left out on purpose |
+| n/a | [Product roadmap](docs/PRODUCT_ROADMAP.md) | beyond the repository: what a larger version adds, with a verdict for each technology |
+| n/a | [Glossary](docs/GLOSSARY.md) | every term, biological and technical, in plain language |
 
 ---
 
-## About the data (honesty notes)
+## About the data: what it is and what it isn't
 
-The credibility of a reproduction rests entirely on being straight
-about its limits.
-
-- **The data is real, published, and not ours.** Layer 1 was generated
-  by Emmenegger, Massoni, Pestalozzi, Bortfeld-Miller, Maier and
-  Vorholt at ETH Zurich and released under CC-BY 4.0, which permits
-  reuse **on condition the creators are credited**. They are credited
-  in this README, in every document, in the application, and in the
-  code that downloads their archive. **This project takes no credit for
-  the data or the original scientific finding.** Our contribution is
-  the independent rebuild, the additional analyses, and the teaching
-  material.
-- **This is not a criticism of the original work.** The authors did the
-  thing that makes reproduction possible: they released their data and
-  code, publicly, permanently, openly licensed. That is still not
-  universal. Reproducing a study is engagement with it, not an
-  accusation against it.
-- **Cross-language differences are expected.** Numbers close to the
-  published ones support the finding; identical numbers would be
-  slightly suspicious.
-- **The biology is a controlled laboratory system, not a field.**
-- **A model trained here predicts this system only** — these 35
-  strains, this pathogen, this plant, this assay. Not agricultural
-  advice.
-- **The measurements are noisy on purpose.** Living plants vary. Some
-  bacterial counts could not be attributed to a single strain and are
-  recorded as ambiguous; some plants were excluded for contamination.
-  Those decisions are documented by the original authors, and our
-  harmonisation handles them explicitly rather than quietly dropping
-  rows.
+- **The data is real, published, and not mine.** Layer 1 was produced by Emmenegger, Massoni, Pestalozzi, Bortfeld-Miller, Maier and Vorholt at ETH Zurich and released under CC-BY 4.0, which allows reuse **as long as the creators are credited**. They're credited here, in the guides, in the code that downloads their archive, and from Phase 7 in the app. This project takes no credit for the data or for the original finding; what it adds is the independent rebuild, the further analyses and the teaching material.
+- **Reproducing a study isn't a criticism of it.** The authors released their data and code publicly, permanently and under an open licence, which is what makes this project possible at all.
+- **Cross-language differences are expected.** Close numbers support the finding; identical digits would be slightly surprising.
+- **It's a controlled laboratory system, not a field.** A model trained here describes these 35 strains, this pathogen, this plant and this measurement. It isn't advice for growing crops.
+- **The measurements are noisy, as living things are.** Plants vary, some bacterial counts couldn't be assigned to a single strain, and some plants were excluded for contamination. The original authors documented those decisions, and the harmonisation in Phase 3 handles each one in the open instead of dropping rows quietly.
 - **Nothing here is a claim about any commercial product.**
 
 ---
 
 ## Repository map
 
-Items marked *(planned)* do not exist yet — see
-[the roadmap](docs/ROADMAP.md).
+The tree as it is today, plus the folders later phases fill (✅ exists, ⬜ arrives with a later phase). The [Handbook's file index](docs/HANDBOOK.md#every-file-in-the-repository-and-where-it-is-explained) says which guide explains each file.
 
 ```
 realsignal/
-├── README.md                     ← you are here
-├── LICENSE                       ← MIT (this project's code and docs only)
-├── requirements.txt              ← the Python packages, with version ranges
-├── setup.sh / setup.ps1          ← one-command setup (macOS/Linux · Windows)
-├── compose.yaml                  ← all six services            (planned, P17)
-├── container.sh / container.ps1  ← engine-detecting wrappers   (planned, P17)
-├── .gitignore                    ← what must never be committed
+├── README.md                          ← you are here                                        ✅
+├── CHANGELOG.md                       ← what changed, version by version                    ✅
+├── LICENSE                            ← MIT, for this project's code and documents          ✅
+├── requirements.txt                   ← the Python packages, with version ranges            ✅
+├── requirements.lock.txt              ← the exact versions on the computer it was built on  ✅
+├── setup.sh / setup.ps1               ← one-command setup, macOS/Linux and Windows          ✅
+├── check-public-safe.sh               ← the safety gate, run before every push              ✅
+├── pytest.ini                         ← tells the tests where to look                       ✅
+├── .gitignore                         ← what Git must never record                          ✅
+├── compose.yaml                       ← every service, started together (Phase 17)          ⬜
+├── container.sh / container.ps1       ← finds Docker or Podman and runs it (Phase 17)       ⬜
 │
-├── docs/                         ← the tutorial — the main deliverable
-│   ├── ROADMAP.md                ← the full 16-phase plan
-│   ├── 00-architecture.md        ← how it all fits together
-│   ├── 01-setup.md               ← blank laptop → working workshop
-│   ├── 02-phase-1-data-acquisition.md
-│   ├── CONTAINERS.md             ← containers from zero; Docker and Podman
-│   ├── GIT_WORKFLOW.md           ← branches, and the end-of-phase ritual
-│   └── GLOSSARY.md               ← every term, plain language
+├── docs/                              ← the tutorial
+│   ├── HANDBOOK.md                    ← the whole journey, day 0 to the product             ✅
+│   ├── 00-architecture.md             ← how it all fits together                            ✅
+│   ├── 01-setup.md                    ← blank laptop to working workshop                    ✅
+│   ├── 02-phase-1-data-acquisition.md ← Phase 1: the verified download                      ✅
+│   ├── 03 to 19                       ← one guide per phase, Phases 2 to 18                 ⬜
+│   ├── GIT_WORKFLOW.md                ← branches and the end-of-phase ritual                ✅
+│   ├── CONTAINERS.md                  ← containers from zero, Docker and Podman             ✅
+│   ├── ROADMAP.md                     ← the 18 phases, tags, effort, tools left out         ✅
+│   ├── PRODUCT_ROADMAP.md             ← beyond the repository                               ✅
+│   ├── GLOSSARY.md                    ← every term, in plain language                       ✅
+│   ├── img/                           ← logo, icon, wordmark and journey map (SVG)          ✅
+│   ├── interactive/                   ← pages to click: the journey, the combinations       ✅
+│   └── index.html, .nojekyll          ← the front page of the optional GitHub Pages site    ✅
 │
-├── scripts/                      ← standalone tools you run by hand
-│   ├── check_env.py              ← proves your environment is correct
-│   └── fetch_data.py             ← downloads + verifies + inventories
-│
-├── src/realsignal/               ← the reusable, importable, tested engine
-├── dbt/                          ← harmonisation pipeline      (planned, P3)
-├── R/                            ← the original authors' analysis (planned, P6)
-├── notebooks/                    ← exploration                 (planned, P4)
-├── tests/                        ← automated checks            (planned, P5)
-├── app/                          ← Streamlit prototype         (planned, P7)
-├── api/                          ← FastAPI backend             (planned, P10)
-├── frontend/                     ← React + TypeScript          (planned, P11)
-├── airflow/                      ← orchestration DAGs          (planned, P12)
-├── mcp/                          ← MCP server                  (planned, P15)
-├── figures/                      ← charts, produced by code    (planned)
-└── data/                         ← NOT in Git — regenerated by the fetchers
-    ├── raw/                      ← downloads, never edited
-    └── processed/                ← the databases
+├── scripts/
+│   ├── check_env.py                   ← proves the setup works                              ✅
+│   └── fetch_data.py                  ← probe, download, verify, unpack, list, log          ✅
+├── notebooks/
+│   └── explore_raw.py                 ← a first look at what the archive holds              ✅
+├── figures/
+│   ├── make_concept_figures.py        ← draws the concept pictures (PNG)                    ✅
+│   ├── make_illustrations.py          ← draws the logo, journey map, journey page           ✅
+│   └── *.png                          ← the pictures themselves                             ✅
+├── tests/
+│   ├── test_fetch_data.py             ← the download script, offline                        ✅
+│   ├── test_safety_gate.py            ← the safety gate refuses what it should              ✅
+│   └── test_docs.py                   ← links work, no look-alike characters                ✅
+├── src/realsignal/                    ← the reusable Python code (grows from Phase 3)       ✅
+├── dbt/                               ← the harmonisation models (Phase 3)                  ⬜
+├── R/                                 ← the authors' R analysis, run as published (Phase 6) ⬜
+├── app/                               ← the Streamlit prototype (Phase 7)                   ⬜
+├── api/                               ← the FastAPI backend (Phase 10)                      ⬜
+├── frontend/                          ← the React and TypeScript web app (Phase 11)         ⬜
+├── airflow/                           ← the orchestration (Phase 12)                        ⬜
+├── mcp/                               ← the MCP server (Phase 15)                           ⬜
+└── data/                              ← never in Git: rebuilt by scripts/fetch_data.py
+    └── raw/                           ← the downloaded archive, never edited
 ```
 
-**Why `data/` is not in Git.** Practically, version control is for text
-you edit, not a 239 MB binary archive. More importantly: if the data
-can be regenerated by a script, *the script working is the proof the
-project works*. Anyone cloning this runs one command and gets
-byte-identical data, verified by checksum — a stronger guarantee than a
-committed copy nobody can check.
+**Why `data/` isn't in Git.** Version control is built for text you edit, not a 239 MB archive. And a script can rebuild the data: anyone who clones the repository runs one command and gets the same bytes, verified against the published checksum.
 
 ---
 
 ## How to run
 
-**Quick start**, once Python 3.11+ and Git are installed:
+**Quick start**, once Python 3.11 or newer and Git are installed:
 
 ```bash
 git clone https://github.com/akannan2987/realsignal.git
 cd realsignal
-
-# macOS / Linux
-./setup.sh
-source .venv/bin/activate
-
-# Windows PowerShell
-# .\setup.ps1
-# .\.venv\Scripts\Activate.ps1
-
-python scripts/check_env.py            # proves the workshop is built correctly
-python scripts/fetch_data.py --probe   # see what will be downloaded, without downloading
-python scripts/fetch_data.py           # download once (~239 MB), verified by checksum
 ```
 
-If that looked like a foreign language, that is expected and fine —
-**start instead at [`docs/01-setup.md`](docs/01-setup.md)**, which
-assumes a completely blank machine and explains every word, every
-command and every piece of output, for Windows, macOS and Linux alike.
+> **macOS / Linux**
+> ```bash
+> bash setup.sh
+> source .venv/bin/activate
+> ```
 
-**Or skip the setup entirely** (once Phase 17 is built). The whole
-system — database, graph, API, frontend, experiment tracking — runs
-containerised, with nothing else installed:
+> **Windows PowerShell** (if it says running scripts is disabled, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` once, then try again)
+> ```powershell
+> .\setup.ps1
+> .\.venv\Scripts\Activate.ps1
+> ```
+
+Then, on any system:
 
 ```bash
-git clone https://github.com/akannan2987/realsignal.git
-cd realsignal
-./container.sh up -d          # Windows: .\container.ps1 up -d
+python scripts/check_env.py            # proves the workshop is ready
+python scripts/fetch_data.py --probe   # what would be downloaded, without downloading
+python scripts/fetch_data.py           # download once (about 239 MB), verified by checksum
+python notebooks/explore_raw.py        # what the archive holds
+pytest -q                              # the automated tests
 ```
 
-Works with **Docker or Podman**, whichever you have. This is not a
-preference: Red Hat removed the Docker engine from RHEL 8, where Podman
-is the shipped default — so a project claiming to run on Windows, macOS
-*and* RHEL 8 has to support both. They implement the same OCI image
-standard, so one set of files serves both.
-[`docs/CONTAINERS.md`](docs/CONTAINERS.md) explains containers from
-zero and covers installing either engine on any of the three
-platforms.
+If that looks like a foreign language, that's expected. **Start at the [Handbook](docs/HANDBOOK.md)** instead, which begins with a blank computer and explains every word, every command and every line of output, on Windows, macOS and Linux.
+
+**Later, without installing anything but a container engine** (from Phase 17): the whole system, database, graph, API, apps and experiment tracking, starts with one command, using Docker or Podman, whichever you have. Red Hat doesn't ship Docker on RHEL 8 (Podman is its container engine), so supporting all three operating systems means supporting both. [`docs/CONTAINERS.md`](docs/CONTAINERS.md) explains containers from zero.
 
 ---
 
-## How this repository is developed (branches)
+## How I work on this repository (branches)
 
-Three long-lived branches; all work happens on `develop`.
+Three branches; all work happens on `develop`:
 
-- **`develop`** — where changes are made. Always work here.
-- **`beta`** — a checkpoint copy; what a tester would try.
-- **`master`** — the published, presentable state.
+- **`develop`**: where changes are made.
+- **`beta`**: a checkpoint copy, what a tester would try.
+- **`master`**: the published state.
 
-The end of every phase uses the same short ritual:
+Every phase ends the same way. First the checks, read before going on:
+
+```bash
+pytest -q                     # all tests pass
+./check-public-safe.sh        # must end with: SAFE TO PUSH (Windows: bash check-public-safe.sh in Git Bash)
+```
+
+Then the save:
 
 ```bash
 git switch develop
 git add -A
-git commit -m "Phase N: what changed"
+git commit -m "feat: what this phase added"
 git push origin develop develop:beta develop:master
-
+## --tags is optional, only when required (a version tag was created in this phase)
+## then switch back to local master and pull in the remote changes
 git switch master
 git pull --ff-only origin master
 git switch develop
 ```
 
-Why three branches for one person? Because the habit is the point: it
-separates work in progress from what other people see, it is what teams
-actually do, and it costs one extra line. Every command — including
-what a branch *is* — is explained in
-[`docs/GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md).
+The push line sends `develop` to all three branches on GitHub at once; the last three lines bring the local `master` in step and return to `develop`. The safety gate runs first: it refuses the all-clear if a secret, downloaded data, a private note, a database file, a path from my own computer, a macOS `.DS_Store` file or a picture carrying hidden records is about to be published. Commands and commit messages use plain keyboard characters only, because look-alike characters can break a command pasted into a terminal ([why](docs/01-setup.md#14-copy-commands-safely)). Every line, and what to do when Git complains, is in [`docs/GIT_WORKFLOW.md`](docs/GIT_WORKFLOW.md).
 
 ---
 
 ## Why the documentation is so detailed
 
-Documentation quality is a deliberate deliverable here, not an
-afterthought.
+This project's subject is whether a result can be rebuilt by somebody who wasn't there. It would make little sense to study that and then publish something nobody else could rebuild. So the repository holds itself to the standard it applies to the study: **someone with a blank laptop and no programming or biology background should be able to clone it, follow the guides in order, and end up with the same working system and an understanding of why each part exists.**
 
-This project's entire subject is reproducibility — whether a result can
-be rebuilt by somebody who wasn't there. It would be absurd to
-investigate that question and then publish something nobody else could
-rebuild. So the standard this repository holds itself to is the one it
-applies to the study it examines: **a stranger with a blank laptop, no
-programming background and no biology background must be able to clone
-this, follow the documents in order, and end up with the same working
-system and an understanding of why each piece exists.**
-
-Every command is shown with its expected output. Every term is in the
-glossary. Every file in the tree is explained somewhere. Where
-something goes wrong during the build, it gets written down and kept
-rather than tidied away — the mistakes are usually the most instructive
-part.
+Every command is shown with its expected output. Every term is in the glossary. Every file is explained somewhere, and the [Handbook](docs/HANDBOOK.md#every-file-in-the-repository-and-where-it-is-explained) says where. When something goes wrong during the build, it's written down in the phase guide's *Notes from the build*.
 
 ---
 
 ## Credits and licence
 
-**The data and the original scientific work** belong to their authors.
-Layer 1, which this project is built on first:
+**The data and the original scientific work** belong to their authors. Layer 1:
 
-> Emmenegger, B., Massoni, J., Pestalozzi, C. M., Bortfeld-Miller, M.,
-> Maier, B. A., & Vorholt, J. A. (2023). Identifying microbiota
-> community patterns important for plant protection using synthetic
-> communities and machine learning. *Nature Communications*, 14, 7983.
-> <https://doi.org/10.1038/s41467-023-43793-z>
+> Emmenegger, B., Massoni, J., Pestalozzi, C. M., Bortfeld-Miller, M., Maier, B. A., & Vorholt, J. A. (2023). Identifying microbiota community patterns important for plant protection using synthetic communities and machine learning. *Nature Communications*, 14, 7983. <https://doi.org/10.1038/s41467-023-43793-z>
 >
-> Data and code repository: <https://doi.org/10.5281/zenodo.10118600>
-> (CC-BY 4.0)
+> Data and code: <https://doi.org/10.5281/zenodo.10118600> (CC-BY 4.0)
 
-Further layers, each credited in full at the point of use: Bai *et al.*
-2015 (*Nature*), Helfrich *et al.* 2018 (*Nature Microbiology*), and
-Vogel *et al.* 2021 (*Nature Microbiology*).
+The further layers come from Bai *et al.* 2015 (*Nature*), Helfrich *et al.* 2018 (*Nature Microbiology*) and Vogel *et al.* 2021 (*Nature Microbiology*), each credited in full where it's used.
 
-**This repository's code and documentation** are released under the MIT
-licence. The authors' data retains its own licence and is **not**
-redistributed here — it is downloaded directly from the original
-archives by the fetcher scripts, so every user receives it from the
-source with its original terms attached.
+**This repository's code and documentation** are released under the [MIT licence](LICENSE). The authors' data keeps its own licence and isn't stored here: the scripts download it from the original archives, so everyone receives it from the source with its terms attached.

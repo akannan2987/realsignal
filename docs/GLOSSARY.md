@@ -1,1101 +1,357 @@
-# Glossary — every term, in plain language
+[Handbook](HANDBOOK.md) · [README](../README.md) · [Architecture](00-architecture.md) · [Roadmap](ROADMAP.md)
 
-This is a contract. **Every term used anywhere in this repository is
-defined here**, in ordinary words, with an everyday comparison wherever
-one helps. If you meet a word in any document, any code comment or any
-part of the application that is not explained here, that is a bug in
-the documentation — please open an issue.
+# Glossary: every term, in plain language
 
-Terms are grouped by where you first meet them. Within each group they
-are ordered so that earlier entries do not depend on later ones — you
-can read a group top to bottom without ever hitting a word that hasn't
-been introduced.
+Every biological and technical term used anywhere in RealSignal is defined here in everyday words, with a familiar comparison where one helps. If you meet a word in a guide, a code comment or an app screen that isn't here, that's a documentation bug worth reporting.
 
-**Contents**
+Terms are grouped by subject. Within a group, earlier entries don't depend on later ones, so a group reads from top to bottom. Terms for phases not built yet are marked *(Phase N)*.
 
-- [Group 1 — The biology](#group-1--the-biology)
-- [Group 2 — The experiment](#group-2--the-experiment)
-- [Group 3 — Your computer and the command line](#group-3--your-computer-and-the-command-line)
-- [Group 4 — Python and packages](#group-4--python-and-packages)
-- [Group 5 — Git and GitHub](#group-5--git-and-github)
-- [Group 6 — Data, files and databases](#group-6--data-files-and-databases)
-- [Group 7 — Machine learning](#group-7--machine-learning)
-- [Group 8 — Evaluation and honesty](#group-8--evaluation-and-honesty)
-- [Group 9 — Science and reproducibility](#group-9--science-and-reproducibility)
-- [Group 10 — The platform and AI layers](#group-10--the-platform-and-ai-layers)
-- [Group 11 — R and the three-way comparison](#group-11--r-and-the-three-way-comparison)
+## Contents
+
+- [Group 1: The biology](#group-1-the-biology)
+- [Group 2: The experiment](#group-2-the-experiment)
+- [Group 3: Your computer and the command line](#group-3-your-computer-and-the-command-line)
+- [Group 4: Python and packages](#group-4-python-and-packages)
+- [Group 5: Git and GitHub](#group-5-git-and-github)
+- [Group 6: Data, files and downloads](#group-6-data-files-and-downloads)
+- [Group 7: Databases and data engineering](#group-7-databases-and-data-engineering)
+- [Group 8: Machine learning](#group-8-machine-learning)
+- [Group 9: Evaluation](#group-9-evaluation)
+- [Group 10: Science and reproducibility](#group-10-science-and-reproducibility)
+- [Group 11: Applications and containers](#group-11-applications-and-containers)
+- [Group 12: Graphs and the AI features](#group-12-graphs-and-the-ai-features)
+- [Group 13: R and the three-way comparison](#group-13-r-and-the-three-way-comparison)
+- [Group 14: The documentation and releases](#group-14-the-documentation-and-releases)
 
 ---
 
-## Group 1 — The biology
+## Group 1: The biology
 
-**Bacterium** (plural: **bacteria**) — a single-celled living organism,
-far too small to see. Roughly a thousandth of a millimetre across. They
-are everywhere: soil, water, your skin, plant leaves. Most are harmless
-or helpful; a minority cause disease.
-
-**Microbe** — an umbrella word for any organism too small to see:
-bacteria, fungi, and others. In this project, all our microbes are
-bacteria.
-
-**Strain** — one specific, named, genetically distinct type of
-bacterium, maintained as a living culture in a laboratory. *Analogy:*
-"dog" is a species; "the Labrador in kennel 15" is a strain. Our
-strains have names like `Leaf15`, `Leaf68`, `Leaf76` — they were
-isolated from real plant leaves and numbered as they were catalogued.
-
-**Genus** — the family-name half of a bacterium's scientific name.
-*Pseudomonas* Leaf15 means "the strain numbered Leaf15, which belongs
-to the genus *Pseudomonas*". Written in italics by convention.
-*Analogy:* the surname in "Smith, John".
-
-**Microbiome** — the whole community of microbes living on or in
-something. Your gut microbiome; a leaf's microbiome. *Analogy:* the
-full population of a town, as opposed to one named resident.
-
-**Microbiota** — used interchangeably with microbiome in most writing,
-including in the source paper. Strictly, *microbiota* is the collection
-of organisms and *microbiome* is that collection plus their genes and
-surroundings. This project treats them as the same thing and says so.
-
-**Commensal** — a microbe that lives on a host without harming it.
-From the Latin for "sharing a table". All 35 strains in this project
-are commensals. *Analogy:* a lodger who pays rent, breaks nothing, and
-occasionally fixes the boiler.
-
-**Pathogen** — a microbe that causes disease. The one used here is
-*Pseudomonas syringae* pv. *tomato* DC3000, usually shortened to
-**Pst**. It infects plant leaves and multiplies inside them.
-
-**Infection** — deliberately applying the pathogen to the plants, in
-this experiment by spraying a measured dose.
-
-**Inoculation** — deliberately applying the *harmless* strains to the
-plants, before infection. The distinction between inoculation
-(commensals) and infection (pathogen) is the source paper's convention
-and this project keeps it.
-
-**Colonisation** — how much of a microbe has established itself on a
-plant. This is the thing actually measured. High pathogen colonisation
-= the pathogen thrived = the plant was not protected.
-
-**Biocontrol** — protecting a plant from disease using living organisms
-instead of chemicals. *Analogy:* introducing ladybirds to eat aphids,
-rather than spraying insecticide.
-
-**Protective strain / pathogen-reducing (PR) strain** — a strain whose
-presence measurably lowers pathogen colonisation. The source paper
-identified three: *Pseudomonas* Leaf15, *Rhizobium* Leaf68 and
-*Acidovorax* Leaf76.
-
-***Arabidopsis thaliana*** — thale cress, a small, fast-growing weed
-that plant scientists use as their standard experimental plant, the way
-medical researchers use mice. Small, quick, cheap, and enormously well
-studied. Often shortened to *Arabidopsis*.
-
-**Phyllosphere** — the above-ground surface of a plant (the leaves and
-stems) considered as a habitat for microbes. *Analogy:* "the rooftops"
-as an ecosystem for pigeons.
-
-**Axenic** — completely free of any other organism. An axenic plant is
-a sterile plant with no microbes on it at all — the blank control that
-everything else is compared against. *Analogy:* a clean room before
-anyone walks in.
-
-**Gnotobiotic** — an experimental system in which *every* organism
-present is known and deliberately put there. Not sterile, but with a
-fully known cast list. *Analogy:* a stage play where you know every
-actor by name, versus a crowd scene filmed on a real street.
+- **Bacterium** (plural **bacteria**): a living thing made of a single cell, about a thousandth of a millimetre across. They live everywhere (soil, water, skin, leaves); most are harmless or useful, and a minority cause disease.
+- **Microbe**: any living thing too small to see, including bacteria and fungi. All the microbes in this project are bacteria.
+- **Strain**: one particular, named kind of bacterium, kept alive in a laboratory and identified down to its genes. These ones have names like `Leaf15` and `Leaf76` because they were isolated from leaves and numbered.
+- **Genus**: the first part of a bacterium's scientific name, written in italics. *Pseudomonas* Leaf15 is the strain numbered Leaf15, in the genus *Pseudomonas*, much as a surname groups relatives.
+- **Microbiome**: the whole community of microbes living on or in something: a leaf, a gut, a patch of soil. The town's whole population, as opposed to one resident.
+- **Microbiota**: used to mean the same as microbiome in most writing, including the source paper. Strictly, the microbiota is the organisms and the microbiome includes their genes and surroundings; this project treats them as one.
+- **Commensal**: a microbe that lives on a host without harming it (from the Latin for "sharing a table"). All 35 strains in the study are commensals.
+- **Pathogen**: a microbe that causes disease. The study's is *Pseudomonas syringae* pv. *tomato* DC3000, shortened to **Pst**, which infects leaves and multiplies inside them.
+- **Inoculation**: putting the harmless strains onto the plants, before the pathogen arrives.
+- **Infection**: putting the pathogen onto the plants, here by spraying a measured dose. The source paper keeps the two words apart and so does this project.
+- **Colonisation**: how much of a microbe has settled on a plant; this is what gets measured. High pathogen colonisation means the pathogen thrived and the plant wasn't protected.
+- **Biocontrol**: protecting plants from disease with living organisms instead of chemicals, the way a gardener releases ladybirds to eat aphids instead of spraying.
+- **Protective strain** (the paper's **pathogen-reducing** or **PR strain**): a strain whose presence measurably lowers pathogen colonisation. The study found three: *Pseudomonas* Leaf15, *Rhizobium* Leaf68 and *Acidovorax* Leaf76.
+- ***Arabidopsis thaliana*** (thale cress, often just *Arabidopsis*): a small, fast-growing weed that plant scientists use as their standard plant, much as medical researchers use mice.
+- **Phyllosphere**: the parts of a plant above ground, leaves above all, seen as a home for microbes.
+- ***At*-LSPHERE**: a collection of bacteria isolated from the leaves of wild *Arabidopsis* plants. Every data layer in this project describes strains from it, which is why they can be joined.
+- **Axenic**: completely free of microbes. An axenic plant is sterile, the blank to compare everything else against.
+- **Gnotobiotic**: a system in which every organism present is known and was put there on purpose. Not sterile, but with a known cast list, like a stage play instead of a crowd scene filmed in a real street.
+- **Genome**: the complete set of a strain's DNA, its full instruction book. *(Layer 2, Phase 2)*
+- **Gene cluster**, or **biosynthetic gene cluster (BGC)**: a group of neighbouring genes that together make one chemical, often an antibiotic or another **natural product** (a compound made by a living thing). *(Layer 3)*
+- **Inhibition**: one strain holding back another's growth, for example by releasing a chemical. The **inhibition network** records which strain holds back which. *(Layer 4)*
+- **Multi-omics**: combining several kinds of biological measurement (genomes, chemistry, behaviour) about the same organisms. The "-omics" ending means "all of one kind", as in genomics, all the genes. *(Phase 8)*
 
 ---
 
-## Group 2 — The experiment
+## Group 2: The experiment
 
-**SynCom** (synthetic community) — a group of known strains
-deliberately combined and applied together. "Synthetic" here means
-*assembled by humans from known parts*, not artificial or fake.
-*Analogy:* a chosen 5-a-side team, versus whoever happens to turn up at
-the park.
-
-**Mini5SynCom** — the source paper's name for one team of exactly five
-strains. 136 of them formed the training set.
-
-**Strain pool** — the 35 strains that teams were drawn from. Choosing
-35 was a calculation, not a guess: with 136 teams of 5 drawn from 35
-strains, each strain appears in roughly 20 teams, which is enough
-repetition for the statistics to mean anything.
-
-**Prevalence** (of a strain) — in how many of the teams that strain
-appears. Roughly 20 here, by design.
-
-**CFU** (colony-forming unit) — the standard way of counting live
-bacteria. You spread a diluted sample on a jelly-like nutrient plate;
-each living bacterium that can grow forms one visible dot, called a
-colony; you count the dots and multiply back up by the dilution.
-*Analogy:* estimating how many fish are in a lake by netting one
-measured bucket and scaling up. One CFU ≈ one living bacterium that was
-able to grow.
-
-**CFU per gram of fresh weight** — CFU counted, divided by the weight
-of the plant it came from. Necessary because a bigger plant offers more
-surface to live on, so raw counts would unfairly favour big plants.
-*Analogy:* comparing crime rates per 100,000 residents instead of raw
-crime counts, so a city isn't automatically "worse" than a village.
-
-**Orders of magnitude** — factors of ten. Something two orders of
-magnitude larger is 100× larger. Bacterial counts span so many
-factors of ten that we always work with them on a logarithmic scale
-(below).
-
-**Log10 transformation** — replacing a number by "how many zeros it
-has", roughly. 1,000 becomes 3; 1,000,000 becomes 6. *Why:* our
-pathogen counts range from about 10,000 to about 1,000,000,000. On a
-plain scale, the huge values would swamp everything and any chart would
-be a flat line with one spike. On a log scale, "a tenfold difference"
-is the same visual distance everywhere, which is exactly how biologists
-think about these numbers. This is not a trick to make data look nicer;
-it is choosing the ruler that matches the quantity.
-
-**dpi** (days post infection) — days since the pathogen was applied.
-Measurements here were taken at 14 dpi.
-
-**Replicate** — a repeat of the same condition, to see how much of the
-variation is just noise. Here, several plants received each team.
-
-**Control** — a condition included specifically so you have something
-to compare against. This experiment's controls include axenic
-non-infected plants (nothing applied — what does a healthy plant look
-like?), axenic infected plants (pathogen only, no protectors — what
-does an unprotected infection look like?), and a community of all 35
-strains at once.
-
-**Experiment 1 / 2 / 3** — the source study's three rounds.
-Experiments 1 and 2 together produced the 136 training teams.
-Experiment 3 was run separately and produced 70 further teams, none
-matching a training team, used purely to test the finished models. That
-separation is the single most important design decision in the whole
-study, and Group 8 explains why.
+- **SynCom** (synthetic community): a group of known strains combined and applied together on purpose. *Synthetic* means "assembled by people from known parts", not fake.
+- **Mini5SynCom**: the source paper's name for one community of exactly five strains.
+- **Strain pool**: the 35 strains the communities were drawn from. The number was worked out, not guessed: with 136 communities of five, 35 strains lets each strain appear in about 20 communities, enough repeats for the statistics to mean something.
+- **Prevalence** (of a strain): how many communities it appears in; about 20 each here, by design.
+- **CFU** (colony-forming unit): the standard way to count live bacteria. Spread a diluted sample on a nutrient jelly, let each living bacterium grow into a visible dot (a **colony**), count the dots, and scale back up by the dilution. One CFU is roughly one living bacterium that could grow.
+- **CFU per gram of fresh weight**: the count divided by the plant's weight, so a big plant isn't counted as worse off just for offering more surface. Crime figures per 100,000 residents work the same way, so a city isn't automatically "worse" than a village.
+- **Order of magnitude**: a factor of ten. Two orders of magnitude larger means a hundred times larger.
+- **Log scale**, **log10**: replacing a number by roughly how many zeros it has: 1,000 becomes 3 and 1,000,000 becomes 6. Pathogen counts here run from about 10,000 to about 1,000,000,000, so on an ordinary scale the large values would squash everything else flat. On a log scale each step means ten times more, which is how biologists think about these numbers ([`figures/log_scale.png`](../figures/log_scale.png)).
+- **dpi** (days post infection): days since the pathogen was applied. The study measured at 14 dpi.
+- **Replicate**: a repeat of the same condition, to see how much of the variation is noise. Several plants received each community.
+- **Control**: a condition included only to compare against: here, sterile plants without the pathogen (what does a healthy plant look like?), sterile plants with it (what does an unprotected infection look like?), and all 35 strains at once.
+- **Experiments 1, 2 and 3**: the study's three rounds. Experiments 1 and 2 produced the 136 training communities. Experiment 3, run separately, produced 70 new ones used only to test the finished models.
+- **Screen** (or screening): testing many candidates in the same way to find the few worth a closer look.
 
 ---
 
-## Group 3 — Your computer and the command line
+## Group 3: Your computer and the command line
 
-**Operating system (OS)** — the software your whole computer runs on:
-Windows, macOS, or Linux. This project works on all three; where a
-command differs, the documents show all versions.
-
-**RHEL** (Red Hat Enterprise Linux) — a version of Linux common on
-company servers. **RHEL 8** is one release of it. If you are on a work
-Linux machine, this is often what you are on.
-
-**VM** (virtual machine) — a whole computer simulated inside another
-computer. Common at work: your Windows laptop connects to a Linux VM
-somewhere in a data centre. Everything in these documents works the
-same either way.
-
-**Terminal** (macOS/Linux) / **PowerShell** (Windows) — a window where
-you type commands as text instead of clicking. *Analogy:* ordering at a
-counter by saying exactly what you want, rather than pointing at
-pictures on a menu. Slower to learn, far faster and far more precise
-once learned, and — crucially — every instruction can be written down
-exactly, which is why documentation uses it.
-
-**Command** — one instruction typed into the terminal, e.g.
-`python --version`.
-
-**Prompt** — the text the terminal shows before your cursor, waiting
-for input. In these documents commands are shown *without* the prompt,
-so you can copy the whole line safely.
-
-**Shell** — the program inside the terminal that reads your commands.
-**bash** and **zsh** are the usual ones on Linux and macOS,
-**PowerShell** on Windows.
-
-**Directory** — a folder. The two words mean the same thing; command
-lines say "directory".
-
-**Path** — the address of a file or folder.
-`docs/01-setup.md` is a **relative path** (starting from where you
-are); `C:\Users\me\realsignal\docs\01-setup.md` or
-`/home/me/realsignal/docs/01-setup.md` is an **absolute path**
-(starting from the top of the disk). Windows separates folders with
-`\`, macOS and Linux with `/`.
-
-**Working directory** — the folder your terminal is currently "sitting
-in". Commands act relative to it. `cd` changes it; `pwd` (macOS/Linux)
-or `Get-Location` (Windows) prints it. *Analogy:* which room of the
-house you are standing in — "fetch the towels" means something
-different in the kitchen than in the bathroom.
-
-**Environment variable** — a named setting your computer holds in
-memory that programs can read. Used for things you must not write down
-in files, like passwords. Not needed for this project's public data,
-but defined here because it appears in the setup document's safety
-notes.
-
-**PATH** (the environment variable) — the list of folders your computer
-searches when you type a command name. If you install Python but the
-terminal says "command not found", nine times out of ten Python is
-installed but its folder is not on your PATH. *Analogy:* the shop
-exists, but it isn't on the map your driver is using.
+- **Operating system** (OS): the software a computer runs on: Windows, macOS or Linux. This project works on all three, and the guides show each version where a command differs.
+- **RHEL** (Red Hat Enterprise Linux): a version of Linux common on company servers; **RHEL 8** is one release. **Rocky Linux** and **AlmaLinux** are free rebuilds of it, and everything said about RHEL 8 applies to them.
+- **Virtual machine** (VM): a whole computer simulated inside another one.
+- **Terminal** (macOS and Linux) or **PowerShell** (Windows): a window where you type commands instead of clicking. Slower to learn and far more precise afterwards, and every instruction can be written down exactly, which is why the guides use it.
+- **Git Bash**: a small terminal that comes with Git for Windows and understands macOS and Linux commands. Windows users run the safety gate in it.
+- **Command**: one instruction typed into the terminal, such as `python --version`.
+- **Prompt**: the text the terminal shows before the cursor while it waits for you. The guides show commands without it, so a whole line can be copied.
+- **Shell**: the program inside the terminal that reads commands. **bash** and **zsh** are the usual ones on Linux and macOS.
+- **Directory**: a folder. Command lines say directory; the two words mean the same.
+- **Path**: the address of a file or folder. `docs/01-setup.md` is a **relative path**, starting from the project folder; `/Users/<you>/projects/realsignal/docs/01-setup.md` is an **absolute path**, starting from the top of the disk. Windows separates folders with `\`, macOS and Linux with `/`. The guides always name files by their path from the project folder.
+- **Project folder**: the folder that holds `README.md`. Every command in the guides is run from there.
+- **Working directory**: the folder the terminal is currently in; commands act relative to it. `cd` changes it, and `pwd` (macOS and Linux) or `Get-Location` (Windows) prints it.
+- **Environment variable**: a named setting the computer holds in memory for programs to read, used for things such as passwords that must never be written into files.
+- **PATH**: the environment variable listing the folders searched when you type a command name. "Command not found" after installing something usually means its folder isn't on the PATH.
+- **sudo**: "run this as administrator" on macOS and Linux. It asks for your password.
+- **chmod +x**: marks a file as runnable on macOS and Linux. A file can be readable without being runnable, which is why `./check-public-safe.sh` can say `Permission denied`.
+- **Look-alike characters**: characters that resemble keyboard ones but aren't: a long dash for `-`, curly quotes for `"`. Word processors and web pages insert them, and they break commands pasted into a terminal ([`docs/01-setup.md` section 14](01-setup.md#14-copy-commands-safely)).
 
 ---
 
-## Group 4 — Python and packages
+## Group 4: Python and packages
 
-**Python** — the programming language this project is written in.
-Widely used, readable, and the standard language for data work and
-machine learning.
-
-**Script** — a file of Python instructions, ending in `.py`, that runs
-from top to bottom when you execute it. *Analogy:* a recipe card.
-
-**Module / package / library** — reusable code somebody else wrote that
-you can use in your own. Strictly: a *module* is one file, a *package*
-is a folder of modules, a *library* is the informal word for either.
-*Analogy:* rather than forging your own screwdriver, you buy one.
-
-**pip** — Python's package installer: the command that fetches
-libraries from the internet and puts them where Python can find them.
-*Analogy:* the app store for Python code.
-
-**PyPI** (the Python Package Index) — the public warehouse pip
-downloads from. Pronounced "pie-pea-eye".
-
-**Virtual environment** (**venv**) — a private, sealed copy of Python
-and its packages, belonging to one project only. **Why this matters
-more than it sounds:** project A may need pandas version 1, project B
-pandas version 2. Install both system-wide and one of them breaks. A
-virtual environment gives each project its own sealed toolbox, so they
-cannot interfere. *Analogy:* a chef's knife roll for each restaurant,
-rather than one shared drawer everybody rummages in. This project's
-lives in a folder called `.venv`.
-
-**Activate** (a virtual environment) — telling your terminal "for this
-session, use *this* project's toolbox". Until you activate, `python`
-means the system's Python, not the project's. You re-activate every
-time you open a new terminal; forgetting to is the single most common
-beginner confusion, and the setup guide gives you a way to check.
-
-**requirements.txt** — a plain text file listing exactly which packages
-and which versions this project needs. `pip install -r requirements.txt`
-rebuilds the toolbox from it. *Analogy:* the parts list that comes with
-flat-pack furniture — with it, anybody can assemble the same thing.
-
-**Pinning** (a version) — writing `pandas==2.2.3` rather than `pandas`,
-so everyone gets the identical version. Unpinned dependencies are one
-of the top reasons old analyses stop working: the code didn't change,
-the library underneath it did.
-
-**pandas** — the Python library for working with tables of data.
-*Analogy:* a spreadsheet you drive with typed instructions instead of a
-mouse — so every step is recorded, repeatable and reviewable.
-
-**DataFrame** — pandas' name for one table: rows, named columns, like a
-spreadsheet sheet.
-
-**NumPy** — the library underneath pandas that does fast arithmetic on
-large blocks of numbers.
-
-**scikit-learn** — the standard Python machine-learning library.
-Provides both the models and, just as importantly, the tools to measure
-them honestly. Written `sklearn` in code.
-
-**Streamlit** — a library that turns a Python script into a web
-application with buttons and sliders, without needing web development
-skills. *Analogy:* your analysis, but with knobs anyone can turn.
-
-**pytest** — the standard tool for writing **unit tests** (Group 6).
-
-**IDE / editor / VS Code** — a program for writing code comfortably,
-with colouring and error highlighting. **VS Code** (Visual Studio Code)
-is free and works identically on all three operating systems. Optional
-— everything here also works in any text editor — but recommended.
+- **Python**: the main language of this project, readable and the standard for data work and machine learning.
+- **Script**: a file of Python instructions ending in `.py`, run from top to bottom.
+- **Function**: a named, reusable piece of code that takes inputs and gives back a result, such as `compute_md5(path)`.
+- **Module, package, library**: code someone else wrote that your code can use. A module is one file, a package a folder of modules, and library is the everyday word for either.
+- **Import**: making a module's code available in yours (`import pandas`).
+- **pip**: Python's package installer. `python -m pip` makes sure it's the pip that belongs to the Python you're using.
+- **PyPI** (the Python Package Index): the public warehouse pip downloads from.
+- **Virtual environment** (`.venv`): a private copy of Python and its packages for one project only, so two projects needing different versions of the same package can't break each other. Like a pencil case per subject instead of one shared drawer.
+- **Activate** (a virtual environment): telling the terminal to use this project's environment for the session. `(.venv)` at the start of the prompt shows it's active. Every new terminal needs it again.
+- **`requirements.txt`**: the list of packages the project needs, with version ranges. `python -m pip install -r requirements.txt` rebuilds the environment from it.
+- **`requirements.lock.txt`**, **lock file**: the exact versions installed on a computer where everything worked, written by `python -m pip freeze`. The ranges make an install possible on every system; the lock file records what a working one looked like.
+- **Version range**: `pandas>=2.2,<4.0` means any version from 2.2 up to, but not including, 4.0.
+- **pandas**: the Python library for tables of data, a spreadsheet driven by typed instructions so every step is recorded and repeatable.
+- **DataFrame**: pandas' word for one table, with rows and named columns.
+- **NumPy**: the library under pandas that does fast arithmetic on large blocks of numbers.
+- **requests**: the library that downloads files over the internet.
+- **hashlib**: Python's built-in library for checksums such as MD5.
+- **pathlib**: Python's built-in library for file paths. It writes `\` or `/` to suit the operating system, so the same code runs on all three.
+- **Matplotlib**: the library that draws the figures as image files.
+- **scikit-learn** (`sklearn` in code): the standard Python machine-learning library, with models and the tools to measure them. *(Phase 5)*
+- **pytest**: the tool that runs the automated tests (`pytest -q`).
+- **Test**: a small program that checks another program does what it should, and fails loudly if not. A **unit test** checks one small piece on its own.
+- **`pytest.ini`**: pytest's settings file; here it tells pytest to look only in `tests/`.
+- **Stand-in** (tests): a small fake version of something big or slow, such as the tiny archive `tests/test_fetch_data.py` builds instead of downloading 239 MB. Programmers also call these *mocks* or *fixtures*.
+- **Editor**, **VS Code**: a program for writing code comfortably, with colours and error highlighting. VS Code is free and the same on all three systems.
 
 ---
 
-## Group 5 — Git and GitHub
+## Group 5: Git and GitHub
 
-**Version control** — a system that records every change to your files,
-so you can see what changed, when, and go back.
-
-**Git** — the version-control program itself, running on your machine.
-*Analogy:* a save-game system for your work. You choose when to save,
-each save is permanent and labelled, and you can load any earlier one.
-
-**GitHub** — a website that stores copies of Git projects online, so
-they are backed up, shareable and visible. Git is the tool; GitHub is
-the place. *Analogy:* Git is the camera, GitHub is the photo album you
-share.
-
-**Repository** (**repo**) — one project tracked by Git: its files plus
-its entire history.
-
-**Local / remote** — *local* is the copy on your machine; *remote* is
-the copy on GitHub. **`origin`** is the standard nickname for your
-remote.
-
-**Clone** — making a local copy of a remote repository, history and
-all.
-
-**Stage** (`git add`) — marking which changes you want in your next
-save. *Analogy:* putting items on the checkout belt. Nothing is bought
-yet.
-
-**Commit** — one permanent, labelled save point. *Analogy:* paying, and
-getting a receipt with a description of what you bought. A good commit
-message says *why*, not just what.
-
-**Push** — sending your commits to GitHub. **Pull** — bringing GitHub's
-commits down to your machine.
-
-**Branch** — an independent line of work. Your files can exist in
-several versions at once, each on its own branch, and you switch
-between them. *Analogy:* writing a document while keeping a clean copy
-you can still show people — the messy draft and the presentable version
-live side by side, and you decide when the draft becomes the version.
-This project uses three: `develop` (where work happens), `beta` (a
-checkpoint), `master` (the presentable state).
-
-**`git switch`** — moving between branches. (Older tutorials use
-`git checkout` for this; `switch` is the modern, clearer command and
-this project uses it.)
-
-**Fast-forward** (`--ff-only`) — updating a branch by simply moving it
-forward when nothing has diverged. Adding `--ff-only` tells Git: *only
-do this if it is a clean, no-surprises update; otherwise stop and tell
-me.* A safety catch, not a restriction.
-
-**`.gitignore`** — a file listing things Git must never record:
-downloaded data, the virtual environment, secrets. *Analogy:* the "do
-not photograph" list before a house tour.
-
-**Tag** — a permanent name pinned to one commit, usually a version like
-`v1.0.0`. *Analogy:* a bookmark in the history saying "this is the
-edition we published".
-
-Full explanations and the exact commands live in
-[`GIT_WORKFLOW.md`](GIT_WORKFLOW.md).
+- **Version control**: recording every change to your files, so you can see what changed, when and why, and go back.
+- **Git**: the version-control program on your computer ([`docs/GIT_WORKFLOW.md`](GIT_WORKFLOW.md) explains it from zero).
+- **GitHub**: the website that keeps an online copy of a Git project, for backup, sharing and a public home.
+- **Repository** (repo): one project tracked by Git, its files plus their whole history.
+- **Local, remote, `origin`**: local is the copy on your computer, remote the copy on GitHub; `origin` is the usual nickname for the remote.
+- **Clone**: making a local copy of a remote repository, history included.
+- **Working tree**, **staging area**, **history**: the three places a change passes through: your files, the changes picked for the next commit, and the permanent record ([`docs/GIT_WORKFLOW.md` section 2](GIT_WORKFLOW.md#2-the-three-places-a-change-can-be)).
+- **Stage** (`git add`): picking changes for the next commit.
+- **Commit**: one permanent, dated, labelled save point. Its message should say why.
+- **Push**, **pull**: sending your commits to GitHub; bringing GitHub's commits to your computer.
+- **Branch**: an independent line of work. This project has three: `develop` (where work happens), `beta` (a checkpoint copy) and `master` (the published state).
+- **`git switch`**: moving between branches. (Older guides use `git checkout`.)
+- **Fast-forward**, **`--ff-only`**: moving a branch forward to a newer commit when nothing has gone a different way. `--ff-only` means "only if it's that simple; otherwise stop and tell me".
+- **Tracked, new and ignored files**: tracked files are already in Git; new (untracked) files are in the folder but not yet in Git, and `git add -A` will add them; ignored files are listed in `.gitignore`, and Git never adds them. The safety gate checks the first two.
+- **`.gitignore`**: the list of files and folders Git must never record: the virtual environment, downloaded data, secrets, private notes, operating-system clutter.
+- **`git rm --cached`**: takes a file out of Git while leaving it on your disk.
+- **`.gitkeep`**: an empty file whose only job is to make Git keep an otherwise empty folder.
+- **Tag**: a permanent name pinned to one commit, such as `v0.1.0`. Unlike a branch, it never moves.
+- **Safety gate** (`check-public-safe.sh`): the script run before every push. It refuses the all-clear if a secret, downloaded data, a private note, a database file, a path from one particular computer or operating-system clutter would be published ([`docs/01-setup.md` section 13](01-setup.md#13-the-safety-gate)). `.gitignore` is the lock on the door; the gate is the check at the exit.
+- **Credential**, **secret**, **API key**: a private password-like string that lets a program use a service. It must never be committed; one that reaches a public repository has to be replaced.
+- **Hidden records in pictures** (metadata): information stored inside an image file that doesn't show on screen, such as the GPS position where a photo was taken (**EXIF**) or a record from the program that last edited or exported it (**content credentials**, or **C2PA**). The safety gate refuses pictures that carry them.
+- **`.DS_Store`**: a hidden file macOS writes into folders to remember how they're displayed. Harmless, but clutter in a repository, so `.gitignore` excludes it. **Thumbs.db** and **desktop.ini** are the Windows equivalents.
 
 ---
 
-## Group 6 — Data, files and databases
+## Group 6: Data, files and downloads
 
-**CSV** (comma-separated values) — the simplest table file: plain text,
-one row per line, columns separated by commas. Opens in anything.
-
-**TSV** — the same, with tab characters instead of commas.
-
-**Excel file** (`.xlsx`) — a spreadsheet file, which can hold several
-sheets, formatting and formulas. Common in published scientific data.
-
-**Archive** (`.zip`) — many files packed into one, usually compressed.
-*Analogy:* a suitcase.
-
-**Extract / unzip** — unpacking an archive back into its files.
-
-**Checksum** (also **hash**, e.g. **MD5**) — a short code calculated
-from a file's exact contents. Change one byte and the code changes
-completely. Publishing a checksum lets anyone verify they downloaded
-exactly the intended file, uncorrupted and unaltered. *Analogy:* a
-tamper-evident seal on a medicine bottle. This project checks the MD5
-of the downloaded archive before doing anything with it.
-
-**DOI** (digital object identifier) — a permanent address for a
-published thing. Unlike an ordinary web link, a DOI is guaranteed not
-to rot: it keeps pointing at the same object even if the hosting
-website is reorganised. *Analogy:* an ISBN for a book rather than "the
-third shelf in the corner shop".
-
-**Zenodo** — a free, permanent public archive for research data and
-code, run by CERN. Scientists deposit datasets there and get a DOI.
-This project's data lives there.
-
-**Raw data** — the downloaded files exactly as received, never edited.
-Sacred. Every project should have exactly one copy of these and treat
-it as read-only, because it is the only thing you can always fall back
-to. *Analogy:* the original negatives; you edit prints, never the
-negative.
-
-**Processed data** — anything derived from raw data by your own code.
-Always disposable, because it can be regenerated.
-
-**Database** — an organised store of tables designed to be questioned
-efficiently. *Analogy:* a filing cabinet with a very good index, versus
-a pile of paper.
-
-**SQL** (Structured Query Language) — the near-universal language for
-asking questions of a database. Reads almost like English:
-`SELECT strain, COUNT(*) FROM teams GROUP BY strain`.
-
-**DuckDB** — a complete analytics database that lives in a single file
-on your laptop. No server to run, no account, no cost, and it is built
-for exactly the kind of wide numeric tables this project produces.
-*Analogy:* a filing cabinet you can carry, rather than one bolted into
-a warehouse you must first rent.
-
-**Schema** — the shape of a table: which columns exist and what type
-each holds. Deciding the schema before loading data is what stops a
-column of numbers quietly becoming a column of text.
-
-**Wide vs long format** — the same data, two shapes. *Wide:* one row
-per team, one column per strain. *Long:* one row per team-and-strain
-combination. Machine learning wants wide; charting often wants long;
-converting between them is routine and Phase 2 does it explicitly.
-
-**Presence/absence matrix** — a table of 1s and 0s: was this strain on
-this team, yes or no. This is the main input to our models. 136 rows
-(teams) × 35 columns (strains).
-
-**Data quality check** — an automated test that the data is as
-expected: right number of rows, values in plausible ranges, no
-unexplained gaps. Run *before* analysis, because an analysis of broken
-data produces confident nonsense. *Analogy:* checking the scales are
-zeroed before weighing anything.
-
-**Unit test** — a small automated check that one piece of your code
-does what you claim, run in a second, every time. *Analogy:* a smoke
-alarm — cheap, boring, and the reason a small problem doesn't become a
-large one.
-
-**Idempotent** — safe to run more than once, with the same result.
-Our download script is idempotent: run it twice and it notices the file
-is already there and verified, rather than downloading 239 MB again.
+- **CSV** (comma-separated values): the simplest table file: plain text, one row per line, columns separated by commas. **TSV** uses tabs instead.
+- **Excel file** (`.xlsx`): a spreadsheet file, with sheets, formatting and formulas; common for published scientific data.
+- **JSON**: a plain-text format for structured information, readable by people and programs. `data/raw/fetch_log.json` is one.
+- **Archive** (`.zip`): many files packed, usually compressed, into one.
+- **Extract**, **unzip**: unpacking an archive into its files.
+- **Zip slip**: a trick where an archive contains a name like `../../somefile`, so unpacking it carelessly writes outside the intended folder. `scripts/fetch_data.py` refuses such entries.
+- **`__MACOSX`**: a folder of hidden extra files that macOS adds to zip files made on a Mac. The download script skips it.
+- **Checksum**, **hash**, **MD5**: a short code calculated from every byte of a file; change one byte and it changes completely. MD5 is the method Zenodo publishes. A matching checksum proves you hold exactly the published file; it says nothing about whether its contents are right.
+- **DOI** (digital object identifier): a permanent address for a published paper or dataset that keeps working when websites are reorganised. `10.5281/zenodo.10118600` is the dataset's.
+- **Zenodo**: a free, permanent public archive for research data and code, run by CERN. The study's data and code are deposited there.
+- **HTTP**, **HEAD request**: HTTP is how browsers and programs talk to websites. A HEAD request asks for a file's details (size, type) without its contents, which is what the download script's `--probe` does.
+- **Streaming** (a download): reading a large file a piece at a time instead of loading it all into memory at once.
+- **`.part` file**: where the download script writes until the download is complete, then renames it. A connection that drops leaves an obviously unfinished `.part` file, never something that looks complete.
+- **Idempotent**: safe to run again and again with the same result. The download script checks an existing archive instead of downloading it twice.
+- **Raw data**: the downloaded files exactly as received. Read-only, kept in `data/raw/`, because everything else is rebuilt from them.
+- **Processed data**: anything your own code derives from raw data. It can always be rebuilt, so it's never edited by hand either.
+- **Manifest**: a list of every file in a collection. `data/raw/manifest.csv` lists every file in the archive with its folder, type and size.
+- **Provenance**: the written history of a piece of data: where it came from, when, and what's been done to it since. `data/raw/fetch_log.json` records it for the download.
+- **Supplementary data**, **Source Data**: files published alongside a paper: the data behind it, and (Source Data) the numbers behind each figure.
+- **Data availability statement**: the paragraph in a paper saying where its data can be found and on what terms.
+- **Source register**: a table recording, for every data source, its licence, how to get it, when it was checked and whether it could be obtained. *(Phase 2)*
 
 ---
 
-## Group 7 — Machine learning
+## Group 7: Databases and data engineering
 
-**Machine learning (ML)** — programs that find patterns in examples
-rather than being told the rules explicitly. *Analogy:* you never
-listed the rules for recognising your friend's handwriting; you saw
-enough of it.
-
-**Model** — the pattern the program has learned, in a form that can
-make predictions about new cases.
-
-**Training** — the process of showing the model examples so it can
-learn.
-
-**Feature** — one piece of information the model is given about a case;
-one input column. Here: "was strain Leaf76 on this team?" — 35 features
-in total.
-
-**Label / target / outcome** — the thing being predicted. Here: how
-much pathogen grew.
-
-**Supervised learning** — learning from examples where the right answer
-is already known. This project is entirely supervised. *Analogy:*
-studying with a marked answer key.
-
-**Unsupervised learning** — finding structure with no answer key. Not
-used here; defined so the contrast is clear.
-
-**Classification** — predicting which category something falls into.
-Here: was this team **protective** or **not protective**?
-
-**Regression** — predicting a number rather than a category. Here: *how
-much* pathogen, on the log scale.
-
-The source study did both, and so do we: classification answers "will
-this team work?", regression answers "how well?".
-
-**Class** — one of the categories in a classification. Ours are
-"protected" and "non-protected".
-
-**Class imbalance** — when one class is much rarer than the other. It
-matters because a model can score well by ignoring the rare class
-entirely, and accuracy alone will not notice. *Analogy:* a smoke alarm
-that never goes off is right 99.9% of the time and still useless.
-
-**Random forest** — a model made of many decision trees, each trained
-on a slightly different slice of the data, whose votes are combined.
-*Analogy:* asking a hundred reasonably informed people instead of one
-expert; individual mistakes cancel out, and the crowd's average is
-usually better than any one member. Robust, needs little tuning, and
-tells you which features it relied on — which is exactly what this
-project needs.
-
-**Decision tree** — a flowchart of yes/no questions ending in an
-answer. "Was Leaf76 present? If yes → ...". Easy to read, easy to
-overfit, which is why we use a forest of them rather than one.
-
-**Elastic net** (in code: `ElasticNet` / `LogisticRegression` with an
-`elasticnet` penalty; in R: `glmnet`) — a linear model that
-deliberately keeps itself simple, pushing the weights of unhelpful
-features toward zero. *Analogy:* packing for a trip with a strict
-weight limit — only genuinely useful items survive. Useful here because
-it produces a short, readable list of the strains that matter.
-
-**Regularisation** — the general name for that "keep it simple"
-pressure. Without it, a flexible model will happily memorise noise.
-
-**Hyperparameter** — a setting you choose *before* training, as opposed
-to something the model learns. How many trees in the forest, how strong
-the regularisation. *Analogy:* oven temperature — not part of the
-recipe's ingredients, but it decides how they turn out.
-
-**Tuning** — trying several hyperparameter values and keeping the best,
-judged only on data that will not later be used to report results.
-
-**Feature importance** — a ranking of how much each input contributed
-to the model's predictions. This is the scientific payoff of the whole
-project: it is how "which strains matter?" gets answered.
-
-**Permutation importance** — a more trustworthy way of measuring
-importance: shuffle one feature's values at random and see how much the
-model's performance drops. A big drop means the model genuinely relied
-on it. *Analogy:* to find out who matters on a team, have one player
-play at random and see how much worse the results get. Slower than the
-built-in measures, and harder to fool.
-
-**Seed** (random seed) — a starting number for the computer's
-random-number generator. Fixing the seed makes "random" choices repeat
-identically, so your results are reproducible. *Analogy:* shuffling a
-deck the same way every time so the trick works the same. Important
-subtlety: because a seed changes results slightly, an honest project
-reports across *several* seeds rather than picking the flattering one.
+- **Database**: an organised store of tables built to answer questions quickly.
+- **SQL**: the common language for asking databases questions: `SELECT ... FROM ... WHERE ...`.
+- **Schema**: the declared structure of a database: its tables, their columns and the type of each.
+- **Wide and long format**: two shapes for the same table. Wide has one column per strain (35 columns of 1s and 0s); long has one row per community-and-strain pair. Different tools want different shapes.
+- **Presence/absence matrix**: a wide table of 1s and 0s saying which strains are in which community.
+- **Harmonisation**: making several sources agree: one name for each thing, one shape, and written rules for disagreements. *(Phase 3)*
+- **ETL**, **ELT**: extract, transform, load (reshape the data before storing it) and extract, load, transform (store it first, reshape it inside the database). dbt works the ELT way.
+- **dbt**: a tool that turns a folder of SQL files into a pipeline with an order, tests and documentation. **dbt Core** is the free version. *(Phase 3)*
+- **Model** (in dbt): one SQL file that builds one table from others. Not the same as a machine-learning model (Group 8).
+- **Staging, intermediate, marts**: dbt's usual layers: tidy each source on its own, combine them, then build the final tables people use.
+- **Data test**: an automatic check on the data itself, such as "every strain name is unique" or "no outcome is missing".
+- **Lineage**: where every table and column came from, drawn as a diagram.
+- **DuckDB**: a complete analytical database in a single file, with no server and no setup. *(Phase 3)*
+- **PostgreSQL** (Postgres): a database built for applications, with many people reading and writing at once. *(Phase 10)*
+- **OLAP**, **OLTP**: analytical processing (a few large questions over whole columns, DuckDB's job) and transaction processing (many small reads and writes, PostgreSQL's job).
+- **Data warehouse**: a large database for analysis, often rented in the cloud. **Snowflake** and **Databricks** are well-known ones; this project uses them only as an optional exercise.
+- **Spark**: a system that spreads computation over many machines when data won't fit on one. Not used here: the data is small.
+- **Pipeline**: a fixed sequence of steps, each doing one job and passing its result on.
+- **Orchestration**: running a pipeline's steps in the right order, on a schedule, with retries and a record of what happened. *(Phase 12)*
+- **cron**: the traditional scheduler on macOS and Linux: "run this command at this time". It knows nothing about steps depending on each other.
+- **Airflow**: an orchestrator: an alarm clock crossed with a checklist that knows which tasks depend on which. **Prefect** is a similar, simpler one. *(Phase 12)*
+- **DAG** (directed acyclic graph): Airflow's name for a pipeline: tasks joined by arrows showing which must finish first, with no loops.
+- **Retraining**: training the models again when new results arrive, so predictions use everything known so far. *(Phase 12)*
 
 ---
 
-## Group 8 — Evaluation and honesty
+## Group 8: Machine learning
 
-This group exists because measuring a model dishonestly is easy and
-common, and every term here is a defence against a specific way of
-fooling yourself.
-
-**Training set** — the examples the model learns from.
-
-**Test set** (**held-out set**) — examples deliberately kept away from
-the model during training, used once at the end to see how it performs
-on things it has never encountered. *Analogy:* an exam containing
-questions not in the revision pack. Testing a model on its training
-data is like grading students on the questions you already gave them
-the answers to — everyone scores brilliantly and it means nothing.
-
-**Overfitting** — when a model learns the noise in the training data
-rather than the real pattern, and so performs superbly on training data
-and badly on anything new. *Analogy:* a student who memorised last
-year's paper instead of learning the subject. This is the central
-failure of machine learning and almost everything in this group exists
-to detect it.
-
-**Underfitting** — the opposite: the model is too simple to capture the
-real pattern, and does poorly everywhere.
-
-**Cross-validation** — splitting the training data into *k* parts,
-training on *k*−1 and testing on the one left out, then rotating so
-every part gets a turn. Gives a more reliable performance estimate than
-a single split, and uses all the data. *Analogy:* five practice exams
-covering different chapters, rather than one.
-
-**k-fold** — the number of parts, e.g. **5-fold**. The source study
-used 10 rounds of 5-fold cross-validation across 8 seeds — thorough,
-and we match it.
-
-**Data leakage** — when information from the test set sneaks into
-training, making results look better than they are. Often subtle: it
-happens if you scale your data using statistics computed over
-everything before splitting, or if measurements from the same plant end
-up on both sides of a split. The source study explicitly guarded
-against the second case by keeping all plants of one team together; we
-do the same, and Phase 4 tests for it. *Analogy:* a student who
-glimpsed the exam paper — the marks are real, the knowledge isn't.
-
-**Accuracy** — the fraction of predictions that were right. Simple, and
-untrustworthy alone whenever classes are imbalanced.
-
-**Precision** — of the cases the model *called* protective, what
-fraction really were. Answers: "when it says yes, can I believe it?"
-
-**Recall** (sensitivity) — of the cases that really *were* protective,
-what fraction the model found. Answers: "how many did it miss?"
-
-Precision and recall pull against each other, and which one you care
-about depends entirely on the cost of each kind of mistake. For strain
-screening, missing a genuinely protective strain (low recall) wastes a
-discovery; wrongly flagging a useless one (low precision) wastes a
-laboratory experiment. The source study achieved 94–100% recall at
-72–82% precision — that is, it caught essentially every good team, at
-the price of some false alarms, which is the right trade for a
-screening tool.
-
-**Specificity** — of the cases that were *not* protective, what
-fraction the model correctly rejected.
-
-**Confusion matrix** — the 2×2 table of right and wrong answers of each
-kind, from which all of the above are calculated. Worth always looking
-at, because it makes the trade-offs visible instead of hiding them
-behind one number.
-
-**RMSE** (root mean squared error) — for regression: the typical size
-of the model's error, in the units of the thing being predicted. Lower
-is better. Because our outcome is log10 pathogen abundance, an RMSE of
-1.0 means "typically wrong by about a factor of ten". Sounds terrible,
-is actually respectable for a quantity spanning six orders of
-magnitude — which is exactly why the next term matters.
-
-**Baseline** — the score you get from a trivial strategy: guessing at
-random, or always predicting the average. **A model's performance is
-meaningless without one.** The source paper reports both, which is a
-mark of careful work: their regression RMSE of 0.79–1.06 only means
-something next to the no-model baseline of 1.50.
-
-**Confidence interval** — a range that expresses how uncertain a number
-is. "84% accurate" from 70 test cases is not the same fact as "84%
-accurate" from 70,000, and an interval is how you say so. Reporting
-point estimates from small datasets without intervals is one of the
-commonest ways portfolio analyses overclaim.
-
-**Bimodal distribution** — a distribution with two humps rather than
-one, suggesting two underlying groups. The pathogen measurements here
-are bimodal — protected plants and unprotected plants — and that
-observed structure is what justified splitting into two classes in the
-first place. The authors checked it wasn't an accident by
-**bootstrapping** (below) a thousand times.
-
-**Bootstrapping** — re-sampling your data with replacement many times
-to see how stable a finding is. If a pattern survives a thousand
-re-samples, it is unlikely to be a fluke of which particular plants you
-happened to measure. *Analogy:* re-running an election exit poll on a
-thousand different random subsets of the same voters, and checking the
-winner doesn't change.
-
-**Outlier** — a measurement far from the rest. Sometimes a real
-extreme, sometimes a mistake. The source study defined outliers by a
-stated rule and excluded only those it could justify (contaminated
-plants, a dropped box) — deciding the rule *before* looking is what
-separates cleaning from cherry-picking.
+- **Machine learning** (ML): getting a computer to learn a pattern from examples instead of following rules written by hand.
+- **Model** (ML): the learned pattern, in a form that can make predictions about new cases.
+- **Training**: showing the model examples with known answers so it can learn.
+- **Feature**: one input the model gets about each example, such as "is Leaf76 in this community?".
+- **Label**, **target**, **outcome**: what the model is trying to predict, here the pathogen level or whether the plant was protected.
+- **Supervised learning**: learning from examples with known answers. Everything modelled here is supervised. **Unsupervised learning** finds structure without answers (grouping similar things).
+- **Classification**, **class**: predicting a category, such as protected or not; each category is a class.
+- **Regression**: predicting a number, such as how much pathogen grew.
+- **Class imbalance**: when one category is much rarer than the other, so a model that always guesses the common one looks good.
+- **Decision tree**: a model that asks a chain of yes-or-no questions ("is Leaf76 present? is Leaf15?") to reach a prediction.
+- **Random forest**: hundreds of decision trees, each trained on a slightly different sample, voting together; individual mistakes tend to cancel. *(Phase 5)*
+- **Elastic net** (the paper's **GLMNet**): a straight-line model with a penalty that pushes the weights of unhelpful features to zero, leaving a short, readable list of what matters. *(Phase 5)*
+- **Regularisation**: any penalty that keeps a model simple, so it doesn't fit noise.
+- **Hyperparameter**, **tuning**: a setting chosen before training (how many trees, how strong the penalty), and the search for good settings.
+- **Feature importance**, **permutation importance**: how much each feature matters to the model's predictions. Permutation importance measures it by shuffling one feature and seeing how much worse the model gets.
+- **Seed**: the starting number for a computer's random choices. The same seed gives the same "random" results, which makes runs repeatable.
+- **Multi-omics integration**: adding features from several biological layers (here, genomes, gene clusters and the inhibition network) to see whether they predict better together. *(Phase 8)*
+- **MLflow**: a tool that records every training run's settings, scores and model. *(Phase 5)*
+- **Deep learning**, **neural network**: large layered models that need far more examples than 136 communities. Not used here.
 
 ---
 
-## Group 9 — Science and reproducibility
+## Group 9: Evaluation
 
-**Peer review** — before publication, other scientists in the field
-read a paper and can demand changes or reject it. A filter, not a
-guarantee.
-
-**Open access** — the paper is free to read for anyone. The source
-study is.
-
-**Preprint** — a paper posted publicly before peer review.
-
-**Supplementary data / source data** — extra files published alongside
-a paper: the underlying numbers behind each figure. Increasingly
-expected, still not universal.
-
-**Data availability statement** — the section of a paper stating where
-its data can be obtained. The source study's points to Zenodo, with a
-DOI. This is best practice, and it is the reason this project is
-possible at all.
-
-**Reproduction** — same data, rebuilt analysis, same question. What
-this project does.
-
-**Replication** — new data from a new experiment, same question. What
-this project cannot do, and says so.
-
-**Extension** — new questions asked of the same data. The second half
-of what this project does.
-
-**The reproducibility crisis** — the broad finding, across many
-scientific fields, that a large share of published results are hard to
-reproduce. Causes are mostly mundane rather than sinister: lost code,
-undocumented manual steps, software that changed underneath, small
-sample sizes, and selective reporting.
-
-**Provenance** — the documented history of a piece of data: where it
-came from, what was done to it, by which version of which code. A
-result without provenance cannot really be checked. Every number this
-project produces will be traceable to a script and a verified input
-file.
-
-**Attribution** — crediting whose work you built on. Required by the
-CC-BY licence on this data, and right regardless.
-
-**CC-BY 4.0** — a licence allowing anyone to reuse a work, including
-commercially and in modified form, provided the original creators are
-credited. The source data is under it.
-
-**MIT licence** — a very permissive software licence: do what you like,
-keep the copyright notice, no warranty. This project's own code and
-documentation use it.
-
-**Hindsight fitting** — adjusting your analysis until it agrees with an
-answer you already knew, then presenting the agreement as
-confirmation. The specific temptation in a reproduction project, and
-the reason this project records its first honest attempt at each step
-before any adjustment, and reports both.
+- **Training set**, **test set**: the examples a model learns from, and the ones kept aside to judge it. Here the test set is the 70 communities from a separate experiment.
+- **Overfitting**: a model memorising its training examples, noise included, instead of learning the pattern; it scores well on what it has seen and badly on anything new. **Underfitting** is the opposite: too simple to catch the pattern.
+- **Cross-validation**, **k-fold**: splitting the training data into k parts (say five), training on four and testing on the fifth, then rotating, so every part is used for testing once.
+- **Data leakage**: information from the test side slipping into training, which makes a model look better than it is. Here, plants of one community on both sides of a split would leak.
+- **Grouped split**: a split that keeps everything belonging together (all plants of one community) on the same side.
+- **Accuracy**: the share of predictions that are right.
+- **Precision**, **recall**, **specificity**: of the communities predicted protective, how many were (precision); of the protective ones, how many were found (recall); of the unprotective ones, how many were correctly called unprotective (specificity).
+- **Confusion matrix**: a small table of right and wrong predictions, by category.
+- **RMSE** (root mean squared error): the typical size of a regression model's mistakes, in the outcome's own units.
+- **Baseline**: what a trivial strategy scores (always guessing the commonest answer, say). A score means little without one beside it.
+- **Confidence interval**: a range that shows how uncertain a number is. Seventy test communities isn't many, so intervals matter.
+- **Bootstrapping**: estimating that uncertainty by recomputing a score on many random resamples of the data.
+- **Bimodal distribution**: values that cluster around two peaks instead of one, like the pathogen counts (protected plants low, unprotected high).
+- **Outlier**: a value far from the rest. Worth checking, not deleting on sight.
+- **Rank correlation** (Spearman's): how well two rankings agree, from 1 (same order) through 0 (unrelated) to -1 (reversed). *(Phase 9)*
+- **External validation**: checking a conclusion against data from a separate experiment that played no part in building it. *(Phase 9)*
+- **Learning curve**, **data-efficiency curve**: how a result changes as a model gets more training examples; here, how many communities were needed before the conclusion stopped changing. *(Phase 9)*
+- **Hit rate**: the share of recommended communities that turn out to protect, compared with communities chosen at random.
 
 ---
 
-## Group 10 — The platform and AI layers
+## Group 10: Science and reproducibility
 
-*These terms arrive in Phases 3 and 6–15. They are defined here in
-advance so the architecture document and the roadmap can be read
-without gaps.*
-
-### Data engineering
-
-**Harmonisation** — making several datasets agree so they can be
-joined: one identifier, one shape, one set of rules for disagreements.
-*Analogy:* three colleagues send attendance lists for the same meeting —
-one uses full names, one initials, one email addresses. Someone must
-decide who is who before anything can be counted.
-
-**ETL / ELT** — Extract, Transform, Load (or Extract, Load, Transform).
-Two orderings for the same job. ETL transforms data before storing it;
-ELT stores it first and transforms inside the database. ELT is the
-modern default because storage is cheap and databases are fast, and
-because keeping the untransformed copy means you can always redo the
-transformation. This project uses ELT.
-
-**dbt** — a tool that turns a folder of SQL files into a transformation
-pipeline with dependencies, automated tests and generated
-documentation. *Analogy:* your recipes were loose sheets of paper; dbt
-turns them into a cookbook with a contents page, an index, a note on
-each page saying which pages must be cooked first, and checks that
-refuse to serve the dish if the sauce came out wrong. **dbt Core** is
-the free, open-source version.
-
-**Model** (in dbt) — confusingly, *not* a machine-learning model. In
-dbt a "model" is one SQL file producing one table or view. Context
-tells you which meaning is meant; this glossary flags it because the
-collision genuinely trips people up.
-
-**Staging / intermediate / mart** — dbt's conventional layers. *Staging*
-lightly cleans each source, one model per source. *Intermediate* does
-the joining and reshaping. *Marts* are the finished tables analysis
-actually uses. *Analogy:* wash the vegetables, then prepare the
-components, then plate the dish.
-
-**Lineage** — the recorded ancestry of a table: which sources and which
-steps produced it. Turns "where did this column come from?" into a
-diagram rather than an archaeology project.
-
-**Orchestration** — running the steps of a pipeline in the right order,
-on schedule, with retries and visible failures.
-
-**Airflow** — the standard open-source orchestrator. *Analogy:* an
-alarm clock crossed with a checklist that understands dependencies — a
-kitchen pass that knows the sauce must be ready before the plate goes
-out, starts it at the right time, and rings a bell loudly if it burns.
-
-**DAG** (directed acyclic graph) — Airflow's word for one pipeline: a
-set of tasks with declared dependencies and no loops. "Directed" =
-arrows point one way; "acyclic" = nothing depends on itself, directly or
-indirectly.
-
-**cron** — the simple, decades-old scheduler built into Unix systems.
-Runs a command at a set time. No dependency handling and no visibility,
-which is exactly why Airflow exists — but this project starts with a
-plain runner so you feel the problem before meeting the solution.
-
-**Data warehouse** — a database built for analytics at scale, usually
-rented in the cloud (Snowflake, BigQuery, Redshift). *Analogy:* renting
-a warehouse rather than using a filing cabinet. Right at scale,
-disproportionate for 136 rows — see [`ROADMAP.md`](ROADMAP.md) §6.
-
-**OLAP / OLTP** — the two shapes of database work. **OLAP** (analytical
-processing) means few large questions scanning whole columns: DuckDB,
-warehouses. **OLTP** (transactional processing) means many small reads
-and writes from many users: PostgreSQL. *Analogy:* a research library
-where you spread twenty books across a table, versus a pharmacy counter
-serving a queue. Making one database do both jobs well is a classic
-source of slow, fragile systems.
-
-**PostgreSQL** ("Postgres") — a free, mature, full database server, the
-standard choice behind web applications. Used here as the *application*
-store once there is an API to serve.
-
-### Applications
-
-**API** (application programming interface) — a defined set of
-addresses another program can call to ask your system for something.
-*Analogy:* the serving hatch between kitchen and dining room. Orders
-in, plates out, through one well-defined opening, and nobody wanders
-into the kitchen.
-
-**REST** — the common convention for organising an API around
-addresses and standard verbs (get, post). Not a technology; an agreed
-style, which is why APIs from different companies feel similar.
-
-**Endpoint** — one address in an API, e.g. `/predict`.
-
-**FastAPI** — the Python framework used here to build the API. It
-validates every request against a declared shape (so a malformed
-request is rejected clearly rather than failing mysteriously deep
-inside) and generates interactive documentation automatically.
-
-**Frontend / backend** — see the restaurant analogy in
-[`00-architecture.md`](00-architecture.md) §9. Frontend = the dining
-room, what the user sees. Backend = the kitchen, where the work
-happens.
-
-**JavaScript** — the programming language web browsers run.
-
-**TypeScript** — JavaScript with types added. *Analogy:* seatbelts.
-JavaScript will happily let you add a number to a sentence and let you
-find out at three in the morning; TypeScript stops you in the editor.
-Preferred here for anything beyond a trivial script.
-
-**React** — the most widely used framework for building web interfaces
-out of reusable **components** — self-contained pieces (a button, a
-chart, a form) that can be composed like Lego bricks.
-
-**Container** — a program packaged together with everything it needs to
-run: interpreter, system libraries, code and start-up instructions.
-*Analogy:* shipping a meal with its own kitchen attached, so it cooks
-identically in any building. Unlike a **virtual machine**, it shares
-the host's operating-system core rather than carrying its own —
-*analogy:* a flat in a shared building, not a separate house.
-Containers are **disposable by design**: you do not repair one, you
-delete it and start a fresh one from the same image.
-
-**Image** — the read-only template a container is started from.
-*Analogy:* a recipe plus all the ingredients pre-measured in a sealed
-box. The **container** is the cake you baked from it.
-
-**Dockerfile / Containerfile** — the text file describing how to build
-an image. *Analogy:* the written recipe. Both names mean the same
-thing; this project uses `Dockerfile`, which both engines read.
-
-**Registry** — a website storing images for others to download.
-*Analogy:* a public cookbook library. Docker Hub and quay.io are the
-common ones.
-
-**Volume** — storage that survives when a container is deleted.
-*Analogy:* the paper cups are thrown away after every service; the
-fridge stays. Databases live on volumes.
-
-**Bind mount** — making a folder on your machine visible inside a
-container. *Analogy:* a hatch in the flat's wall opening onto your own
-storage room.
-
-**Port mapping** — connecting a door on your machine to a door inside
-the container, so you can reach the program in it. `-p 8000:8000`.
-
-**Docker** — the best-known container engine. Runs a **daemon**: a
-background service with administrator rights that does the actual work
-while your commands just send it instructions. *Analogy:* a hotel where
-you ring the front desk and staff go and do things for you.
-
-**Podman** — an alternative engine, **daemonless** and **rootless**: it
-does the work directly, in your own user account, with no privileged
-background service. *Analogy:* a self-catering flat where you do things
-yourself — no one holds a master key in the corridor. **Red Hat removed
-Docker from RHEL 8**, where Podman is the shipped default, so on that
-platform Podman is not an alternative but the option.
-
-**OCI** (Open Container Initiative) — the agreed standard defining what
-a container image is and how it runs. Because Docker and Podman both
-implement it, **an image built by one runs under the other**. *Analogy:*
-petrol from two filling stations — different logo, same fuel, same car.
-
-**Rootless** — running containers as an ordinary user rather than as
-administrator. More secure, and often the only option permitted on a
-managed work machine. The trade-off: rootless containers cannot use
-ports below 1024, which is why this project's services all sit on
-higher ports.
-
-**Compose** — a file describing several containers that run together as
-one system, started with a single command. *Analogy:* the menu for a
-whole dinner service, saying which dishes and in what order. The
-**Compose Specification** is an open standard; `compose.yaml` is read
-by both `docker compose` and `podman compose`.
-
-**Multi-stage build** — building an image in two steps: one with the
-compilers and build tools, then copying only the finished result into a
-clean final image. *Analogy:* baking in a messy kitchen, then carrying
-just the cake to the table. Produces smaller, safer images.
-
-**Layer** — an image is built up in layers, each cached. Changing only
-your code rebuilds only the last layer, which is why the first build is
-slow and later ones take seconds. *Analogy:* the first shop of the week
-is long; afterwards you only buy what ran out.
-
-**SELinux** — a security system on RHEL that labels every file and
-enforces which programs may touch which labels. *Analogy:* a building
-where every room has a colour-coded pass, and the pass matters more
-than the key. It will block container volume mounts with a confusing
-`Permission denied`; the fix is a `:Z` suffix on the mount.
-
-**WSL2** (Windows Subsystem for Linux 2) — a real Linux kernel running
-inside Windows. Both container engines use it on Windows, because
-containers are fundamentally a Linux technology.
-
-**Podman machine** — the small hidden Linux virtual machine Podman runs
-on macOS and Windows for the same reason. You do not manage it
-directly, but knowing it exists explains occasional surprises with file
-paths and networking.
-
-**Kubernetes** — coordinates containers across many machines, with
-automatic restarts, scaling and rolling updates. *Analogy:* Compose
-organises one restaurant; Kubernetes runs a national chain. Not used
-here — see [`ROADMAP.md`](ROADMAP.md) §6.
-
-**CI/CD** (continuous integration / continuous delivery) — automation
-that runs your tests on every change, and can publish releases.
-*Analogy:* a smoke alarm wired to the whole house rather than one you
-remember to test occasionally. This project uses **GitHub Actions**,
-which is free for public repositories.
-
-**MLflow** — a free tool that records every model-training run: its
-settings, its metrics, and the resulting model. *Analogy:* a laboratory
-notebook that fills itself in, so "which settings produced that
-result?" always has an answer.
-
-**Semantic versioning** — the `MAJOR.MINOR.PATCH` numbering convention
-(`1.2.3`). Patch = a fix; minor = a new capability that breaks nothing;
-major = something that breaks existing use. It lets a version number
-carry meaning rather than just counting upward.
-
-### Graphs and AI
-
-**Graph** — data expressed as things (**nodes**) connected by
-relationships (**edges**). *Analogy:* a detective's pinboard: the
-photographs are nodes, the string between them edges.
-
-**Knowledge graph** — a graph representing the meaningful entities of a
-domain and how they relate, so questions can be answered by following
-connections.
-
-**Ontology** — the agreed vocabulary for a domain: what kinds of thing
-exist and how they may relate. *Analogy:* a family tree for concepts.
-Ours states that a *strain* CARRIES a *gene cluster*, a *gene cluster*
-PRODUCES a *compound class*, a *strain* INHIBITS a *strain*, a
-*community* CONTAINS *strains* and PROTECTS a *plant*. Writing it down
-forces agreement on what a "strain" is across four datasets that
-describe it differently.
-
-**Neo4j** — the most widely used graph database. **Cypher** is its
-query language, playing the role SQL plays for tables.
-
-**NetworkX** — a Python library for building and analysing graphs in
-memory, with no database. The lighter starting point.
-
-**LLM** (large language model) — the kind of AI that reads and writes
-text, such as the one you may be using to read about this project.
-
-**RAG** (retrieval-augmented generation) — having the model look things
-up in *your* data before answering, instead of relying on what it
-happens to remember. *Analogy:* the difference between a colleague
-answering from memory and one who checks the file first.
-
-**GraphRAG** — RAG where the lookup walks a knowledge graph rather than
-only matching text, so relationship questions ("why might this strain
-work?") can be answered by following the chain.
-
-**Embedding** — a piece of text converted into a list of numbers, such
-that similar meanings produce similar numbers. How a computer finds
-"related" passages without exact word matches. *Analogy:* giving every
-document map coordinates, so "nearby" means "about the same thing".
-
-**Grounding** — requiring an answer to be traceable to a specific
-source. In scientific work an ungrounded answer is worthless, however
-fluent — which is why every answer in this project's AI layer carries a
-citation.
-
-**Hallucination** — an LLM stating something false with complete
-confidence. The specific failure that grounding and RAG exist to
-reduce.
-
-**MCP** (Model Context Protocol) — a standard way to plug tools and
-data into AI assistants. *Analogy:* USB. Before it, every device needed
-its own connector and driver; after it, one socket fits everything.
-
-**Agent** — an LLM that does not merely answer but *acts*: it plans
-steps, calls tools, examines results and decides what to do next,
-looping until the task is done. *Analogy:* asking a librarian a
-question, versus asking a research assistant to go away and come back
-with a shortlist. **Chatbots answer; agents act.**
-
-**Guardrails** — the deliberate limits placed on an agent: a fixed set
-of tools, a maximum number of steps, read-only access, and a log of
-every action. An unlogged agent is unacceptable in any serious setting,
-because an action nobody can review is an action nobody can trust.
+- **Peer review**: checking of a paper by other scientists before a journal publishes it.
+- **Open access**: free to read. Not the same as an **open licence**, which makes something free to reuse.
+- **Preprint**: a paper shared publicly before peer review.
+- **Reproduction**: same data, same question, analysis rebuilt. What this project does first.
+- **Replication**: new data from a new experiment, same question. Out of scope here: it needs a laboratory.
+- **Extension**: same data, questions the original didn't ask. What this project does second.
+- **Reproducibility crisis**: the repeated finding, across many fields, that a large share of published results are hard to reproduce or replicate.
+- **Hindsight fitting**: adjusting an analysis until it gives an answer you already know, then presenting it as if found independently. Committing the rebuild before looking at the authors' code (Phase 5, then Phase 6) guards against it.
+- **Attribution**: crediting the people whose work you use.
+- **CC-BY 4.0**: an open licence allowing anyone to reuse and adapt a work, commercially too, as long as the creators are credited. The study's data uses it.
+- **MIT licence**: a short open licence for software: do what you like, keep the copyright notice. This project's code and documents use it.
 
 ---
 
-## Group 11 — R and the three-way comparison
+## Group 11: Applications and containers
 
-*These terms arrive in Phase 6, where the original authors' own
-analysis code is run alongside our rebuild.*
+- **Frontend**, **backend**: the part people see and click, and the part that does the work out of sight ([`docs/00-architecture.md` section 9](00-architecture.md#9-box-7-serving-it-and-three-words-explained)).
+- **Streamlit**: a library that turns a Python script into a web app with buttons and sliders, with no web development. **Streamlit Community Cloud** puts such an app online from a GitHub repository. *(Phase 7)*
+- **API** (application programming interface): a defined set of addresses other programs can call to ask a system for something.
+- **REST**, **endpoint**: REST is the common style for web APIs, where each address (an endpoint, such as `/predict`) does one job.
+- **FastAPI**: the Python framework for building the API; it checks every request and documents itself. *(Phase 10)*
+- **JavaScript**, **TypeScript**: the language web pages run in, and the same language with types added, which catch whole kinds of mistakes in the editor. *(Phase 11)*
+- **React**: a JavaScript library for building web apps out of reusable pieces called **components**. *(Phase 11)*
+- **Node.js**, **npm**: a way to run JavaScript outside a browser, and its package installer, used to build the React app. *(Phase 11)*
+- **Accessibility**: making an app usable by everyone, including people using screen readers, keyboards only or high contrast. *(Phase 18)*
+- **Container**: a program packed with everything it needs to run (language, libraries, code, start-up instructions) so it behaves the same on any computer ([`docs/CONTAINERS.md`](CONTAINERS.md)). *(Phases 10 and 17)*
+- **Image**: the read-only template a container starts from.
+- **Dockerfile**, **Containerfile**: the text file describing how to build an image.
+- **Registry**: a website storing images for download, such as Docker Hub or quay.io.
+- **Volume**: storage that outlives the containers using it; databases keep their data in volumes.
+- **Bind mount**: a folder on your computer made visible inside a container.
+- **Port**, **port mapping**: a numbered door a program listens on; mapping connects a door on your computer to one inside a container (`-p 8000:8000`).
+- **Docker**, **Podman**: the two common container engines. Podman runs without a background service and as an ordinary user, and it's the engine Red Hat supports on RHEL 8.
+- **Daemon**: a program that runs in the background all the time; Docker's engine is one.
+- **Rootless**: running containers as your ordinary user instead of as administrator.
+- **OCI** (Open Container Initiative): the open standard both engines follow, which is why an image built by one runs under the other.
+- **Compose**, **`compose.yaml`**: a file describing several containers that run together, and the command that starts them all. *(Phase 17)*
+- **Multi-stage build**: an image built in two steps, one with all the build tools and a slim final one without them.
+- **Layer** (images): one step of an image's build, cached so later builds reuse it.
+- **SELinux**: RHEL's security system that labels every file and decides which programs may use which labels; `:Z` on a mount relabels a folder for a container.
+- **Linger** (`loginctl enable-linger`): keeps a user's containers running after logout on Linux.
+- **EPEL** (Extra Packages for Enterprise Linux): an extra package collection for RHEL and its rebuilds, where `podman-compose` comes from.
+- **WSL2** (Windows Subsystem for Linux): a real Linux kernel running inside Windows, which both engines use there.
+- **Podman machine**: the small hidden Linux virtual machine Podman runs on macOS and Windows.
+- **Kubernetes**: a system for running containers across a fleet of machines. Not needed here.
+- **CI/CD** (continuous integration and delivery): tests and builds that run automatically on every push. **GitHub Actions** is GitHub's built-in way to do it. *(Phase 18)*
 
-**R** — a programming language created by statisticians, for
-statistics. Python is a general-purpose language that grew excellent
-data tools; R was built for data from its first line. *Analogy:* Python
-is a well-equipped general workshop — build furniture, fix a bicycle,
-wire a lamp. R is a joiner's bench: narrower, and unbeatable at the
-thing it is for. Neither is better; knowing which to reach for is the
-skill. R remains the default in academic statistics and much of
-biology, which is why the study reproduced here is written in it.
+---
 
-**RStudio** — an editor built specifically for R, with a live console,
-a pane listing every variable currently in memory, and a built-in plot
-viewer. It coexists with VS Code without conflict: they are two editors
-opening the same folder. *Analogy:* a woodworking bench and a general
-workbench in the same garage.
+## Group 12: Graphs and the AI features
 
-**Positron** — a newer editor from RStudio's makers that handles both R
-and Python. Worth knowing about; this project sticks with the proven
-RStudio-and-VS-Code pair while you are learning.
+- **Graph**: things (nodes) joined by relationships (edges): strains joined by "inhibits", for example.
+- **Ontology**: an agreed vocabulary for a domain: which kinds of thing exist and how they may relate ("a strain CARRIES a gene cluster"). *(Phase 13)*
+- **Knowledge graph**: data stored in the shape the ontology describes, so questions can follow chains of relationships. *(Phase 13)*
+- **Neo4j**, **Cypher**: a graph database, and its query language. *(Phase 13)*
+- **NetworkX**: a Python library for graphs in memory, with no database; used to show the idea before Neo4j.
+- **LLM** (large language model): a program trained on vast amounts of text to write text. **Local model**: one that runs on your own computer, so nothing leaves it.
+- **Hallucination**: an LLM stating something fluent and false.
+- **RAG** (retrieval-augmented generation): looking things up in your own data first, then letting a language model write an answer from what was found. *(Phase 14)*
+- **GraphRAG**: RAG where the lookup walks a knowledge graph, so answers can follow relationships. *(Phase 14)*
+- **Embedding**: a list of numbers representing a piece of text so that similar meanings get similar numbers, which makes searching by meaning possible.
+- **Grounding**, **citation**: tying every statement in an answer to the source it came from, so it can be checked.
+- **MCP** (Model Context Protocol): a shared standard for plugging tools and data into AI assistant apps. An **MCP server** offers a project's tools that way. *(Phase 15)*
+- **Agent**: a program that uses a language model to decide which tools to call, looks at the results and decides the next step, until a task is done. *(Phase 16)*
+- **Guardrails**: limits on what an agent may do: a fixed set of read-only tools, a maximum number of steps, a full log.
+- **Active learning**: choosing the next experiments to teach a model as much as possible, then retraining on their results. A later product feature ([`docs/PRODUCT_ROADMAP.md`](PRODUCT_ROADMAP.md#a3-closing-the-loop-new-results-in-better-suggestions-out)).
 
-**CRAN** (Comprehensive R Archive Network) — R's public warehouse of
-packages, equivalent to PyPI for Python. Unusually, packages must pass
-automated checks before being accepted, which makes CRAN noticeably
-stricter than most package repositories.
+---
 
-**`renv`** — R's equivalent of a Python virtual environment: a sealed,
-per-project package library plus a lock file recording exact versions,
-so anyone can rebuild the identical environment. Same idea and same
-reasons as `.venv`, different language. *Analogy:* a second knife roll,
-for the second kitchen.
+## Group 13: R and the three-way comparison
 
-**`Rscript`** — the command that runs an R file from the terminal,
-without opening RStudio. The R counterpart of `python myfile.py`.
+- **R**: a programming language built by statisticians for statistics, and the language of the original analysis. *(Phase 6)*
+- **RStudio**: an editor made for R, with a console, a list of everything in memory and a plot viewer. It sits happily alongside VS Code. **Positron** is a newer editor from the same company that handles both R and Python.
+- **`.Rproj`**: an RStudio project file. Opening `realsignal.Rproj` starts RStudio in the project folder. *(Phase 6)*
+- **CRAN**: the main public warehouse of R packages, R's equivalent of PyPI.
+- **renv**, **`renv.lock`**: R's version of the virtual environment and the lock file: a private package library per project, and the exact versions in it. *(Phase 6)*
+- **`Rscript`**: the command that runs an R script from the terminal, the way `python` runs a Python one.
+- **tidyverse**, **dplyr**: a family of R packages for working with data, and its member for filtering, grouping and summarising tables.
+- **caret**, **randomForest**, **glmnet**, **lme4**: widely used R packages for training and evaluating models, random forests, elastic nets and mixed models. Phase 6 records which ones the authors' scripts load.
+- **Mixed model**: a statistical model that allows for measurements coming in groups (several plants per community, several boxes per experiment).
+- **`.rds`**, **`.RData`**: R's own files for saving objects. They can run code when loaded, so the safety gate keeps them out of Git.
+- **R Markdown**: a file mixing text and R code that produces a report.
+- **Three-way comparison**: putting the paper's numbers, the authors' code run here, and the Python rebuild side by side, so a difference can be traced to its cause ([`figures/three_way.png`](../figures/three_way.png)). *(Phase 6)*
+- **Same task, different language**: a short section in some guides doing one small job in two or three languages, to show what each is good at.
 
-**dplyr** — the most widely used R package for reshaping and
-summarising tables. The rough counterpart of pandas, and part of the
-**tidyverse**, a family of R packages sharing a common style.
+---
 
-**caret** — an older, widely used R framework for training and
-evaluating machine-learning models. Roughly what scikit-learn is to
-Python. Used in the original study.
+## Group 14: The documentation and releases
 
-**glmnet** — the R package implementing elastic-net and related
-penalised linear models. The counterpart of scikit-learn's
-`ElasticNet`. Used in the original study.
-
-**randomForest** — the classic R implementation of random forests. Used
-in the original study.
-
-**lme4** — the standard R package for **mixed-effects models**, used in
-the original study for analyses this project does not attempt.
-Mixed-effects modelling is genuinely more mature in R than in Python,
-which is an honest reason to leave those analyses alone rather than
-reproduce them badly.
-
-**`.rds` / `.RData`** — R's own file formats for saving objects to
-disk. `.rds` holds a single object; `.RData` holds several. You will
-see both inside the authors' archive.
-
-**R Markdown** — a document format mixing prose and runnable R code,
-much like a Jupyter notebook. Frequently how published analyses are
-written up.
-
-**Three-way comparison** — this project's method for locating the
-source of a discrepancy. Comparing only the published paper with your
-own rebuild cannot tell you whether a difference came from your code,
-from the original code failing to reproduce its own paper, or from the
-change of toolchain. Running the authors' code as well isolates each
-possibility. *Analogy:* a magazine recipe gives you a flat cake — your
-baking, a misprint, or your oven? With only the magazine and your cake
-you cannot say. Watching the original chef bake it settles the question
-at once.
-
-**Polyglot** — able to work in several programming languages. The
-practical value is not showing range but access: **you can read
-anyone's code, not only your own**. A great deal of published
-scientific analysis is in R, so being unable to read R means being
-unable to check it.
+- **Handbook** ([`docs/HANDBOOK.md`](HANDBOOK.md)): the guide to read first: every stage from day 0 to the finished product, with links to the detail.
+- **Stage**, **phase**: a phase is one piece of building work (18 of them); a stage is one step of the Handbook's journey. Stage N+2 is Phase N.
+- **Checkpoint**: the list at the end of a stage or guide that says how you know it worked.
+- **Markdown** (`.md`): plain text with light marks for headings, lists and links, which GitHub displays as formatted pages. Every guide is Markdown.
+- **Mermaid**: diagrams written as text inside Markdown, which GitHub draws as pictures.
+- **PNG**, **SVG**: two image formats. PNG stores pixels; SVG stores shapes, so it stays sharp at any size.
+- **Interactive page**: an HTML file in `docs/interactive/` that opens in a browser and responds to clicks and sliders, with nothing to install.
+- **GitHub Pages**, **`.nojekyll`**: GitHub's free way to publish a folder of a repository as a small website, and the empty file that tells it to publish the folder as it is.
+- **Changelog** ([`CHANGELOG.md`](../CHANGELOG.md)): the record of what changed in each version.
+- **Semantic versioning**: version numbers of the form MAJOR.MINOR.PATCH; here a new MINOR marks a milestone, a PATCH a fix, and 1.0.0 the first complete release ([`docs/GIT_WORKFLOW.md` section 7](GIT_WORKFLOW.md#7-tags-and-version-numbers)).
+- **Milestone**: a planned stopping point where the project is complete in itself, marked by a version tag.
+- **Release**: a version published for others to use. *(Phase 18)*
+- **`CITATION.cff`**, **`CONTRIBUTING.md`**, **issue template**: a file telling others how to cite the project, a guide to contributing, and a form for reporting a problem on GitHub. *(Phase 18)*
+- **Notes from the build**: a section in each phase guide recording things that went wrong or changed while the phase was built.

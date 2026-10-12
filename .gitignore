@@ -1,59 +1,46 @@
-# ---------------------------------------------------------------------
-# RealSignal — files Git must never track
-# ---------------------------------------------------------------------
-
-# The virtual environment. Hundreds of megabytes, machine-specific, and
-# fully rebuildable from requirements.txt. Never commit it.
+# The virtual environment: hundreds of megabytes, specific to one computer,
+# and rebuilt from requirements.txt in minutes.
 .venv/
 venv/
 env/
 
-# Downloaded and generated data. Rebuilt by scripts/fetch_data.py and
-# verified by checksum. Keeping it out is deliberate: the script working is
-# the proof the project works. (See README, "Repository map".)
+# Downloaded and generated data. scripts/fetch_data.py rebuilds it and checks
+# its checksum, so the script working is the proof the project works.
 data/
 
-# R: the renv package library is machine-specific and rebuildable from
-# renv.lock, exactly as .venv is rebuildable from requirements.txt.
-# Commit renv.lock; never commit the library itself.
+# R's package library is rebuilt from renv.lock, the way .venv is rebuilt
+# from requirements.txt. renv.lock itself is committed.
 renv/library/
 renv/staging/
 .Rhistory
 .RData
 .Rproj.user/
 
-# Python's compiled cache files — generated automatically, never useful to
-# anyone else.
+# Files Python and pytest generate by themselves.
 __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
-
-# Jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-# Secrets. This project uses only public data and needs no credentials, but
-# the rule belongs here permanently: a secret committed once is compromised
-# forever, because history is permanent.
+# Secrets. This project needs none so far, but the rule stays: anything
+# committed once stays in the history for good.
 .env
+*.env.local
 *.key
 secrets.*
-
-# Container artefacts. Never commit a .env holding database passwords:
-# history is permanent, so a secret committed once must be treated as
-# compromised and rotated, not quietly deleted.
-*.env.local
 .container-data/
 
-# Personal working notes — scratch material, never published
+# Logs and personal working notes.
+*.log
 .local-notes/
 
-# Operating-system clutter
+# Operating-system clutter.
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Editor settings — personal, not project-wide
+# Personal editor settings.
 .vscode/
 .idea/
 *.swp

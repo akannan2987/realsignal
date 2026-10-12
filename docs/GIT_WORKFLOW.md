@@ -1,31 +1,37 @@
-# Git workflow — how changes reach GitHub
+[Handbook](HANDBOOK.md) · [README](../README.md) · [Setup](01-setup.md) · [Glossary](GLOSSARY.md)
 
-**Prerequisites:** Git installed and the repository created — both
-covered in [`01-setup.md`](01-setup.md). You can read this document
-before doing either.
+# Git workflow: how changes reach GitHub
 
-**Learning goal:** after this you will know what Git actually is, what
-a branch actually is, why this project uses three of them, and you will
-be able to run the end-of-phase ritual without copying it blindly.
+**Prerequisites:** none to read it. To run the commands you need Git installed and the repository created, both covered in [`docs/01-setup.md`](01-setup.md).
 
-> Every term here is also in [`GLOSSARY.md`](GLOSSARY.md).
+**Learning goal:** after this you'll know what Git is, what a branch is, why this project keeps three of them, and what every line of the end-of-phase ritual does, so you can run it knowing what will happen.
+
+**Where this sits:** Stage 2 of the [Handbook](HANDBOOK.md#stage-2-version-control-the-three-branches-and-the-safety-gate) introduces it, and every later stage ends with the ritual from [section 6](#6-the-end-of-phase-ritual). Every term is also in the [Glossary](GLOSSARY.md#group-5-git-and-github).
 
 ---
 
-## 1. What Git is, if you have never used it
+## Contents
 
-**Git is a save-game system for your work.**
+- [1. What Git is, if you've never used it](#1-what-git-is-if-youve-never-used-it)
+- [2. The three places a change can be](#2-the-three-places-a-change-can-be)
+- [3. What a branch is](#3-what-a-branch-is)
+- [4. This project's three branches](#4-this-projects-three-branches)
+- [5. Creating the three branches (one time only)](#5-creating-the-three-branches-one-time-only)
+- [6. The end-of-phase ritual](#6-the-end-of-phase-ritual)
+- [7. Tags and version numbers](#7-tags-and-version-numbers)
+- [8. Five situations that confuse everyone, and their fixes](#8-five-situations-that-confuse-everyone-and-their-fixes)
+- [9. Writing commit messages worth reading](#9-writing-commit-messages-worth-reading)
+- [10. Quick reference card](#10-quick-reference-card)
 
-In a video game you save before the difficult bit. If it goes wrong you
-reload. You do not fear the difficult bit, because the save exists.
+---
 
-Git does this for files. You decide when to save (a **commit**), each
-save is permanent and labelled with a message, and you can return to
-any of them. The consequence is bigger than it sounds: **you can stop
-being careful.** Delete a chunk of code to see if it was needed. Try
-the risky refactor. The save exists.
+## 1. What Git is, if you've never used it
 
-Compare the alternative, which almost everyone has done at least once:
+Git is a save-game system for files. In a video game you save before the hard level, and if it goes badly you reload.
+
+Git does that for a project. You decide when to save (a **commit**); each save is permanent, dated and labelled with a message, and you can go back to any of them. So you can try the risky change, delete the chunk of code you suspect is unused, rewrite a guide from the top. If it goes wrong, the last save is still there.
+
+Most people have done version control by hand at least once:
 
 ```
 analysis.py
@@ -35,387 +41,350 @@ analysis_FINAL.py
 analysis_FINAL_use_this_one.py
 ```
 
-That is version control implemented by hand, badly. It records no
-reasons, no dates, no way to see what actually changed between two
-files, and no way to combine work.
+That records no reasons and no dates, can't show what changed between two of the files, and can't combine work from two places. Git does all four.
 
-**GitHub** is a website that stores a copy of your Git repository
-online. Git is the camera; GitHub is the shared album. Git works
-perfectly well with no GitHub at all — the history is on your machine.
-GitHub adds backup, sharing and a public home for the work.
+**GitHub** is a website that keeps a copy of a Git repository online. Git works without it (the whole history lives in a hidden `.git` folder inside the project); GitHub adds a backup, a public home for the work and a way to share it.
 
 ---
 
 ## 2. The three places a change can be
 
-This trips up nearly everyone at first, so it is worth thirty seconds.
-A change passes through three states:
+A change passes through three places on its way to GitHub. Mixing them up is the most common source of confusion, so here they are once:
 
-```
-   your files            the staging area           the history
-  (working tree)             (index)                  (commits)
-        |                       |                        |
-        |  ---- git add ---->   |                        |
-        |                       |  ---- git commit --->  |
-        |                       |                        |
-                                                    --- git push --->  GitHub
+```mermaid
+flowchart LR
+    W["Your files<br/>(working tree)"] -- "git add" --> S["Staging area<br/>(the next save)"]
+    S -- "git commit" --> H["History<br/>(commits)"]
+    H -- "git push" --> G["GitHub"]
 ```
 
-- **Working tree** — the files as they are right now on disk. You edit
-  here.
-- **Staging area** — the changes you have chosen to include in your next
-  save. *Analogy:* items on the supermarket checkout belt. Selected,
-  not yet paid for.
-- **History** — the permanent record of commits. *Analogy:* the
-  receipts.
+- **Working tree:** the files as they are on disk right now. You edit here.
+- **Staging area:** the changes you've picked for the next commit. Items on the conveyor belt at a supermarket till: chosen, not paid for yet.
+- **History:** the permanent record of commits, the receipts.
 
-**Why the middle step exists.** Because you often change five things
-and only three belong together. Staging lets you commit those three
-with one clear message and the other two separately. In this project
-you will usually stage everything at once (`git add -A`), which is fine
-and normal for solo work — but now you know why the step is there.
+The middle step exists because you often change five things and only three belong together. Staging lets you commit those three with one clear message and the other two separately. In this project you'll usually stage everything at once with `git add -A`, which is normal for one person working alone.
 
 ---
 
 ## 3. What a branch is
 
-**A branch is an independent line of work.**
+A branch is an independent line of work. A writer keeps a clean copy of a chapter that anyone could read, plus a draft where whole sections get rewritten and sometimes made worse. When the draft is better, it becomes the clean copy. A branch is that arrangement, built into Git.
 
-*Analogy.* You are writing an important document. You keep a clean copy
-you would be happy for anyone to read, and you also keep a working
-draft where you rewrite whole sections, try a different structure and
-occasionally make it worse. Both exist at the same time. When the draft
-is genuinely better, it becomes the clean copy.
-
-Git makes that first-class. Your files can exist in several versions
-simultaneously, each on its own branch, and you switch between them
-with one command. When you switch, the files on disk change to match
-that branch.
-
-**A branch is not a folder.** There is only ever one set of files in
-your project directory. Switching branches rewrites them to match.
-Beginners often expect three folders for three branches; there is one
-folder that changes contents.
+**A branch isn't a folder.** There's only ever one set of files in the project folder. Switching branches (`git switch`) rewrites those files to match the branch you switch to. People new to Git often expect three folders for three branches; there's one folder whose contents change.
 
 ---
 
 ## 4. This project's three branches
 
-| Branch | Purpose | Analogy |
+| Branch | What it holds | In a bakery |
 |---|---|---|
-| **`develop`** | Where all work happens. Half-finished things live here. | The workbench |
-| **`beta`** | A checkpoint copy — what a tester would try. | The demonstration model |
-| **`master`** | The published, presentable state. | The showroom |
+| `develop` | where all the work happens, including things half done | the kitchen |
+| `beta` | a checkpoint copy, what a tester would try | the tasting plate |
+| `master` | the published state, what the public sees | the shop window |
 
-All three are created from the same starting point and all three are
-pushed together at the end of each phase.
+At the end of each phase all three get the same, tested state, in one push.
 
-### "Why three branches when I am one person?"
+```mermaid
+%%{init: {'gitGraph': {'mainBranchName': 'master'}}}%%
+gitGraph
+    commit id: "first commit"
+    branch beta
+    branch develop
+    checkout develop
+    commit id: "Phase 1 work"
+    commit id: "Phase 1 done"
+    checkout beta
+    merge develop
+    checkout master
+    merge develop tag: "v0.1.0"
+    checkout develop
+    commit id: "Phase 2 work"
+```
 
-An honest question, and the honest answer has three parts.
+### Why three branches for one person?
 
-1. **It separates working from published.** Even solo, there is real
-   value in "the thing I am fiddling with" being distinct from "the
-   thing someone might look at right now".
-2. **It is the habit teams use.** Nearly every professional repository
-   separates work-in-progress from released. Building the reflex on a
-   solo project costs one extra line per phase and means you already
-   have it when you need it.
-3. **It gives you two fallbacks.** If `develop` gets into a mess, both
-   `beta` and `master` still hold a known-good state you can return to.
+Three reasons, and they hold even for a solo project:
+
+1. **Working and published stay apart.** What you're fiddling with today isn't what someone opening the repository sees.
+2. **It's how most team repositories work.** Learning the habit on your own project costs one line per phase.
+3. **Two fallbacks.** If `develop` gets into a mess, `beta` and `master` still hold the last good state.
 
 ### Why `master` and not `main`
 
-GitHub's default for new repositories is `main`; the older, and still
-extremely widespread, convention is `master`. This project uses
-`master` deliberately and consistently. Neither is more correct — what
-matters is that your documentation says which one you use, so anyone
-following it does not hit a wall. This document is that.
+New GitHub repositories default to `main`; the older convention, still very common, is `master`. Neither is more correct. This project uses `master` everywhere, and what matters is that the guides say so, so nobody following them hits a branch that doesn't exist.
 
 ---
 
 ## 5. Creating the three branches (one time only)
 
-Do this once, when the repository is first created. `01-setup.md` walks
-through it in context; this is the reference version.
+[`docs/01-setup.md` section 12](01-setup.md#12-connect-to-github-and-create-the-three-branches) walks through this in context. This is the reference version.
 
 ```bash
-# 1. Inside your project folder, start tracking it with Git.
+# 1. Inside the project folder, start tracking it with Git.
 git init
 
-# 2. Name the first branch 'master' rather than accepting the default.
+# 2. Call the first branch master instead of the default.
 git branch -M master
 
 # 3. Make the first commit, so the branches have something to point at.
-#    (A branch must point at a commit; you cannot branch from nothing.)
+#    (A branch points at a commit, so it can't start from nothing.)
 git add -A
-git commit -m "chore: initial project structure and documentation"
+git commit -m "chore: initial project structure, documentation and environment"
 
-# 4. Connect this folder to your empty GitHub repository.
-#    Replace the URL with your own.
-git remote add origin https://github.com/YOURNAME/realsignal.git
+# 4. Connect the folder to your empty GitHub repository (use your own name).
+git remote add origin https://github.com/<you>/realsignal.git
 
-# 5. Push master and record the connection ( -u ) so future pushes are shorter.
+# 5. Send master and remember the connection (-u), so later pushes are shorter.
 git push -u origin master
 
-# 6. Create beta and develop, both starting from exactly where master is.
+# 6. Create beta and develop, both starting where master is.
 git branch beta
 git branch develop
 
-# 7. Publish them both to GitHub.
+# 7. Send both to GitHub.
 git push -u origin beta
 git push -u origin develop
 
-# 8. Move onto develop — from now on, this is where you work.
+# 8. Move onto develop. From now on, this is where you work.
 git switch develop
 ```
 
-**Expected output of the last command:**
+**You should see** after the last command:
 
 ```
 Switched to branch 'develop'
 Your branch is up to date with 'origin/develop'.
 ```
 
-**Verify all three exist**, locally and on GitHub:
+**Check all three exist,** on your computer and on GitHub:
 
 ```bash
 git branch -a
 ```
 
 ```
-* develop
   beta
+* develop
   master
   remotes/origin/beta
   remotes/origin/develop
   remotes/origin/master
 ```
 
-The `*` marks the branch you are on. If you see all six lines, the
-setup is correct.
+The `*` marks the branch you're on. Six lines means the setup is right.
 
 ---
 
 ## 6. The end-of-phase ritual
 
-This is the block that appears at the end of every phase document. Run
-it whenever you reach a checkpoint that works.
+This ends every phase, in two steps. **First check**, and read the result before going on:
 
 ```bash
-# 1. Make sure you are on the working branch.
+pytest -q                     # every test passes
+./check-public-safe.sh        # must end with: SAFE TO PUSH (Windows: bash check-public-safe.sh in Git Bash)
+```
+
+If a test fails or the gate says NOT SAFE, stop and fix that first. Only then **save**:
+
+```bash
 git switch develop
-
-# 2. Stage every change in the project (new, modified and deleted files).
 git add -A
-
-# 3. Save them permanently, with a message explaining what changed.
-git commit -m "Phase 1: verified download of published dataset"
-
-# 4. Send develop to GitHub, and update beta and master to match it.
+git commit -m "feat: what this phase added, in one line"
 git push origin develop develop:beta develop:master
-
-# 5. Bring your local master up to date with the master you just pushed.
+## --tags is optional, only when required (see section 7)
+## then switch back to local master and pull in the remote changes
 git switch master
 git pull --ff-only origin master
-
-# 6. Return to the working branch, ready for the next phase.
 git switch develop
 ```
 
-### What each part actually means
+The lines starting with `##`, and anything after a `#`, are notes: the terminal ignores them, so the block can be pasted as it is. (On a Mac using the zsh shell, this needs the one-time setting in [`docs/01-setup.md` section 2](01-setup.md#macos-only-let-the-terminal-skip-the-notes-in-commands).) The checks are a separate block on purpose: a pasted block runs every line, even after one fails, so a failing test wouldn't stop the push. Each phase guide gives its own commit message.
 
-**`git switch develop`** — move to the working branch. Safe to run even
-if you are already there; it will simply say so. Running it every time
-turns "which branch am I on?" from a question into a non-issue.
+### What each line does
 
-**`git add -A`** — stage everything. The `-A` means *all* changes,
-including files you deleted (a common omission with plain `git add .`
-in older Git versions).
+**`pytest -q` and `./check-public-safe.sh`** come first, on their own, because a push to `master` is public. The tests show the code still does what the guides say; the gate ([`docs/01-setup.md` section 13](01-setup.md#13-the-safety-gate)) shows nothing private is about to be published.
 
-**`git commit -m "..."`** — create the permanent save point. The
-message is not decoration; it is what you or a stranger reads in six
-months to understand *why* something changed. See §7.
+**`git switch develop`** moves you to the working branch. If you're already there it says so and does nothing. Running it every time means you never have to wonder which branch you're on.
 
-**`git push origin develop develop:beta develop:master`** — the
-interesting line. It does three things in one command:
+**`git add -A`** stages every change: new files, changed files and deleted files (the `-A` is for "all").
 
-- `develop` — push local `develop` to remote `develop`.
-- `develop:beta` — push local `develop` *to remote* `beta`. The colon
-  means "take what's on the left, put it on the branch named on the
-  right".
-- `develop:master` — same, onto remote `master`.
+**`git commit -m "..."`** creates the save point. The message is what you, or anyone reading the history, will see in a year when wondering why something changed. [Section 9](#9-writing-commit-messages-worth-reading) has the conventions.
 
-So all three remote branches end up pointing at the same, tested state,
-in one operation.
+**`git push origin develop develop:beta develop:master`** sends one state to three branches in a single command:
 
-*Analogy:* you finish the draft, and simultaneously file it as the
-draft, the review copy, and the published copy — because at this
-checkpoint, all three should say the same thing.
+- `develop` sends your local `develop` to `develop` on GitHub.
+- `develop:beta` sends your local `develop` to `beta` on GitHub. The colon reads "take what's on the left, put it on the branch named on the right".
+- `develop:master` does the same for `master`.
 
-**`git switch master` then `git pull --ff-only origin master`** — step
-5 exists because of a real subtlety. The previous command updated
-`master` **on GitHub**, but your *local* `master` branch still points at
-the old commit. It does not update itself. This step brings it in line,
-so your local repository is not quietly inconsistent with the remote.
+So at every checkpoint the three branches on GitHub say the same thing.
 
-The `--ff-only` flag means **fast-forward only**: *only update if it is
-a clean, no-surprises move forward; otherwise stop and tell me.* If
-local `master` had diverged, Git refuses rather than silently creating
-a merge you did not ask for.
+**`git switch master` and `git pull --ff-only origin master`** deal with something easy to miss. The push moved `master` **on GitHub**, but the `master` branch on your computer still points at the old commit; it doesn't follow along by itself. These two lines bring it up to date.
 
-*Analogy:* a rule that says "you may only move the bookmark forward
-through the book, never sideways into a different book". If something
-does not fit that description, you want to be told, not helped.
+`--ff-only` means "fast-forward only": update only if it's a clean step forward, and otherwise stop and say why. A bookmark that may only move forward through the same book is the idea. If your local `master` had somehow gone its own way, Git refuses instead of quietly creating a merge you didn't ask for, and you get to look at what happened first.
 
-**`git switch develop`** — return to the workbench. Always end here, so
-your next session starts in the right place. Making an edit while
-accidentally on `master` is the most common way a solo Git history gets
-tangled, and always finishing on `develop` prevents it.
+**`git switch develop`** puts you back on the working branch, so the next session starts in the right place. Editing while on `master` by accident is the most common way a one-person history gets tangled, and always ending on `develop` prevents it.
 
-### The optional tag line
-
-Occasionally — at a release, not at every phase — you will want a
-permanent name pinned to a commit:
+### Check it worked
 
 ```bash
-git tag -a v1.0.0 -m "First complete release"
+git log --oneline -1
+```
+
+**You should see** your commit with all the branch names next to it, something like:
+
+```
+1a2b3c4 (HEAD -> develop, origin/master, origin/develop, origin/beta, master) feat: ...
+```
+
+(The seven characters at the start differ for every commit. Your local `beta` won't be in the list, because you never work on it locally, and `origin/HEAD` may appear too.)
+
+---
+
+## 7. Tags and version numbers
+
+A **tag** is a permanent name pinned to one commit, such as `v0.1.0`. Branches move forward with every commit; a tag stays put, so `v0.1.0` always means exactly the state the project was in when it was released.
+
+Tags are only for milestones, not every phase:
+
+```bash
+git tag -a v0.1.0 -m "v0.1.0: verified data, documentation and a reproducible setup"
 git push origin develop develop:beta develop:master --tags
 ```
 
-`--tags` sends the tags along. Use it only when you have created a tag;
-there is no need for it in normal phase commits.
+`-a` makes an annotated tag, which records who made it, when, and the message. `--tags` sends tags along with the push; without it, the tag stays on your computer.
+
+### What the numbers mean
+
+The project follows **semantic versioning**: `MAJOR.MINOR.PATCH`.
+
+- **MAJOR** goes to 1 at the first complete release (Phase 18). Before that, `0.x` says "still being built".
+- **MINOR** goes up at each milestone.
+- **PATCH** goes up for a fix that adds nothing new.
+
+| Tag | Reached at | What it means |
+|---|---|---|
+| v0.1.0 | Phase 1 | verified data, documentation and a reproducible setup |
+| v0.2.0 | Phase 3 | all data layers joined into one tidy table |
+| v0.3.0 | Phase 5 | the published result reproduced in Python |
+| v0.4.0 | Phase 6 | the three-way comparison with the authors' R code |
+| v0.5.0 | Phase 7 | first app anyone can open |
+| v0.6.0 | Phase 9 | the science is complete |
+| v0.7.0 | Phase 12 | database, API, web app and a scheduled pipeline |
+| v0.8.0 | Phase 16 | the AI features |
+| v0.9.0 | Phase 17 | runs in Docker or Podman |
+| v1.0.0 | Phase 18 | first complete release |
+
+The full list, with what each milestone contains, is in [`docs/ROADMAP.md`](ROADMAP.md#4-milestones-and-version-tags). Every tag gets an entry in [`CHANGELOG.md`](../CHANGELOG.md).
 
 ---
 
-## 7. Writing commit messages that are worth reading
+## 8. Five situations that confuse everyone, and their fixes
 
-A commit message answers: *what changed, and why?* The what is often
-visible in the code; the why almost never is.
+Everyone runs into these. None of them loses work if you stop and read what Git printed.
 
-**A convention worth adopting** (used throughout this project) is a
-short type prefix:
+### "I edited files, but I'm on the wrong branch"
 
-| Prefix | Use for |
-|---|---|
-| `feat:` | A new capability |
-| `fix:` | Correcting something broken |
-| `docs:` | Documentation only |
-| `test:` | Adding or changing tests |
-| `chore:` | Housekeeping — dependencies, structure, configuration |
-| `refactor:` | Restructuring code without changing behaviour |
-
-**Good:**
-
-```
-feat: download and checksum-verify the published dataset
-fix: handle strains recorded as ambiguous rather than dropping the row
-docs: explain why the raw data folder is never edited
-```
-
-**Poor:**
-
-```
-update
-stuff
-fixed it
-asdf
-```
-
-The test: would this message help a stranger — or you in six months —
-understand why this commit exists, without reading the code?
-
----
-
-## 8. The five situations that will confuse you, and their fixes
-
-Everyone hits these. They are not signs of failure.
-
-### "I edited files but I'm on the wrong branch"
-
-You made changes while on `master` instead of `develop`. Nothing is
-lost:
+You made changes while on `master` instead of `develop`:
 
 ```bash
-git stash          # put the changes safely to one side
+git stash          # put the changes to one side
 git switch develop # go where you meant to be
 git stash pop      # bring the changes back, now on develop
 ```
 
-*Analogy:* picking up your papers, walking to the right desk, putting
-them down again.
+### "It says my branch is behind, or has diverged"
 
-### "It says my branch is behind / has diverged"
-
-The remote has commits your local branch does not. Usually because you
-edited a file directly on the GitHub website. Fix:
+GitHub has commits your computer doesn't, usually because a file was edited on the GitHub website. The website edits `master` unless you picked another branch, so bring the changes into `develop` from the branch that was edited:
 
 ```bash
 git switch develop
-git pull --ff-only origin develop
+git pull --ff-only origin master      # or origin develop, if that's the branch edited on the website
 ```
 
-If `--ff-only` refuses, the branches have genuinely diverged and you
-must decide which changes to keep. Do not guess — read what Git printed;
-it names the branches and commits involved.
+If `--ff-only` refuses, the two have really gone separate ways and you need to decide which changes to keep. Read the message: it names the branches and commits involved. Don't guess.
 
 ### "It won't let me push"
 
-Almost always because the remote has something you do not. Pull first
-(as above), then push. **Never** reach for `--force` to make an error
-message go away: force-pushing overwrites history on GitHub, and the
-overwritten commits are genuinely gone.
+Nearly always because GitHub has something you don't. Pull first (as above), then push again. **Never use `--force` to make the error go away:** a forced push overwrites the history on GitHub, and the overwritten commits are gone.
 
-### "I committed something I shouldn't have" (data, a secret)
+### "I committed something I shouldn't have"
 
-If it is **not yet pushed**:
+If it's **not pushed yet**:
 
 ```bash
-git reset --soft HEAD~1   # undo the commit, keep the file changes
+git reset --soft HEAD~1   # undo the last commit, keep the changes in your files
 ```
 
-Then add the file to `.gitignore` and commit again. If it **is** pushed
-and it is a secret — a password or key — the only safe assumption is
-that it is compromised: revoke and replace it. Removing it from
-history is possible but fiddly, and revoking is what actually protects
-you.
+Then add the file to `.gitignore` (or take it out with `git rm --cached <file>`, which keeps it on disk) and commit again.
 
-This is precisely why `.gitignore` lists `data/` and environment files
-*before* the first commit rather than after.
+If it **is pushed** and it's a secret (a password, an API key), assume someone has it: revoke it with the service that issued it and make a new one. Removing it from the history is possible but fiddly, and revoking is what actually protects you. This is why `.gitignore` lists `data/` and `.env` before the first commit, and why the safety gate runs before every push.
 
-### "Git is asking me to configure my name"
+### "Git asks me to tell it who I am"
 
-Once per machine:
+Once per computer:
 
 ```bash
 git config --global user.name "Your Name"
 git config --global user.email "your-email@example.com"
 ```
 
-Every commit records who made it, which is why it asks.
+Every commit records who made it, so Git needs to know.
 
 ---
 
-## 9. A quick reference card
+## 9. Writing commit messages worth reading
 
-```bash
-git status                 # what has changed? (run this constantly — it is free)
-git switch develop         # move to the working branch
-git branch -a              # list every branch, local and remote
-git add -A                 # stage all changes
-git commit -m "msg"        # save them permanently
-git log --oneline -10      # the last ten commits, one line each
-git diff                   # what changed that isn't staged yet
-git push origin develop develop:beta develop:master
-git switch master && git pull --ff-only origin master && git switch develop
+A commit message answers "what changed, and why?". The what is usually visible in the files; the why almost never is.
+
+This project starts each message with a short type:
+
+| Type | Use it for |
+|---|---|
+| `feat:` | a new capability |
+| `fix:` | correcting something that was broken |
+| `docs:` | documentation only |
+| `test:` | adding or changing tests |
+| `chore:` | housekeeping: packages, folders, settings |
+| `refactor:` | restructuring code without changing what it does |
+
+Good:
+
+```
+feat: download and checksum-verify the published dataset
+fix: keep strains recorded as ambiguous instead of dropping the row
+docs: explain why the raw data folder is never edited
 ```
 
-**`git status` is the most useful command in Git.** It tells you which
-branch you are on, what has changed, what is staged, and usually
-suggests the command you want next. Run it before and after everything
-until it becomes reflex. It changes nothing, so it can never do harm.
+Not useful:
+
+```
+update
+stuff
+fixed it
+```
+
+The test is whether someone reading the history, without opening the files, would understand why the commit exists. Commit messages stay plain keyboard characters (no long dashes, no curly quotes), so they paste into any terminal.
 
 ---
 
-**Next:** [`01-setup.md`](01-setup.md) if you have not set up yet, or
-back to [`00-architecture.md`](00-architecture.md) for the system map.
+## 10. Quick reference card
+
+```bash
+git status                 # what has changed? (changes nothing, so run it often)
+git switch develop         # move to the working branch
+git branch -a              # every branch, on this computer and on GitHub
+git add -A                 # stage all changes
+git commit -m "msg"        # save them
+git log --oneline -10      # the last ten commits, one line each
+git diff                   # changes not staged yet
+git push origin develop develop:beta develop:master
+git switch master
+git pull --ff-only origin master
+git switch develop
+```
+
+`git status` is the most useful of them. It shows the branch you're on, what has changed, what's staged, and usually suggests the next command. It changes nothing, so it can't do harm.
+
+---
+
+**Next:** back to the [Handbook](HANDBOOK.md), at the stage you're on.

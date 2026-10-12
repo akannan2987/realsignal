@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RealSignal</title>
+<link rel="icon" href="img/realsignal_icon.svg" type="image/svg+xml">
+<style>
+  :root { --ink:#1F2933; --soft:#5F6B7A; --line:#D5DCE6; --bg:#FBFCFE; --card:#FFFFFF; --link:#2E5FC1; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#E8ECF1; --soft:#A9B4C2; --line:#3A4350; --bg:#16191D; --card:#1E2228; --link:#8FB0F5; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Segoe UI", Helvetica, Arial, sans-serif; color:var(--ink); background:var(--bg); line-height:1.55; }
+  main { max-width:960px; margin:0 auto; padding:24px 16px 48px; }
+  .logo { width:100%; max-width:540px; height:auto; border-radius:14px; }
+  h2 { font-size:19px; margin:28px 0 10px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px; }
+  .card { display:block; background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; color:var(--ink); text-decoration:none; }
+  .card:hover, .card:focus-visible { border-color:#5B8DEF; outline:none; }
+  .card strong { display:block; font-size:16px; margin-bottom:4px; }
+  .card span { color:var(--soft); font-size:14px; }
+  a { color:var(--link); }
+  .soft { color:var(--soft); }
+  figure { margin:0; }
+  figure img { width:100%; height:auto; border:1px solid var(--line); border-radius:12px; background:#FBFCFE; }
+  figcaption { color:var(--soft); font-size:14px; margin-top:4px; }
+</style></head>
+<body><main>
+  <img class="logo" src="img/realsignal_logo.svg" alt="RealSignal: reproduce, check and extend a published result">
+  <p>RealSignal rebuilds a published machine-learning study about bacteria that protect plants, checks it
+  against evidence the model never saw, and documents every step from a blank laptop. These pages hold the
+  project's interactive pictures. Everything else lives in the
+  <a href="https://github.com/akannan2987/realsignal">repository</a>; start with the
+  <a href="https://github.com/akannan2987/realsignal/blob/master/docs/HANDBOOK.md">Handbook</a>.</p>
+
+  <h2>Interactive pages</h2>
+  <div class="cards">
+    <a class="card" href="interactive/journey.html"><strong>The journey</strong>
+      <span>Every stage from day 0 to the finished product: what you do, why, and how you know it worked.</span></a>
+    <a class="card" href="interactive/combinations.html"><strong>How many communities?</strong>
+      <span>Change the number of strains and the team size, and see why nobody tests them all.</span></a>
+  </div>
+
+  <h2>The ideas in pictures</h2>
+  <div class="cards">
+    <figure><img src="img/journey_map.svg" alt="The journey map: 22 stages from understanding the project to the finished product">
+      <figcaption>The journey map, with what is built and what comes next.</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/akannan2987/realsignal/master/figures/screening_design.png" alt="The screen: a pool of strains, random teams of five, plants and pathogen, then working backwards">
+      <figcaption>The experiment, explained as a 5-a-side league.</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/akannan2987/realsignal/master/figures/three_way.png" alt="Three results and three comparisons: the paper, the original R code and the Python rebuild">
+      <figcaption>Why the original R code is run as well as rebuilt.</figcaption></figure>
+    <figure><img src="https://raw.githubusercontent.com/akannan2987/realsignal/master/figures/data_layers.png" alt="Five layers of data from four published sources joined on one strain name">
+      <figcaption>Five layers of data, one strain name.</figcaption></figure>
+  </div>
+  <p class="soft">The data behind RealSignal belongs to its authors and is credited in the README. The pages
+  here work offline too: download any of them and open it in a browser.</p>
+</main></body></html>

@@ -1,90 +1,99 @@
 """
-check_env.py — proves this machine is set up correctly for RealSignal.
+scripts/check_env.py: prove that this computer is set up correctly for RealSignal.
 
 WHY THIS FILE EXISTS
 --------------------
-An installation that "seemed to work" is not the same as one that does.
-This script imports every package the project needs and prints a clear
-verdict, so that a problem is found now — in ten seconds, with a short
-list of possible causes — rather than in three weeks, buried inside an
-analysis, where it will look like a bug in your own code.
+An installation that "seemed to work" isn't the same as one that does. This
+script imports every package the project needs and prints one clear verdict,
+so a problem shows up now, in ten seconds, with a short list of likely causes,
+instead of three weeks from now in the middle of an analysis, where it would
+look like a bug in your own code.
 
-Run it with:   python scripts/check_env.py
+Run it from the project folder, with the virtual environment active:
+
+    python scripts/check_env.py
+
+Explained in docs/01-setup.md ("Verify everything works").
 """
 
 import platform
 import sys
+from pathlib import Path
 
-# The minimum Python version this project supports.
-# 3.11 because some of our dependencies dropped support for older ones.
+# The project folder: this file lives in scripts/, one level below it.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+# The oldest Python this project supports. Some of the packages below no
+# longer support anything older than 3.11.
 REQUIRED_PYTHON = (3, 11)
 
-# Every package the project needs, mapped to a one-line reminder of why.
-# The key is the name used in `import`, which is NOT always the name used
-# by pip (scikit-learn installs, but you import sklearn).
+# Every package the project needs, with a reminder of what it's for. The key
+# is the name used in `import`, which isn't always the name pip uses
+# (you install scikit-learn, but you import sklearn).
 REQUIRED_PACKAGES = {
     "pandas": "tables of data",
     "numpy": "fast arithmetic",
     "openpyxl": "reading Excel files",
     "duckdb": "the local SQL database",
-    "sklearn": "machine learning (installed as 'scikit-learn')",
+    "sklearn": "machine learning (installed as scikit-learn)",
     "scipy": "statistics",
     "matplotlib": "charts",
     "requests": "downloading the dataset",
-    "streamlit": "the interactive application",
+    "streamlit": "the interactive app",
     "pytest": "automated tests",
 }
 
 
 def check_python_version() -> bool:
-    """Confirm the running Python is new enough. Returns True if OK."""
+    """Is the running Python new enough?"""
     actual = sys.version_info[:2]
     ok = actual >= REQUIRED_PYTHON
-    symbol = "OK  " if ok else "FAIL"
-    print(f"[{symbol}] Python {actual[0]}.{actual[1]} "
+    print(f"[{'OK  ' if ok else 'FAIL'}] Python {actual[0]}.{actual[1]} "
           f"(need {REQUIRED_PYTHON[0]}.{REQUIRED_PYTHON[1]} or newer)")
     return ok
 
 
 def check_virtual_environment() -> bool:
-    """
-    Confirm we are running inside a virtual environment.
+    """Are we running inside a virtual environment?
 
-    HOW THIS WORKS: when a venv is active, Python sets `sys.prefix` to the
-    venv folder while `sys.base_prefix` still points at the original
-    system Python. If the two are equal, no venv is active.
-    """
+    When one is active, Python's sys.prefix points at the environment's folder
+    while sys.base_prefix still points at the Python it was made from. If the
+    two are the same, no environment is active."""
     inside = sys.prefix != sys.base_prefix
-    symbol = "OK  " if inside else "WARN"
-    print(f"[{symbol}] Virtual environment: "
-          f"{'active' if inside else 'NOT ACTIVE — see docs/01-setup.md section 8'}")
-    print(f"       Python executable: {sys.executable}")
+    status = "active" if inside else "NOT ACTIVE (see docs/01-setup.md, 'Activate it')"
+    print(f"[{'OK  ' if inside else 'WARN'}] Virtual environment: {status}")
+    # Show the Python program's path from the project folder when it lives
+    # there (.venv/bin/python3), so the output is the same on every computer.
+    program = Path(sys.executable)
+    try:
+        program = program.relative_to(PROJECT_ROOT)
+    except ValueError:
+        pass
+    print(f"       Python program in use: {program.as_posix() if not program.is_absolute() else program}")
     return inside
 
 
 def check_packages() -> list[str]:
-    """Try to import each required package. Returns the list that failed."""
+    """Try to import each required package; return the ones that failed."""
     missing = []
     for module_name, purpose in REQUIRED_PACKAGES.items():
         try:
             module = __import__(module_name)
-            # Most packages expose their version; a few do not, so be tolerant.
             version = getattr(module, "__version__", "version unknown")
-            print(f"[OK  ] {module_name:<12} {version:<12} — {purpose}")
+            print(f"[OK  ] {module_name:<11} {version:<10}  {purpose}")
         except ImportError:
-            print(f"[FAIL] {module_name:<12} {'MISSING':<12} — {purpose}")
+            print(f"[FAIL] {module_name:<11} {'MISSING':<10}  {purpose}")
             missing.append(module_name)
     return missing
 
 
 def main() -> int:
-    """Run every check and print a single, unambiguous verdict."""
+    """Run every check and print one verdict."""
     print("=" * 68)
-    print("RealSignal — environment check")
+    print("RealSignal: environment check")
     print("=" * 68)
     print(f"Operating system: {platform.system()} {platform.release()}")
     print("-" * 68)
-
     python_ok = check_python_version()
     venv_ok = check_virtual_environment()
     print("-" * 68)
@@ -92,24 +101,22 @@ def main() -> int:
     print("=" * 68)
 
     if python_ok and venv_ok and not missing:
-        print("ALL CHECKS PASSED — your workshop is ready.")
-        print("Next: docs/02-phase-1-data-acquisition.md")
+        print("ALL CHECKS PASSED. Your workshop is ready.")
+        print("Next: docs/HANDBOOK.md, the stage after the one you are on.")
         return 0
 
     print("SOMETHING NEEDS ATTENTION:")
     if not python_ok:
-        print("  - Python is too old. See docs/01-setup.md section 3.")
+        print("  - Python is too old. See docs/01-setup.md, 'Install Python'.")
     if not venv_ok:
-        print("  - The virtual environment is not active.")
-        print("    See docs/01-setup.md section 8 ('Activate it').")
+        print("  - The virtual environment isn't active. See docs/01-setup.md, 'Activate it'.")
     if missing:
         print(f"  - Missing packages: {', '.join(missing)}")
-        print("    Fix with: pip install -r requirements.txt")
-    print("Full troubleshooting: docs/01-setup.md section 15.")
+        print("    Fix: python -m pip install -r requirements.txt")
+    print("More help: docs/01-setup.md, 'Troubleshooting'.")
     return 1
 
 
 if __name__ == "__main__":
-    # `sys.exit` with a number lets other tools know whether this passed.
-    # 0 means success by long-standing convention; anything else is failure.
+    # 0 means success by long-standing convention; anything else means failure.
     sys.exit(main())

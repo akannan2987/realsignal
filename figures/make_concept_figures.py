@@ -18,11 +18,14 @@ and one interactive page, which works offline in any browser:
 
 The screening picture is an illustration with made-up teams; every other
 number in these figures is either arithmetic or comes from the published paper.
+The status under each data layer is read from sources/register.csv, the source
+register (Phase 2), so the picture changes when the register does.
 
 Run from the project folder, with the virtual environment active:
     python figures/make_concept_figures.py
 """
 
+import csv
 import math
 import random
 from pathlib import Path
@@ -34,6 +37,7 @@ import matplotlib.pyplot as plt                      # noqa: E402
 from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch, Rectangle  # noqa: E402
 
 OUT = Path(__file__).resolve().parent
+REGISTER = OUT.parent / "sources" / "register.csv"   # Phase 2's source register
 
 # The same colours as the logo and the journey map, so the pictures look like
 # one family. Colour marks identity only; every label is written in dark ink.
@@ -223,6 +227,20 @@ def three_way_figure():
 # 4. Five layers of data, one strain key
 # ---------------------------------------------------------------------------
 
+def layer_status(number: str) -> str:
+    """A layer's status, read from the source register, so the picture follows it."""
+    if not REGISTER.exists():
+        return "status: see the source register"
+    with open(REGISTER, newline="", encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            if number in [n.strip() for n in row["layer"].split(",")]:
+                return {"fetched": "fetched and checked",
+                        "partly fetched": "partly fetched",
+                        "to fetch": "not fetched yet",
+                        "not available": "not available (see the register)"}.get(row["status"], row["status"])
+    return ""
+
+
 def data_layers_figure():
     fig, ax = canvas(1150, 700)
     ax.text(575, 672, "Five layers of data from four published sources, joined on one strain name",
@@ -234,17 +252,17 @@ def data_layers_figure():
     ax.text(cx, cy + 14, "strain name", ha="center", fontsize=12, color=SOFT)
     ax.text(cx, cy - 16, "Leaf76", ha="center", fontsize=17, fontweight="bold")
     layers = [
-        ((70, 430), BLUE, "1. Communities + outcome", "which strains were in each\nteam, and how much pathogen\nEmmenegger 2023, Zenodo", "downloaded in Phase 1"),
-        ((800, 430), GREEN, "2. Genomes", "each strain's DNA\nBai 2015", "access checked in Phase 2"),
-        ((800, 120), PURPLE, "3. Gene clusters", "the chemistry each strain\ncould make (predicted)\nHelfrich 2018", "access checked in Phase 2"),
-        ((435, 40), GOLD, "4. Inhibition network", "which strain holds back\nwhich, in pairs\nHelfrich 2018", "access checked in Phase 2"),
-        ((70, 120), RED, "5. Single-strain protection", "each strain tested alone\nagainst the pathogen\nVogel 2021", "access checked in Phase 2"),
+        ((70, 430), BLUE, "1. Communities + outcome", "which strains were in each\nteam, and how much pathogen\nEmmenegger 2023, Zenodo", layer_status("1")),
+        ((800, 430), GREEN, "2. Genomes", "each strain's DNA\nBai 2015, NCBI", layer_status("2")),
+        ((800, 120), PURPLE, "3. Gene clusters", "the chemistry each strain\ncould make (predicted)\nHelfrich 2018", layer_status("3")),
+        ((435, 40), GOLD, "4. Inhibition network", "which strain holds back\nwhich, in pairs\nHelfrich 2018", layer_status("4")),
+        ((70, 120), RED, "5. Single-strain protection", "each strain tested alone\nagainst the pathogen\nVogel 2021", layer_status("5")),
     ]
     w, h = 280, 160
     for (x, y), colour, title, body, status in layers:
         box(ax, x, y, w, h, colour, title, body, title_size=12.5, body_size=10.5)
         ax.text(x + w / 2, y + 16, status, ha="center", fontsize=10, fontweight="bold",
-                color=INK if "downloaded" in status else SOFT)
+                color=INK if status.startswith("fetched") else SOFT)
         bx = x + w / 2
         by = y + h / 2
         dx, dy = cx - bx, cy - by

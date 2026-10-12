@@ -370,7 +370,7 @@ The authors' R code (22 files):
 
 ### What the archive holds
 
-Read from the file names and folders only; Phase 2 opens the files. The authors' R code stays closed until Phase 6, so the Python rebuild in Phase 5 is written from the paper alone.
+Read from the file names and folders only; Phase 2 opens the files ([its guide, section 5](03-phase-2-more-sources.md#5-step-1-open-layer-1s-tables)). The authors' R code stays closed until Phase 6, so the Python rebuild in Phase 5 is written from the paper alone.
 
 | Folder | Files | What the names suggest |
 |---|---|---|
@@ -384,11 +384,11 @@ Read from the file names and folders only; Phase 2 opens the files. The authors'
 The answers to the four questions, from this run:
 
 1. **342 files.** Mostly tables (141 `.txt`, 32 `.tsv`, 12 `.xlsx`) and R's own data files (32 `.rdata`, 19 `.rds`). The 76 PDFs are figures and make up more than half the size (153.6 of 260.9 MB). It's a data deposit with the code that analysed it.
-2. **The screen** is in `Data/RawData/Mini5SynComScreen/` (as recorded) and `Data/CleanData/2023-01-16Mini5SynComScreen_*.txt` (cleaned), with the community make-up in `Data/MetaData/Mini5SynComScreen/20200828_Mixes.txt`. Where the 70 test communities sit isn't clear from the names alone: `Output/TestData/` holds only figures of them, so the table behind those figures is somewhere else. Finding it, by opening the data files, is the first job of Phase 2.
+2. **The screen** is in `Data/RawData/Mini5SynComScreen/` (as recorded) and `Data/CleanData/2023-01-16Mini5SynComScreen_*.txt` (cleaned), with the community make-up in `Data/MetaData/Mini5SynComScreen/20200828_Mixes.txt`. Where the 70 test communities sit isn't clear from the names alone: `Output/TestData/` holds only figures of them, so the table behind those figures is somewhere else. Finding it, by opening the data files, was the first job of Phase 2: the test communities turned out to be round 3 of the same files ([Phase 2 guide, section 5](03-phase-2-more-sources.md#5-step-1-open-layer-1s-tables)).
 3. **The R code** is in `Rscripts/`. Two more things for Phase 6: `Rscripts/sessioninfo.R` and an image `Output/StrainSelection/20230911_SessionInfo_LaptopWorkstation.PNG` probably record the R version and packages the authors used.
-4. **More than expected.** The authors also deposited everything their code produced. File names such as `Output/MachineLearning/RFClassOverall_seed5_2023-06-21.txt` show results for eight random seeds, and `Output/MachineLearning_PerformanceOutput/TableS6_ClassificationPerformance.tsv` holds published performance numbers as a table, which the comparisons in Phases 5 and 6 can read directly. And `Data/MetaData/AtSPHERE/` holds a file called `41564_2021_997_MOESM3_ESM (1).xlsx`: by its name, a supplementary file of the 2021 *Nature Microbiology* paper behind Layer 5 (each strain tested alone). Phase 2 checks what it contains and on what terms it may be reused.
+4. **More than expected.** The authors also deposited everything their code produced. File names such as `Output/MachineLearning/RFClassOverall_seed5_2023-06-21.txt` show results for eight random seeds, and `Output/MachineLearning_PerformanceOutput/TableS6_ClassificationPerformance.tsv` holds published performance numbers as a table, which the comparisons in Phases 5 and 6 can read directly. And `Data/MetaData/AtSPHERE/` holds a file called `41564_2021_997_MOESM3_ESM (1).xlsx`: by its name, a supplementary file of the 2021 *Nature Microbiology* paper behind Layer 5 (each strain tested alone). Phase 2 confirmed it and checked it against the publisher's copy ([Phase 2 guide, section 3](03-phase-2-more-sources.md#3-a-second-copy)).
 
-One practical detail: that last file name contains spaces and brackets. Code that reads it has to quote the name properly, which is one more reason Phase 2 reads names from `data/raw/manifest.csv` instead of typing them.
+One practical detail: that last file name contains spaces and brackets, so anything that reads it has to keep the name in one piece: quotes around it in a terminal, a `Path` in Python ([Phase 2 guide, section 15](03-phase-2-more-sources.md#15-same-task-different-language-optional-10-minutes)).
 
 ### The paper's Source Data, an alternative route
 
@@ -667,4 +667,4 @@ You should see your commit with branch names beside it, something like `(HEAD ->
 - How to approach data you didn't create: look first, never guess
 - Why tests that protect the download don't need the download
 
-**Next: Phase 2, the other data layers.** Four more layers (the strains' genomes, their predicted gene clusters, the network of which strain holds back which, and every strain tested alone) come from three more papers. Some of those sit behind journal subscriptions, so Phase 2 starts by finding out what can actually be obtained, and records the answer either way. See [Stage 4 in the Handbook](HANDBOOK.md#stage-4-phase-2-the-other-four-layers-or-a-record-of-why-not).
+**Next: Phase 2, the other data layers** ([`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md)). It opens Layer 1's tables first, then fetches four more layers (the strains' genomes, their predicted gene clusters, the network of which strain holds back which, and every strain tested alone) from three more papers, and records in a source register where each one came from and on what terms. See [Stage 4 in the Handbook](HANDBOOK.md#stage-4-phase-2-the-other-four-layers-or-a-record-of-why-not).

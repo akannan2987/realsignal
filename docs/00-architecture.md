@@ -105,19 +105,23 @@ Five layers of data from four published studies, all describing the **same strai
 
 **What the project never does:** edit anything at the source, or keep other people's data in its own repository. The scripts download from the original archives, each identified by a **DOI**, a permanent address for research data ([`docs/02-phase-1-data-acquisition.md` section 2](02-phase-1-data-acquisition.md#2-meet-the-source) explains why that matters).
 
-> Only Layer 1 is confirmed and downloaded. Whether the others can be obtained freely is checked in Phase 2, and the answer is recorded either way. Layer 1 alone supports a complete reproduction.
+**Where each source is written down.** `sources/register.csv`, the *source register*, has one row per source: what it holds, the paper, where the files come from, the terms they come with, and whether they could be obtained, with a date. `sources/files.csv` lists every file to download, with the checksum to check it against. Both are part of the repository; the data files never are. [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) builds them.
+
+> All five layers can be fetched and checked (Phase 2). The one gap is Leaf21: no genome is listed for it, so it has no genome or gene-cluster data, and the register says so.
 
 ---
 
 ## 4. Box 2: the raw copies
 
-**What it is.** `data/raw/`: every downloaded file exactly as it arrived, a list of what's inside (`data/raw/manifest.csv`) and a log of where it came from and when (`data/raw/fetch_log.json`).
+**What it is.** `data/raw/`: every downloaded file exactly as it arrived, a list of what's inside the archive (`data/raw/manifest.csv`) and a log of where it came from and when (`data/raw/fetch_log.json`). The other layers sit in `data/raw/sources/`, one folder per source, with their own log (`data/raw/sources/fetch_log.json`).
 
 **The rule:** nothing writes to `data/raw/` except the download scripts, and nothing ever edits what's there.
 
 **Why.** It's the only part of the project that can't be rebuilt. Every other file can be produced again by running code; the raw copy is where that code starts. A photographer keeps the negatives and works on prints: spoil a print and you make another, but a scratched negative stays scratched.
 
 **What a checksum is for.** A short code calculated from every byte of a file; change one byte and it changes completely. The archive publishes its checksum, the script calculates the checksum of what arrived, and a match proves you hold exactly the file that was deposited. A tamper-evident seal on a medicine bottle does the same job: it shows nobody opened it on the way, and says nothing about whether the medicine works. A checksum likewise says nothing about whether the data is right.
+
+When a publisher gives no checksum, the first download's checksum is recorded and committed, and every later download is checked against that ("pinning"); where a second copy of a file exists, the two are compared. [`docs/03-phase-2-more-sources.md` section 3](03-phase-2-more-sources.md#3-three-ways-to-trust-a-download) explains all three kinds of check.
 
 **Why the log matters.** In a year, "where did this come from?" needs a written answer that doesn't depend on anyone's memory. That written history is called **provenance**.
 
@@ -332,6 +336,9 @@ Every capability runs two ways, on purpose.
 python scripts/fetch_data.py --probe
 python scripts/fetch_data.py
 python notebooks/explore_raw.py
+python notebooks/explore_layer1.py
+python scripts/fetch_sources.py --probe
+python scripts/fetch_sources.py
 ```
 
 **In one go.** By the end, one command (a Python runner, then Airflow) runs the whole pipeline in the right order, with the tests as the last step. This is how the project gets used, and it proves the parts fit together.
@@ -345,6 +352,7 @@ Both call the same functions.
 ```
 realsignal/
 ├── docs/            ← the guides, the Handbook first
+├── sources/         ← the source register: what is fetched, from where, on what terms
 ├── scripts/         ← programs you run by hand, one job each
 ├── src/realsignal/  ← reusable, tested functions that scripts and apps import
 ├── notebooks/       ← exploration, kept apart from the reusable code
@@ -362,9 +370,9 @@ realsignal/
 
 Folders for later phases already exist, each holding an empty `.gitkeep` file, because Git only records folders that contain something. The README's [repository map](../README.md#repository-map) lists every file.
 
-**Why `src/` and `scripts/` are separate.** Code in `src/realsignal/` is written to be *imported*: small functions with one job each, which tests can call directly. Code in `scripts/` is written to be *run*: it reads options, prints progress, and calls functions. A 400-line script is hard to test; a 12-line function isn't. Phase 1's download script is still self-contained, because nothing else needs its functions yet; from Phase 3, shared code moves into `src/realsignal/`.
+**Why `src/` and `scripts/` are separate.** Code in `src/realsignal/` is written to be *imported*: small functions with one job each, which tests can call directly. Code in `scripts/` is written to be *run*: it reads options, prints progress, and calls functions. A 400-line script is hard to test; a 12-line function isn't. The two download scripts are still self-contained (Phase 2's repeats a few small helpers from Phase 1's); from Phase 3, when a third program needs them, shared code moves into `src/realsignal/`.
 
-**Why `notebooks/` is separate.** Exploration is messy by nature. Jupyter notebooks in particular can be run out of order and give results nobody can repeat, so this project keeps its exploration as plain scripts (`notebooks/explore_raw.py` is one) that run top to bottom, and anything worth keeping moves into `src/realsignal/` with a test.
+**Why `notebooks/` is separate.** Exploration is messy by nature. Jupyter notebooks in particular can be run out of order and give results nobody can repeat, so this project keeps its exploration as plain scripts (`notebooks/explore_raw.py` and `notebooks/explore_layer1.py` are two) that run top to bottom, and anything worth keeping moves into `src/realsignal/` with a test.
 
 **Why `data/` isn't in Git.** Git is built for text you edit, not large archives. And if a script can rebuild the data, the script working is the proof: anyone can clone the repository, run one command, and get the same bytes, verified by checksum.
 

@@ -2,7 +2,7 @@
 
 # The RealSignal Handbook: from day 0 to the finished product
 
-**Handbook revision:** 2 · **Last updated:** 2026-10-12 · **Repository state it describes:** Stages 0 to 3 are done: the plan, the setup on a blank computer, the repository with its three branches and the safety gate, and Phase 1, the published dataset downloaded and verified (342 files, version v0.1.0). Stage 4, Phase 2, is next. 19 automated tests.
+**Handbook revision:** 3 · **Last updated:** 2026-10-12 · **Repository state it describes:** Stages 0 to 4 are done: the plan, the setup on a blank computer, the repository with its three branches and the safety gate, Phase 1 (the published dataset downloaded and verified, version v0.1.0) and Phase 2 (Layer 1's tables read, and the other four layers fetched and checked, with a source register that records each one). Stage 5, Phase 3, is next. 36 automated tests.
 
 **Read this document first, and come back to it whenever you wonder what to do next.** It walks the whole journey in order: understanding the project, preparing a blank computer, building each of the 18 phases, releasing version 1.0, and what lies beyond. At every step it explains *why*, and it links to the guide that holds the detail. If you ever have to hunt through the repository to find your next step, the Handbook has a gap, and that counts as a bug.
 
@@ -63,9 +63,9 @@ flowchart TB
     classDef done fill:#E6F4EA,stroke:#4CAF7D,color:#0B3D2E;
     classDef next fill:#FFF3CD,stroke:#C9A227,color:#4A3B00;
     classDef later fill:#F5F5F5,stroke:#B0B0B0,color:#555555,stroke-dasharray:4 3;
-    class S0,S1,S2,S3 done
-    class S4 next
-    class S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21 later
+    class S0,S1,S2,S3,S4 done
+    class S5 next
+    class S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21 later
 ```
 
 *Green: built and tested. Gold: in progress. Dashed grey: planned.* The Prototype app (Stage 9) sits inside the science group on purpose: a first clickable version halfway through the science keeps asking "who would use this, and for what?" while there's still time to act on the answer.
@@ -76,8 +76,8 @@ flowchart TB
 | 1 | Setup | Set up your workshop (once per machine) | [`docs/01-setup.md`](01-setup.md) sections 1 to 11 | 60-90 min | ✅ done |
 | 2 | Git | Version control, the three branches and the safety gate | [`docs/01-setup.md`](01-setup.md) sections 12 to 14, [`docs/GIT_WORKFLOW.md`](GIT_WORKFLOW.md) | 30-45 min | ✅ done |
 | 3 | Data | Phase 1: get the real data, verified | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) | about 1 h | ✅ done |
-| 4 | Data | Phase 2: the other four layers, or a record of why not | `docs/03-phase-2-more-sources.md` | ~8 h | ⏳ next |
-| 5 | Data | Phase 3: harmonise everything with dbt | `docs/04-phase-3-harmonisation.md` | ~10 h | ⬜ planned |
+| 4 | Data | Phase 2: the other four layers, or a record of why not | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) | about 1.5 h | ✅ done |
+| 5 | Data | Phase 3: harmonise everything with dbt | `docs/04-phase-3-harmonisation.md` | ~10 h | ⏳ next |
 | 6 | Data | Phase 4: explore the data | `docs/05-phase-4-exploration.md` | ~6 h | ⬜ planned |
 | 7 | Science | Phase 5: reproduce the published models in Python | `docs/06-phase-5-reproduction.md` | ~12 h | ⬜ planned |
 | 8 | Science | Phase 6: run the authors' R code, the three-way comparison | `docs/07-phase-6-original-r-code.md` | ~8 h | ⬜ planned |
@@ -241,18 +241,48 @@ git switch develop
 
 ## Stage 4: Phase 2, the other four layers (or a record of why not)
 
-**What (planned).** `docs/03-phase-2-more-sources.md`. It starts with Layer 1: open the tables Phase 1 listed, find where the 136 training and 70 test communities sit and what each column means (the authors' R code stays closed until Stage 8), and look at the file in `Data/MetaData/AtSPHERE/` whose name points to Layer 5's paper. Then check whether the other data layers can be obtained (the strains' genomes, their predicted gene clusters, the network of which strain holds back which, and every strain tested alone), then fetch each available one with the same discipline as Phase 1: verified, logged, never edited. A *source register* records each source's licence, access route and outcome, including any source that turns out to be unobtainable.
+**What.** Follow [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md).
 
-**Why.** One dataset answers one question. These layers add *why* (the chemistry a strain could make), *how* (which strains hold each other back) and an independent check (each strain measured alone), as [`figures/data_layers.png`](../figures/data_layers.png) shows. Some of the papers sit behind journal subscriptions, so access is an open question, and a source that can't be obtained gets recorded with the reason. Layer 1 alone still supports a complete reproduction.
+1. Read the guide's sections 1 to 4: the five layers and the papers behind them, the difference between free to read and free to reuse, and three ways to trust a download.
+2. Open Layer 1's tables: `python notebooks/explore_layer1.py`. It answers the question Phase 1 left open (where the 70 test communities are) and shows which plants were set aside and why.
+3. Read the source register: `python scripts/fetch_sources.py --list`.
+4. Check every file can be reached, downloading nothing: `python scripts/fetch_sources.py --probe`.
+5. Fetch and check everything: `python scripts/fetch_sources.py`. Run it a second time and watch it check instead of downloading.
+6. See how the outcome is recorded: `python scripts/fetch_sources.py --pin`. The repository already holds the pins and statuses from the first run, so after a fetch without failures it finds nothing new to record.
+7. Look at what arrived: `python notebooks/explore_sources.py`.
+8. Draw the pictures and the interactive page: `python figures/make_phase2_figures.py`.
 
-**Checkpoint (planned).** Every source in the register has a status, a licence and a date; every fetched file has a checksum in the provenance log; `pytest -q` passes.
-**Commit message (planned):** `feat: add the source register and fetchers for the remaining data layers`.
+![Three ways to trust a download](../figures/three_checks.png)
+
+**Why.** One dataset answers one question. The other layers add *why* (the chemistry a strain could make), *how* (which strains hold each other back) and an independent check (each strain measured alone), as [`figures/data_layers.png`](../figures/data_layers.png) shows. They come from three more papers, on two kinds of website, under different terms, and only some of them publish a checksum. So this stage keeps a register of every source, including any that can't be had, checks each download as well as its source allows, and stores no data file in the repository. It starts with Layer 1 because code can only be written against tables once you know what they hold.
+
+**Checkpoint.** `python notebooks/explore_layer1.py` finds 136 training communities (rounds 1 and 2), 68 new test communities in round 3 plus `Mix69` and `Mix70`, grown in every round, and rebuilds the authors' per-plant machine-learning tables from the plant file: 808 plants, the same ones, including 120 undecided (`TBD`) plants. The probe reaches all 36 files. The fetch (48.5 MB) ends with `Match a published MD5  : 34`, `Match a pinned SHA-256 : 2` and `Failed or mismatched   : 0`: every genome matches the MD5 that NCBI publishes, and both journal workbooks match their pins. Layer 5's workbook isn't byte for byte the same as the copy in the Phase 1 archive, but every cell of its 14 sheets holds the same value. `--list` shows all four sources as `fetched`, and `--pin` finds nothing new to record. `python notebooks/explore_sources.py` describes the two workbooks (26 and 14 sheets) and the 34 genomes (2.94 to 6.85 million letters, GC content 33.4 to 74.2 %). `pytest -q` passes 36 tests (29 passed and 7 skipped from Windows PowerShell). `git status` shows nothing under `data/`.
+**Save it.** No version tag this time: v0.2.0 comes with Phase 3. Check first, and stop if either fails:
+
+```bash
+pytest -q                                # 36 passed
+./check-public-safe.sh                   # must end with: SAFE TO PUSH
+```
+
+Then save:
+
+```bash
+git switch develop
+git add -A
+git commit -m "feat: add the source register and fetchers for the remaining data layers"
+git push origin develop develop:beta develop:master
+## --tags is optional, only when required: not this time, v0.2.0 comes with Phase 3
+## then switch back to local master and pull in the remote changes
+git switch master
+git pull --ff-only origin master
+git switch develop
+```
 
 ---
 
 ## Stage 5: Phase 3, harmonise everything with dbt
 
-**What (planned).** `docs/04-phase-3-harmonisation.md`. Install dbt Core, then write a layered set of SQL models (staging, intermediate, marts) that join every source onto one strain name and one community name, with automated data tests and generated documentation.
+**What (planned).** `docs/04-phase-3-harmonisation.md`. Install dbt Core, then write a layered set of SQL models (staging, intermediate, marts) that join every source onto one strain name and one community name, with automated data tests and generated documentation. Three choices Phase 2 found get made here, each written down with its reason: whether to keep the undecided (`TBD`) plants, how to use the two communities grown in every round, and what to do with the two communities that have no plants left ([Phase 2 guide, section 5](03-phase-2-more-sources.md#what-this-settles-and-what-it-leaves-for-later)).
 
 **Why.** Sources written by different laboratories years apart spell the same strain differently and shape their tables differently. Making them agree is usually the biggest single job in multi-source work, and doing it in dbt keeps every decision visible and tested instead of buried in a script. One rule is set here because it's free now and expensive later: nothing hard-codes 35 strains, five per community, one pathogen or one measurement. The pool size, the community size and the outcome are data, so the same tables could take another strain library.
 
@@ -454,6 +484,17 @@ python notebooks/explore_raw.py
 python figures/make_concept_figures.py                     # the concept pictures and combinations.html
 python figures/make_illustrations.py                       # logo, journey map, journey.html
 
+# Stage 4, Phase 2: the other four layers                  (docs/03-phase-2-more-sources.md)
+python notebooks/explore_layer1.py                         # what Layer 1's tables hold
+python scripts/fetch_sources.py --list                     # the source register
+python scripts/fetch_sources.py --probe
+python scripts/fetch_sources.py                            # fetch and check every file
+python scripts/fetch_sources.py                            # again: checks, doesn't download twice
+python scripts/fetch_sources.py --pin                      # record checksums and statuses
+python notebooks/explore_sources.py                        # what arrived
+python figures/make_phase2_figures.py                      # the Phase 2 pictures and communities.html
+python figures/make_concept_figures.py                     # redraws the layers picture from the register
+
 # Every stage ends with
 pytest -q
 ./check-public-safe.sh                                     # Windows: bash check-public-safe.sh in Git Bash
@@ -484,6 +525,12 @@ Then the end-of-phase ritual (Stage 2) when the stage is complete.
 | the probe says `Could not reach the archive` | the internet connection, a company network that blocks the request, or Zenodo down for maintenance ([Phase 1 mini-FAQ](02-phase-1-data-acquisition.md#15-what-could-go-wrong-mini-faq)) |
 | the download stops halfway | run the same command again; a leftover `.part` file is replaced |
 | `MISMATCH` after the download | delete the archive and download again; if it happens twice, the archive may have changed ([Phase 1 mini-FAQ](02-phase-1-data-acquisition.md#15-what-could-go-wrong-mini-faq)) |
+| the Phase 2 probe says `NOT REACHED  HTTP 403` for a journal file, or the fetch says `the server sent something else` | download the workbook by hand from the article page and put it in `data/raw/sources/<source_id>/` under the name in `sources/files.csv` ([Phase 2 mini-FAQ](03-phase-2-more-sources.md#16-what-could-go-wrong-mini-faq)) |
+| a genome line says `FAILED` | run `python scripts/fetch_sources.py` again; only the missing files are fetched |
+| `MISMATCH with pinned SHA-256` | the workbook isn't the one that was pinned: never re-pin to silence it ([Phase 2 mini-FAQ](03-phase-2-more-sources.md#16-what-could-go-wrong-mini-faq)) |
+| `pytest -q` says `missing file ../figures/...png` | a guide links to a picture not drawn on this computer yet: run the figure scripts (`python figures/make_concept_figures.py`, `python figures/make_illustrations.py`, `python figures/make_phase2_figures.py`), then the tests again |
+| `Nothing fetched yet` from `notebooks/explore_sources.py` | run `python scripts/fetch_sources.py` first |
+| `ModuleNotFoundError: No module named 'openpyxl'` | the packages aren't installed in the active environment: `python -m pip install -r requirements.txt` |
 | Windows: `The filename or extension is too long` | move the project closer to `C:\`, or switch on long paths ([Phase 1 mini-FAQ](02-phase-1-data-acquisition.md#15-what-could-go-wrong-mini-faq)) |
 | `git status` lists files under `data/` | stop: `.gitignore` isn't working ([`docs/01-setup.md` section 11](01-setup.md#11-keep-things-out-of-git-with-gitignore)) |
 | the safety gate says NOT SAFE | read the line marked ✗; it names the file and the fix. Never weaken the check ([`docs/01-setup.md` section 13](01-setup.md#13-the-safety-gate)) |
@@ -495,7 +542,7 @@ Then the end-of-phase ritual (Stage 2) when the stage is complete.
 | `git push` is rejected | GitHub has commits your computer doesn't; pull first ([`docs/GIT_WORKFLOW.md` section 8](GIT_WORKFLOW.md#8-five-situations-that-confuse-everyone-and-their-fixes)) |
 | you edited files on the wrong branch | [`docs/GIT_WORKFLOW.md` section 8](GIT_WORKFLOW.md#8-five-situations-that-confuse-everyone-and-their-fixes) |
 | a word you don't know | the [Glossary](GLOSSARY.md) |
-| a figure looks wrong or is missing | run the script that draws it again: `python figures/make_concept_figures.py` or `python figures/make_illustrations.py` |
+| a figure looks wrong or is missing | run the script that draws it again: `python figures/make_concept_figures.py`, `python figures/make_illustrations.py` or `python figures/make_phase2_figures.py` |
 
 ## Every file in the repository, and where it is explained
 
@@ -515,19 +562,28 @@ Every file in the repository is listed here with the guide that explains it. Pat
 | `scripts/check_env.py` | proves the setup works | [`docs/01-setup.md`](01-setup.md) section 10 |
 | `scripts/fetch_data.py` | probe, download, verify, unpack, list and log the published archive | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) |
 | `notebooks/explore_raw.py` | a first look at what the archive contains | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 8 |
+| `sources/register.csv` | the source register: every data source, its terms, status and date | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) sections 2 and 4 |
+| `sources/files.csv` | every file to download, with its address or accession and its pinned checksum | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 4 |
+| `scripts/fetch_sources.py` | list, probe, fetch, check and log the other layers, and record the outcome | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) sections 6 to 8 |
+| `notebooks/explore_layer1.py` | what Layer 1's tables hold: training and test communities, plants set aside, the machine-learning table | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 5 |
+| `notebooks/explore_sources.py` | a first look at the fetched workbooks and genomes | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 9 |
 | `src/realsignal/__init__.py` | marks the folder as a Python package; the reusable code grows here from Phase 3 | [`docs/00-architecture.md`](00-architecture.md) section 14 |
 | `tests/test_fetch_data.py` | checks the download script offline, with a tiny stand-in archive | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 12 |
 | `tests/test_safety_gate.py` | checks that the safety gate refuses what it should | [`docs/01-setup.md`](01-setup.md) section 13 |
 | `tests/test_docs.py` | every link between the documents works, no look-alike characters, the Handbook and the journey map agree | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 12 |
-| `figures/make_concept_figures.py`, `figures/*.png` | the concept pictures and the combinations page | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 9 |
+| `tests/test_fetch_sources.py` | checks the register, and the fetcher against a stand-in web server, offline | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 13 |
+| `tests/test_explore.py` | checks both Phase 2 explorers on tiny made-up tables | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 13 |
+| `figures/make_concept_figures.py`, `figures/*.png` | the concept pictures and the combinations page; the layers picture reads its statuses from `sources/register.csv` | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 9 |
 | `figures/make_illustrations.py` | the logo, icon, wordmark, journey map and the interactive journey | [How this Handbook is maintained](#how-this-handbook-is-maintained) |
+| `figures/make_phase2_figures.py` | the three Phase 2 pictures (`three_checks.png`, `source_register.png`, `layer1_rounds.png`) and the communities page | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 10 |
 | `docs/*.md` | the guides, glossary, roadmaps and this Handbook | this table |
 | `docs/img/*.svg` | the logo, icon, wordmark and journey map | `figures/make_illustrations.py` |
 | `docs/interactive/journey.html` | this Handbook's journey as a page you can click, built from this file | `figures/make_illustrations.py` |
 | `docs/interactive/combinations.html` | how many communities exist, and how long testing them all would take | `figures/make_concept_figures.py` |
+| `docs/interactive/communities.html` | all 206 communities of the screen: pick strains, see which training and test communities hold them | `figures/make_phase2_figures.py` |
 | `docs/index.html`, `docs/.nojekyll` | the front page of the optional GitHub Pages site, and the marker that publishes the folder as it is | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 9 |
 | `R/`, `dbt/`, `api/`, `app/`, `frontend/`, `airflow/`, `mcp/` | empty folders kept by a `.gitkeep` file, one for each phase that will fill it | [`docs/00-architecture.md`](00-architecture.md) section 14 |
-| `data/` | the downloaded archive and everything made from it: **never in Git**, rebuilt by `scripts/fetch_data.py` | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) |
+| `data/` | the downloaded files and everything made from them: **never in Git**. `data/raw/` (the archive) is rebuilt by `scripts/fetch_data.py`, `data/raw/sources/` (the other layers) by `scripts/fetch_sources.py` | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md), [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) |
 
 ## How this Handbook is maintained
 

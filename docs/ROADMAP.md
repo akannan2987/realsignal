@@ -6,7 +6,7 @@
 
 **Why write the plan down.** A plan written in advance can't quietly shrink to whatever got finished, and it shows the reasoning behind each choice, including the tools that could have been used and weren't ([section 6](#6-tools-left-out-on-purpose-and-why)).
 
-**Current status: Phase 1 done (v0.1.0).** The published archive is downloaded and verified, and its 342 files are listed and described. Phase 2 is next. Everything after Phase 1 is planned and marked as planned everywhere in the repository.
+**Current status: Phases 1 and 2 done (v0.1.0, and Phase 2 on top of it).** The published archive is downloaded and verified, Layer 1's tables are read and understood, the other four layers are fetched and checked: 34 genomes against the checksums NCBI publishes, and two journal workbooks against checksums pinned on first use. Phase 3 is next and earns v0.2.0. Everything after Phase 2 is planned and marked as planned everywhere in the repository.
 
 ---
 
@@ -66,7 +66,7 @@ Version 1.0.0 is the finished product. It's reached when every box below is tick
 
 **The science**
 
-- ⬜ All five data layers fetched and verified, or recorded as unobtainable with the reason
+- ✅ All five data layers fetched and verified, or recorded as unobtainable with the reason (Phase 2: all five fetched; Leaf21 has no genome, and the register says so)
 - ⬜ One harmonised data model, with every data test passing
 - ⬜ The published models reproduced in Python, compared with the published numbers
 - ⬜ The authors' R code run, and the three-way comparison explained difference by difference
@@ -104,11 +104,11 @@ A verified download of Layer 1: probe first, then download, check against the pu
 
 ### Phase 2: The other data layers, or a record of why not
 
-**Track A · about 8 hours · ⏳ next · Handbook [Stage 4](HANDBOOK.md#stage-4-phase-2-the-other-four-layers-or-a-record-of-why-not) · Guide (planned) `docs/03-phase-2-more-sources.md`**
+**Track A · about 8 hours (estimate) · ✅ done · Handbook [Stage 4](HANDBOOK.md#stage-4-phase-2-the-other-four-layers-or-a-record-of-why-not) · Guide [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md)**
 
-It starts with Layer 1: open the tables Phase 1 listed, find where the 136 training and 70 test communities sit and what each column means (without opening the authors' R code, which waits for Phase 6), and look at the file in `Data/MetaData/AtSPHERE/` whose name points to Layer 5's paper. Then find out whether Layers 2 to 5 can be obtained, and fetch each one that can with the same discipline as Layer 1: verified, logged, never edited. A **source register** records each source's licence, access route, date and outcome, including the ones that can't be had.
+It starts with Layer 1: open the tables Phase 1 listed and find where the 136 training and 70 test communities sit (rounds 1 and 2, and round 3 with two reference communities grown in every round), which plants were set aside and why, and how the authors' machine-learning tables were made from the plant file, all without opening the authors' R code, which waits for Phase 6. Then fetch Layers 2 to 5 with the same discipline as Layer 1: verified, logged, never edited. A **source register** records each source's terms, where its files come from, its status and a date, including anything that couldn't be had. Genomes are checked against the checksums NCBI publishes; the journal workbooks, which come with no checksum, against one pinned on first use; and Layer 5's workbook also against the copy found in the Phase 1 archive.
 
-**Builds:** one fetcher per source, the source register, a combined provenance log. **Teaches:** reading a paper's data-availability statement; supplementary data; the difference between *open access* (free to read) and an *open licence* (free to reuse); recording what you could not get.
+**Builds:** `sources/register.csv` and `sources/files.csv`, `scripts/fetch_sources.py` (one fetcher driven by the register), `notebooks/explore_layer1.py`, `notebooks/explore_sources.py`, three figures and the interactive communities page, 17 offline tests. **Teaches:** reading tables you didn't write; a paper's data-availability statement; supplementary information; the difference between *open access* (free to read) and an *open licence* (free to reuse); accessions, RefSeq and FASTA files; checksums published, pinned and compared; recording what you could not get.
 
 ### Phase 3: Harmonisation with dbt
 
@@ -346,7 +346,7 @@ Deciding not to use a tool is a design decision too, so each one gets a reason.
 
 Written down in advance, so nothing looks like a surprise later.
 
-**Layers 2 to 5 may not be freely obtainable.** Layer 1 alone supports a complete reproduction; the others add to it. Phase 2 checks first and records the answer either way.
+**Layers 2 to 5 may not be freely obtainable.** Layer 1 alone supports a complete reproduction; the others add to it. Phase 2 found all four obtainable: the genomes from NCBI, the two supplementary workbooks from the publisher's site. The one gap is Leaf21, which has no genome.
 
 **The authors' R code may not run unchanged.** Old package versions, fixed folder paths. Every fix is logged, and if something can't be made to run, that's recorded as a finding of the three-way comparison.
 

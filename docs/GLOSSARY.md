@@ -43,9 +43,13 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - ***Arabidopsis thaliana*** (thale cress, often just *Arabidopsis*): a small, fast-growing weed that plant scientists use as their standard plant, much as medical researchers use mice.
 - **Phyllosphere**: the parts of a plant above ground, leaves above all, seen as a home for microbes.
 - ***At*-LSPHERE**: a collection of bacteria isolated from the leaves of wild *Arabidopsis* plants. Every data layer in this project describes strains from it, which is why they can be joined.
-- **Axenic**: completely free of microbes. An axenic plant is sterile, the blank to compare everything else against.
+- **Axenic**: completely free of microbes. An axenic plant is sterile, the blank to compare everything else against. In the screen's files, `axenic` marks plants given none of the 35 strains; most of them still received the pathogen, to show an unprotected infection.
 - **Gnotobiotic**: a system in which every organism present is known and was put there on purpose. Not sterile, but with a known cast list, like a stage play instead of a crowd scene filmed in a real street.
-- **Genome**: the complete set of a strain's DNA, its full instruction book. *(Layer 2, Phase 2)*
+- **Genome**: the complete set of a strain's DNA, its full instruction book. *(Layer 2)*
+- **DNA sequence**: DNA written down as a string of four letters, A, C, G and T, one for each of its four building blocks.
+- **Genome assembly**: a genome put back together by a computer from the short fragments a sequencing machine reads. Each published assembly gets its own accession (Group 6).
+- **Contig**: one continuous stretch of an assembled genome. A genome in 40 contigs holds the whole sequence, in 40 pieces whose order isn't known.
+- **GC content**: the share of the letters G and C in a DNA sequence, given as a percentage. Each kind of bacterium has a typical value, so an odd one is worth a second look.
 - **Gene cluster**, or **biosynthetic gene cluster (BGC)**: a group of neighbouring genes that together make one chemical, often an antibiotic or another **natural product** (a compound made by a living thing). *(Layer 3)*
 - **Inhibition**: one strain holding back another's growth, for example by releasing a chemical. The **inhibition network** records which strain holds back which. *(Layer 4)*
 - **Multi-omics**: combining several kinds of biological measurement (genomes, chemistry, behaviour) about the same organisms. The "-omics" ending means "all of one kind", as in genomics, all the genes. *(Phase 8)*
@@ -57,15 +61,18 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **SynCom** (synthetic community): a group of known strains combined and applied together on purpose. *Synthetic* means "assembled by people from known parts", not fake.
 - **Mini5SynCom**: the source paper's name for one community of exactly five strains.
 - **Strain pool**: the 35 strains the communities were drawn from. The number was worked out, not guessed: with 136 communities of five, 35 strains lets each strain appear in about 20 communities, enough repeats for the statistics to mean something.
-- **Prevalence** (of a strain): how many communities it appears in; about 20 each here, by design.
+- **Prevalence** (of a strain): how many communities it appears in. In the 136 training communities each strain appears 13 to 24 times, 19.4 on average, close to the 20 the design aimed for.
 - **CFU** (colony-forming unit): the standard way to count live bacteria. Spread a diluted sample on a nutrient jelly, let each living bacterium grow into a visible dot (a **colony**), count the dots, and scale back up by the dilution. One CFU is roughly one living bacterium that could grow.
 - **CFU per gram of fresh weight**: the count divided by the plant's weight, so a big plant isn't counted as worse off just for offering more surface. Crime figures per 100,000 residents work the same way, so a city isn't automatically "worse" than a village.
 - **Order of magnitude**: a factor of ten. Two orders of magnitude larger means a hundred times larger.
 - **Log scale**, **log10**: replacing a number by roughly how many zeros it has: 1,000 becomes 3 and 1,000,000 becomes 6. Pathogen counts here run from about 10,000 to about 1,000,000,000, so on an ordinary scale the large values would squash everything else flat. On a log scale each step means ten times more, which is how biologists think about these numbers ([`figures/log_scale.png`](../figures/log_scale.png)).
 - **dpi** (days post infection): days since the pathogen was applied. The study measured at 14 dpi.
 - **Replicate**: a repeat of the same condition, to see how much of the variation is noise. Several plants received each community.
-- **Control**: a condition included only to compare against: here, sterile plants without the pathogen (what does a healthy plant look like?), sterile plants with it (what does an unprotected infection look like?), and all 35 strains at once.
-- **Experiments 1, 2 and 3**: the study's three rounds. Experiments 1 and 2 produced the 136 training communities. Experiment 3, run separately, produced 70 new ones used only to test the finished models.
+- **Control**: a condition included only to compare against: here, sterile plants without the pathogen (what does a healthy plant look like?), sterile plants with it (what does an unprotected infection look like?), all 35 strains at once, and two reference communities grown in every round.
+- **Experiments 1, 2 and 3**, **rounds**: the study's three rounds, `Exp1`, `Exp2` and `Exp3` in the files. Experiments 1 and 2 hold the 136 training communities. Experiment 3, run separately, holds 68 new communities which, with the two reference communities, make the 70 used only to test the finished models.
+- **Box**: a sealed, sterile container of four plants, all given the same community. Each round had 80 boxes.
+- **Reference community**: a community grown in every round, so the rounds can be compared with each other: here `Mix69` and `Mix70`, labelled `SynCom-High` and `SynCom-Low` in the plant file.
+- **TRUE, FALSE and TBD**: the marks in the `IncludedAnalysis` column of the plant files: kept, left out, or "to be decided". The 144 `TBD` plants sat in boxes that were dropped and recovered; the authors' per-plant machine-learning tables keep 120 of them. *(Phase 2 guide, section 5)*
 - **Screen** (or screening): testing many candidates in the same way to find the few worth a closer look.
 
 ---
@@ -117,7 +124,7 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **pytest**: the tool that runs the automated tests (`pytest -q`).
 - **Test**: a small program that checks another program does what it should, and fails loudly if not. A **unit test** checks one small piece on its own.
 - **`pytest.ini`**: pytest's settings file; here it tells pytest to look only in `tests/`.
-- **Stand-in** (tests): a small fake version of something big or slow, such as the tiny archive `tests/test_fetch_data.py` builds instead of downloading 239 MB. Programmers also call these *mocks* or *fixtures*.
+- **Stand-in** (tests): a small fake version of something big or slow, such as the tiny archive `tests/test_fetch_data.py` builds instead of downloading 239 MB, or the small web server `tests/test_fetch_sources.py` runs on your own computer in place of NCBI. Programmers also call these *mocks* or *fixtures*.
 - **Editor**, **VS Code**: a program for writing code comfortably, with colours and error highlighting. VS Code is free and the same on all three systems.
 
 ---
@@ -158,7 +165,10 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **Extract**, **unzip**: unpacking an archive into its files.
 - **Zip slip**: a trick where an archive contains a name like `../../somefile`, so unpacking it carelessly writes outside the intended folder. `scripts/fetch_data.py` refuses such entries.
 - **`__MACOSX`**: a folder of hidden extra files that macOS adds to zip files made on a Mac. The download script skips it.
-- **Checksum**, **hash**, **MD5**: a short code calculated from every byte of a file; change one byte and it changes completely. MD5 is the method Zenodo publishes. A matching checksum proves you hold exactly the published file; it says nothing about whether its contents are right.
+- **Checksum**, **hash**, **MD5**: a short code calculated from every byte of a file; change one byte and it changes completely. MD5 is the method Zenodo and NCBI publish. A matching checksum proves you hold exactly the published file; it says nothing about whether its contents are right.
+- **SHA-256**: a newer checksum method, 64 characters long. MD5 still catches accidental damage, but two different files with the same MD5 can be made on purpose; no such weakness is known for SHA-256, so the project uses it for its own pins.
+- **Pinning**, **trust on first use**: when a publisher gives no checksum, recording the checksum of the first download and checking every later download against it. The pins live in the `pinned_sha256` column of `sources/files.csv`.
+- **File signature**: the first few bytes every file of one kind starts with. Every `.xlsx` workbook starts with `PK`, every `.gz` file with the bytes `1f 8b`. A download that starts differently isn't the file it claims to be (often a web page).
 - **DOI** (digital object identifier): a permanent address for a published paper or dataset that keeps working when websites are reorganised. `10.5281/zenodo.10118600` is the dataset's.
 - **Zenodo**: a free, permanent public archive for research data and code, run by CERN. The study's data and code are deposited there.
 - **HTTP**, **HEAD request**: HTTP is how browsers and programs talk to websites. A HEAD request asks for a file's details (size, type) without its contents, which is what the download script's `--probe` does.
@@ -169,9 +179,17 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **Processed data**: anything your own code derives from raw data. It can always be rebuilt, so it's never edited by hand either.
 - **Manifest**: a list of every file in a collection. `data/raw/manifest.csv` lists every file in the archive with its folder, type and size.
 - **Provenance**: the written history of a piece of data: where it came from, when, and what's been done to it since. `data/raw/fetch_log.json` records it for the download.
-- **Supplementary data**, **Source Data**: files published alongside a paper: the data behind it, and (Source Data) the numbers behind each figure.
+- **Supplementary data**, **supplementary information**, **Source Data**: files published alongside a paper on its web page: the data behind it, and (Source Data) the numbers behind each figure. The publisher of the *Nature* journals calls them *electronic supplementary material* (ESM), hence file names such as `41564_2021_997_MOESM3_ESM.xlsx`.
 - **Data availability statement**: the paragraph in a paper saying where its data can be found and on what terms.
-- **Source register**: a table recording, for every data source, its licence, how to get it, when it was checked and whether it could be obtained. *(Phase 2)*
+- **Source register**: a table recording, for every data source, its terms, how to get it, when it was checked and whether it could be obtained, including sources that couldn't be. This project's is `sources/register.csv`.
+- **NCBI** (National Center for Biotechnology Information): the US centre that keeps one of the world's main public collections of DNA sequences and genomes, free to search and download.
+- **RefSeq**: NCBI's curated collection, with one reference record for each genome assembly. Its accessions start with `GCF_`; the records as originally submitted start with `GCA_`.
+- **Accession**: the permanent ID of a record in a database, such as `GCF_001422065.1`. The number after the dot is the version: a corrected record gets a new one, and the old one stays available.
+- **BioProject**: an NCBI record that groups all the data from one research project, so a project's genomes can be found together.
+- **FASTA** (`.fna`, `.fasta`): a plain-text format for DNA sequences. A line starting with `>` names a sequence; the lines after it hold its letters.
+- **gzip** (`.gz`): a common way of compressing one file. Python reads `.gz` files directly with its `gzip` module, without unpacking them first.
+- **Mirror**: a second address for the same file, tried when the first fails. `sources/files.csv` lists them separated by ` | `.
+- **Rate limit**: the most requests a website accepts from one program in a given time. `scripts/fetch_sources.py` pauses after every request to NCBI to stay inside it.
 
 ---
 
@@ -254,6 +272,7 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 
 - **Peer review**: checking of a paper by other scientists before a journal publishes it.
 - **Open access**: free to read. Not the same as an **open licence**, which makes something free to reuse.
+- **Publisher's terms**: the conditions a publisher sets for material it hosts when no open licence comes with it. Files under publisher's terms are downloaded from the publisher by the scripts and never stored in this repository.
 - **Preprint**: a paper shared publicly before peer review.
 - **Reproduction**: same data, same question, analysis rebuilt. What this project does first.
 - **Replication**: new data from a new experiment, same question. Out of scope here: it needs a laboratory.

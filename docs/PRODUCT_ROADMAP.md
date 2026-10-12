@@ -202,7 +202,7 @@ Everything in this picture is built in the repository by version 1.0. What chang
 
 ## E. Security, licences and limits
 
-- **Data licences.** The published data is CC-BY 4.0: reusable, including commercially, with credit to its authors. The repository never stores it; the scripts download it from the source. Other layers carry their own licences, recorded per source in Phase 2's source register.
+- **Data licences.** Layer 1 is CC-BY 4.0: reusable, including commercially, with credit to its authors. The genomes come from NCBI, which places no restrictions of its own on them. The supplementary tables behind Layers 3 to 5 come under their publisher's terms, without an open licence, so a product that passed the files on to its users would need the publisher's permission, and any commercial use of them is worth checking with the publisher first. The repository never stores any of them: the scripts download each file from its source, and `sources/register.csv` records the terms of every source.
 - **Confidential strain libraries.** A company's strain library is valuable and secret. Everything in RealSignal runs on its own computer or inside its own network, with nothing uploaded, and the GraphRAG feature can use a local model. That's a design choice made for reproducibility, and it's what a confidential user needs.
 - **Secrets.** Keys for optional services live in a `.env` file that Git never records, and the safety gate refuses any push that would publish one.
 - **No personal data.** The data describes bacteria and plants. Accounts (A4) would add names and email addresses, and with them data-protection duties.

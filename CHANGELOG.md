@@ -6,7 +6,32 @@ Each step is explained in [`docs/HANDBOOK.md`](docs/HANDBOOK.md), the guide from
 
 ## [Unreleased]
 
-Nothing yet. Phase 2 is next.
+Phase 2: Layer 1's tables read, and the other four data layers fetched and checked ([`docs/03-phase-2-more-sources.md`](docs/03-phase-2-more-sources.md)). No version tag: v0.2.0 comes with Phase 3.
+
+**Result.** Layer 1's files hold 206 five-strain communities: 136 for training (rounds 1 and 2), 68 new ones for testing (round 3), and `Mix69` and `Mix70`, grown in every round, which complete the 70 test communities. The authors' 12 per-plant machine-learning tables (808 plants from 204 communities) can be rebuilt exactly from the plant file, and they keep 120 undecided (`TBD`) plants from boxes that were dropped and recovered. All 36 files of Layers 2 to 5 download and check out (48.5 MB): 34 genomes match the MD5 that NCBI publishes (Leaf21, the 35th strain, has no genome listed), and the two journal workbooks are pinned by SHA-256. Layer 5's workbook differs in its bytes from the copy in the Phase 1 archive, which was saved again later, but every cell of its 14 sheets holds the same value. In the 2018 workbook, Table S9 counts 1,053 gene clusters and Table S11 lists 1,050, a difference left for Phase 3's data tests. 36 tests pass.
+
+### Added
+
+- `sources/register.csv`, the source register: one row per source with its layer, citation, DOI, where the files come from, terms, status and date; and `sources/files.csv`, one row per file with its address or NCBI accession, the name to save it under, its pinned checksum and, for Layer 5, the copy in the Phase 1 archive to compare with. Leaf21 has no genome accession in the strain table, which the register records.
+- `scripts/fetch_sources.py`: `--list` prints the register; `--probe` checks every file can be reached and downloads nothing; the default run fetches each file once into `data/raw/sources/<source>/`, throws away a download that doesn't start like its kind of file (a web page sent instead of a workbook) and tries the next address, checks genomes against the MD5 that NCBI publishes and workbooks against a pinned SHA-256, compares Layer 5's workbook with the archive copy (byte for byte, then cell by cell), moves a mismatching file aside, and logs every file in `data/raw/sources/fetch_log.json`; `--pin` records first-download checksums in `sources/files.csv` and each source's status and date in `sources/register.csv`; `--force` and `--only` as their names say. There is a pause after every request to NCBI.
+- `notebooks/explore_layer1.py`: Layer 1's design, its plants per round with their marks, the training and test communities, why plants were set aside, and the authors' 16 machine-learning input tables, one of them rebuilt from the plant file as a check.
+- `notebooks/explore_sources.py`: the sheets of each fetched workbook, with how many of the screen's 35 strains each mentions and which strains a nearly complete sheet leaves out, and each genome's contigs, length and GC content.
+- `figures/make_phase2_figures.py`, drawing `figures/three_checks.png` (three ways to trust a download), `figures/source_register.png` (drawn from the register) and `figures/layer1_rounds.png` (every box of the three rounds), and building `docs/interactive/communities.html` (pick strains, see which training and test communities held them).
+- Tests, 17 more, 36 in all: `tests/test_fetch_sources.py` (12), the register as committed and the fetcher against a stand-in web server on your own computer (published MD5, mirrors, a web page refused, pinning and statuses, a second run that downloads nothing, a changed file moved aside, the cross-check, a workbook saved again told apart from one with different values, plain output); `tests/test_explore.py` (5), both explorers on tiny made-up tables and a two-sheet workbook.
+- `docs/03-phase-2-more-sources.md`: the Phase 2 guide, in 18 sections.
+
+### Changed
+
+- `docs/HANDBOOK.md`, revision 3: Stage 4 written out with its steps, real checkpoint numbers and save block; Stage 5 names the three choices Phase 2 left for Phase 3; the Phase 2 commands in the whole build; six new troubleshooting rows; nine new rows in the file index.
+- `figures/make_concept_figures.py`: the layers picture reads each layer's status from `sources/register.csv`.
+- `figures/make_illustrations.py`: Stage 4 done, Stage 5 next, so the journey map and `docs/interactive/journey.html` move on.
+- `README.md`: layer statuses, version and build status, the Phase 2 result, the repository map with `sources/` and the new files, the tutorial table and the run commands.
+- `docs/ROADMAP.md`: Phase 2 done, with what it built and taught; status line, checklist and risks updated.
+- `docs/GLOSSARY.md`: new terms (DNA sequence, genome assembly, contig, GC content, box, reference community, the TRUE, FALSE and TBD marks, SHA-256, pinning, file signature, NCBI, RefSeq, accession, BioProject, FASTA, gzip, mirror, rate limit, publisher's terms), and prevalence, controls and the three rounds corrected with the real numbers.
+- `docs/00-architecture.md`: the source register in Box 1, `data/raw/sources/` and the three kinds of check in Box 2, `sources/` in the folder map.
+- `docs/PRODUCT_ROADMAP.md`: the terms of each layer, and what they mean for a product.
+- `docs/index.html`: a card for the communities page, and two of the new pictures.
+- `docs/02-phase-1-data-acquisition.md`: its pointers to Phase 2 now say what Phase 2 found, and a sentence about reading names from the manifest, which no longer described what the code does, is replaced.
 
 ## [0.1.0] - 2026-10-12
 

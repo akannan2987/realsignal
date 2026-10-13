@@ -1,0 +1,32 @@
+# The strain collection, as the Layer 1 archive describes it.
+
+version: 2
+
+models:
+  - name: stg_collection__strains
+    description: "dataAtLSPHERE.txt: the At-LSPHERE strains and some more, with taxonomy."
+    columns:
+      - name: strain_id
+        description: "The strain."
+        data_tests: [unique, not_null]
+      - name: phylum
+        description: "Taxonomy, broadest first: phylum, class, family, genus."
+        data_tests: [not_null]
+      - name: taxonomic_class
+        description: "The class (called class_ here would clash with a word SQL reserves)."
+      - name: family
+        description: "The family. For two strains the file puts the order, Bacillales, here."
+      - name: genus
+        description: "The genus."
+      - name: genome_publication
+        description: "Where the genome was published, as the file writes it (yes means Bai et al. 2015)."
+      - name: genome_in_bai2015
+        description: "True if genome_publication is yes."
+      - name: collection_group
+        description: "At-LSPHERE for the 224 strains of the collection, otherwise the group the file names (extended, control, other)."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["At-LSPHERE", "extended", "control", "other"]
+      - name: source_row
+        description: "The row in the file."

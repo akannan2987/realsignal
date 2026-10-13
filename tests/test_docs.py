@@ -17,7 +17,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 # Written as escape codes so this file passes its own check.
 LOOK_ALIKES = {"\u2014": "long dash", "\u2013": "en dash", "\u201c": "curly quote", "\u201d": "curly quote"}
-TEXT_SUFFIXES = {".md", ".py", ".txt", ".sh", ".ps1", ".ini", ".html", ".svg", ".cfg", ".toml", ".json", ".yml", ".yaml"}
+TEXT_SUFFIXES = {".md", ".py", ".txt", ".sh", ".ps1", ".ini", ".html", ".svg", ".cfg", ".toml", ".json", ".yml", ".yaml",
+                 ".sql", ".csv"}
 
 
 def markdown_files() -> list[Path]:

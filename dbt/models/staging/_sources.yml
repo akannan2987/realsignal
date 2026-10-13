@@ -1,0 +1,58 @@
+# models/staging/_sources.yml: the raw tables dbt starts from.
+#
+# scripts/load_raw.py copies them into the schema raw, every value as text,
+# exactly as the files hold them. Declaring them here lets models refer to
+# them as {{ source('raw', 'screen_plants') }}, and puts them at the start of
+# the lineage graph. Each table's file is listed in sources/tables.csv.
+
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      The raw tables, loaded unchanged by scripts/load_raw.py. Every value is
+      text; _row is the row number of each line in its file or sheet.
+    schema: raw
+    tables:
+      - name: source_register
+        description: "sources/register.csv: one row per data source, with its terms, status and date."
+      - name: source_files
+        description: "sources/files.csv: every file Phase 2 fetches, with its address or NCBI accession and its pinned checksum."
+      - name: source_tables
+        description: "sources/tables.csv: every raw table, the file and sheet it comes from, and its heading row."
+      - name: load_log
+        description: "What scripts/load_raw.py loaded on its last run: rows, columns and the SHA-256 of each file."
+      - name: screen_design
+        description: "Layer 1, 20200828_Mixes.txt: one row per community (Mix), one column per strain, 1 if the strain is in it."
+      - name: screen_boxes
+        description: "Layer 1, 20200828_Box.txt: one row per box of four plants."
+      - name: screen_plants
+        description: "Layer 1, 2023-01-16Mini5SynComScreen_CommentsFile.txt: one row per plant, with its TRUE, FALSE or TBD mark."
+      - name: screen_plant_notes
+        description: "Layer 1, 20201130_Comments.txt: the 2020 notes on every plant, and the reason a plant was set aside."
+      - name: screen_pathogen_load
+        description: "Layer 1: pathogen colony-forming units per gram of fresh leaf, for every infected plant."
+      - name: screen_plant_weights
+        description: "Layer 1: the fresh weight of every plant."
+      - name: screen_commensal_load
+        description: "Layer 1: all community bacteria together, per gram of fresh leaf."
+      - name: screen_strain_colonisation
+        description: "Layer 1: each community member per gram of fresh leaf."
+      - name: screen_authors_model_input
+        description: "Layer 1: the authors' table MLData_DF_Ind_TRUE_CommPresence.txt, used only to check the rebuilt selection of plants."
+      - name: collection_strains
+        description: "Layer 1 archive, dataAtLSPHERE.txt: the strain collection with taxonomy and genome publication."
+      - name: helfrich_interactions
+        description: "Layer 4, Helfrich et al. 2018, Supplementary Table 1: every inhibition seen between two strains."
+      - name: helfrich_inhibitor_panel
+        description: "Layer 4, Helfrich et al. 2018, Supplementary Table 4: the strains tested as inhibitors."
+      - name: helfrich_sensitive_panel
+        description: "Layer 4, Helfrich et al. 2018, Supplementary Table 24: the strains tested as sensitive."
+      - name: helfrich_bgc_counts
+        description: "Layer 3, Helfrich et al. 2018, Supplementary Table 9: gene clusters per strain by class, with totals."
+      - name: helfrich_gene_clusters
+        description: "Layer 3, Helfrich et al. 2018, Supplementary Table 11: every predicted gene cluster."
+      - name: vogel_strains
+        description: "Layer 5, Vogel et al. 2021, Supplementary Table 12: the strain list with taxonomy and genome accessions."
+      - name: genome_contigs
+        description: "Layer 2: one row per contig of every genome file, counted by scripts/load_raw.py."

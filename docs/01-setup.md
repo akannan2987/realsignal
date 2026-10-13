@@ -151,8 +151,12 @@ Not sure which you have? `echo $0` prints the shell's name (`-bash` or `-zsh`). 
 > 6. Check: `python --version`
 
 > **macOS**
-> - The installer (simplest): download it from <https://www.python.org/downloads/>, run it with the default answers, open a *new* Terminal window, and check with `python3 --version`.
-> - Or, if you already use Homebrew: `brew install python@3.12`, then `python3 --version`.
+> - The installer (simplest): download it from <https://www.python.org/downloads/>, run it with the default answers, open a *new* Terminal window, and check with `python3 --version`. Then run, once, the certificate command the installer puts in your Applications folder (its last screen mentions it). The folder is named after the version, so change `3.14` if yours is different:
+>   ```bash
+>   sh "/Applications/Python 3.14/Install Certificates.command"
+>   ```
+>   Its last line is ` -- update complete`. This Python brings its own copy of the code that checks secure (`https://`) connections, and that copy doesn't use the certificates macOS keeps, so until the command has run it can't confirm that a website is the one it asked for. pip carries its own list and works without it, which is why the problem can stay hidden until a package downloads part of itself while installing (dbt does, in Phase 3).
+> - Or, if you already use Homebrew: `brew install python@3.12`, then `python3 --version`. Homebrew's Python uses Homebrew's certificates and needs no extra step.
 
 > **Linux: RHEL 8, Rocky, AlmaLinux**
 >
@@ -345,7 +349,7 @@ Git keeps track of files, not folders, so an empty folder would vanish from the 
 > touch src/realsignal/__init__.py
 > ```
 
-`__init__.py` tells Python "this folder is a package you can import from". It holds a short description and a version number, and the reusable code grows next to it from Phase 3.
+`__init__.py` tells Python "this folder is a package you can import from". It holds a short description and a version number, and the reusable code grows next to it, starting with `src/realsignal/helpers.py` in Phase 3.
 
 **Then put the project's files in place:** `README.md`, `LICENSE`, `.gitignore`, `requirements.txt`, `pytest.ini`, `check-public-safe.sh`, `setup.sh` and `setup.ps1` in the project folder, the guides in `docs/`, the scripts in `scripts/`, and so on. The [Handbook's file index](HANDBOOK.md#every-file-in-the-repository-and-where-it-is-explained) lists every file and its folder.
 
@@ -412,6 +416,8 @@ pandas>=2.2,<4.0          # tables of data, driven by code
 numpy>=1.24,<3.0          # fast arithmetic underneath everything else
 openpyxl>=3.1,<4.0        # lets pandas read .xlsx files (the published data)
 duckdb>=1.0,<2.0          # a complete SQL database in a single file
+dbt-core>=1.10,<2.0       # turns a folder of SQL files into a tested pipeline (Phase 3)
+dbt-duckdb>=1.9,<2.0      # lets dbt build its tables in DuckDB (Phase 3)
 scikit-learn>=1.4,<2.0    # the machine-learning models and evaluation tools
 scipy>=1.11,<2.0          # statistics used for confidence intervals
 matplotlib>=3.8,<4.0      # charts, saved as image files by code
@@ -445,7 +451,7 @@ python -m pip freeze > requirements.lock.txt
 
 ## 10. Verify everything works
 
-The repository includes `scripts/check_env.py`. It checks the Python version, whether the virtual environment is active, and imports each of the ten packages, then gives one verdict. Read it first; it's short and its comments explain every check.
+The repository includes `scripts/check_env.py`. It checks the Python version, whether the virtual environment is active, and imports each of the twelve packages, then gives one verdict. Read it first; it's short and its comments explain every check.
 
 ```bash
 python scripts/check_env.py
@@ -463,16 +469,18 @@ Operating system: Darwin 24.6.0
 [OK  ] Virtual environment: active
        Python program in use: .venv/bin/python3
 --------------------------------------------------------------------
-[OK  ] pandas      3.0.5       tables of data
-[OK  ] numpy       2.5.2       fast arithmetic
-[OK  ] openpyxl    3.1.5       reading Excel files
-[OK  ] duckdb      1.5.5       the local SQL database
-[OK  ] sklearn     1.9.0       machine learning (installed as scikit-learn)
-[OK  ] scipy       1.18.1      statistics
-[OK  ] matplotlib  3.11.1      charts
-[OK  ] requests    2.34.2      downloading the dataset
-[OK  ] streamlit   1.62.0      the interactive app
-[OK  ] pytest      8.4.2       automated tests
+[OK  ] pandas       3.0.5       tables of data
+[OK  ] numpy        2.5.2       fast arithmetic
+[OK  ] openpyxl     3.1.5       reading Excel files
+[OK  ] duckdb       1.5.5       the local SQL database
+[OK  ] dbt-core     1.12.5      the harmonisation pipeline
+[OK  ] dbt-duckdb   1.11.0      lets dbt work with DuckDB
+[OK  ] scikit-learn 1.9.0       machine learning
+[OK  ] scipy        1.18.1      statistics
+[OK  ] matplotlib   3.11.1      charts
+[OK  ] requests     2.34.2      downloading the dataset
+[OK  ] streamlit    1.62.0      the interactive app
+[OK  ] pytest       8.4.2       automated tests
 ====================================================================
 ALL CHECKS PASSED. Your workshop is ready.
 Next: docs/HANDBOOK.md, the stage after the one you are on.
@@ -480,7 +488,7 @@ Next: docs/HANDBOOK.md, the stage after the one you are on.
 
 (`Darwin` is the name macOS gives its core; Windows shows `Windows 11`, RHEL shows `Linux` and a version.)
 
-If you see that, stop for a moment: you've installed a programming language, a version-control system, an isolated environment and ten libraries, and you've *proved* it works rather than assumed it.
+If you see that, stop for a moment: you've installed a programming language, a version-control system, an isolated environment and twelve libraries, and you've *proved* it works rather than assumed it.
 
 ---
 
@@ -515,6 +523,12 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 .ipynb_checkpoints/
+
+# What dbt writes each time it runs (compiled SQL, results, the docs site,
+# its log). dbt makes all of it again from the models.
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
 
 # Secrets. This project needs none so far, but the rule stays: anything
 # committed once stays in the history for good.
@@ -830,7 +844,7 @@ Then repeat sections 8 and 9.
 
 **`ModuleNotFoundError: No module named 'pandas'`** (or another package). Almost always the environment, not the package: check the prompt for `(.venv)`, activate, run `python -m pip install -r requirements.txt`, then `python scripts/check_env.py`.
 
-**`SSL: CERTIFICATE_VERIFY_FAILED` when pip downloads.** Usually a company network that inspects traffic. Ask your IT team for the company's certificate bundle; they'll have dealt with it before. Don't switch certificate checking off: it's what proves the packages really come from PyPI.
+**`SSL: CERTIFICATE_VERIFY_FAILED` during an install.** Read the lines just above it. If they show a `urlopen error` while a package is `Preparing metadata`, that package is downloading part of itself, and on a Mac with Python from python.org it means the certificate command of [section 3](#install-it) hasn't run yet: run `sh "/Applications/Python 3.14/Install Certificates.command"` (with your version), then install again. pip stops before installing anything, so there's nothing to undo first. Otherwise it's usually a company network that inspects traffic: ask your IT team for the company's certificate bundle; they'll have dealt with it before. Either way, don't switch certificate checking off: it's what proves the packages really come from where they say.
 
 **`Permission denied` on Linux.** You're writing somewhere you don't own. Work inside your home folder, and never use `sudo pip install`, which installs into the system Python that the virtual environment exists to protect.
 

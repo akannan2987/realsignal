@@ -20,6 +20,10 @@ openpyxl>=3.1,<4.0        # lets pandas read .xlsx files (the published data)
 # --- Storage ------------------------------------------------------------
 duckdb>=1.0,<2.0          # a complete SQL database in a single file
 
+# --- Harmonisation (Phase 3) ---------------------------------------------
+dbt-core>=1.10,<2.0       # turns a folder of SQL files into a tested pipeline
+dbt-duckdb>=1.9,<2.0      # lets dbt build its tables in DuckDB
+
 # --- Modelling ----------------------------------------------------------
 scikit-learn>=1.4,<2.0    # the machine-learning models and evaluation tools
 scipy>=1.11,<2.0          # statistics used for confidence intervals

@@ -1,0 +1,48 @@
+# seeds/_seeds.yml: the tables written by hand and committed with the project.
+
+version: 2
+
+seeds:
+  - name: known_source_differences
+    description: >
+      Every place two sources disagree about the same strain, found while
+      building Phase 3 and written down instead of settled by picking one
+      value. Two tests compare the data with this list
+      (tests/assert_gene_cluster_counts_differ_only_where_known.sql and
+      tests/assert_taxonomy_differs_only_where_known.sql): a disagreement
+      that isn't listed, or a listed one that has gone away, fails the build.
+    config:
+      column_types:
+        what_differs: varchar
+        strain_id: varchar
+        first_source: varchar
+        first_value: varchar
+        second_source: varchar
+        second_value: varchar
+        note: varchar
+    columns:
+      - name: what_differs
+        description: "What disagrees: gene_cluster_count, family or genus."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["gene_cluster_count", "family", "genus"]
+      - name: strain_id
+        description: "The strain, in the project's spelling."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_strain')
+                field: strain_id
+      - name: first_source
+        description: "Where the first value comes from."
+      - name: first_value
+        description: "The value in the first source."
+      - name: second_source
+        description: "Where the second value comes from."
+      - name: second_value
+        description: "The value in the second source."
+      - name: note
+        description: "Anything worth knowing; 'a screen strain' marks the 35 strains of the community screen."

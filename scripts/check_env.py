@@ -16,6 +16,8 @@ Run it from the project folder, with the virtual environment active:
 Explained in docs/01-setup.md ("Verify everything works").
 """
 
+import importlib
+import importlib.metadata
 import platform
 import sys
 from pathlib import Path
@@ -27,20 +29,23 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 # longer support anything older than 3.11.
 REQUIRED_PYTHON = (3, 11)
 
-# Every package the project needs, with a reminder of what it's for. The key
-# is the name used in `import`, which isn't always the name pip uses
-# (you install scikit-learn, but you import sklearn).
+# Every package the project needs: the name used in `import`, then the name
+# pip installs it under (not always the same: you install scikit-learn and
+# import sklearn) and what it's for. The version shown is the one pip
+# recorded, read with importlib.metadata.
 REQUIRED_PACKAGES = {
-    "pandas": "tables of data",
-    "numpy": "fast arithmetic",
-    "openpyxl": "reading Excel files",
-    "duckdb": "the local SQL database",
-    "sklearn": "machine learning (installed as scikit-learn)",
-    "scipy": "statistics",
-    "matplotlib": "charts",
-    "requests": "downloading the dataset",
-    "streamlit": "the interactive app",
-    "pytest": "automated tests",
+    "pandas": ("pandas", "tables of data"),
+    "numpy": ("numpy", "fast arithmetic"),
+    "openpyxl": ("openpyxl", "reading Excel files"),
+    "duckdb": ("duckdb", "the local SQL database"),
+    "dbt.cli.main": ("dbt-core", "the harmonisation pipeline"),
+    "dbt.adapters.duckdb": ("dbt-duckdb", "lets dbt work with DuckDB"),
+    "sklearn": ("scikit-learn", "machine learning"),
+    "scipy": ("scipy", "statistics"),
+    "matplotlib": ("matplotlib", "charts"),
+    "requests": ("requests", "downloading the dataset"),
+    "streamlit": ("streamlit", "the interactive app"),
+    "pytest": ("pytest", "automated tests"),
 }
 
 
@@ -76,14 +81,14 @@ def check_virtual_environment() -> bool:
 def check_packages() -> list[str]:
     """Try to import each required package; return the ones that failed."""
     missing = []
-    for module_name, purpose in REQUIRED_PACKAGES.items():
+    for module_name, (pip_name, purpose) in REQUIRED_PACKAGES.items():
         try:
-            module = __import__(module_name)
-            version = getattr(module, "__version__", "version unknown")
-            print(f"[OK  ] {module_name:<11} {version:<10}  {purpose}")
-        except ImportError:
-            print(f"[FAIL] {module_name:<11} {'MISSING':<10}  {purpose}")
-            missing.append(module_name)
+            importlib.import_module(module_name)
+            version = importlib.metadata.version(pip_name)
+            print(f"[OK  ] {pip_name:<13}{version:<10}  {purpose}")
+        except (ImportError, importlib.metadata.PackageNotFoundError):
+            print(f"[FAIL] {pip_name:<13}{'MISSING':<10}  {purpose}")
+            missing.append(pip_name)
     return missing
 
 

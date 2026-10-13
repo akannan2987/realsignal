@@ -120,7 +120,7 @@ Everything in this picture is built in the repository by version 1.0. What chang
 
 ### B1. Other strain libraries, other measurements
 
-**The most important later item.** The method is useful beyond these 35 strains only if a new library, a different community size or a different measurement (plant weight, a different pathogen, a chemical readout) can go in without a rewrite. Phase 3 sets that up from the start by treating the library, the community size and the outcome as data. [Section F](#f-reusing-the-method-on-another-strain-library) lists what changes and what doesn't. **Trigger:** the first dataset that isn't this study's.
+**The most important later item.** The method is useful beyond these 35 strains only if a new library, a different community size or a different measurement (plant weight, a different pathogen, a chemical readout) can go in without a rewrite. Phase 3 sets that up from the start by treating the library, the community size and the outcome as data, and one of its tests runs the whole pipeline on a made-up screen of four strains in communities of two. [Section F](#f-reusing-the-method-on-another-strain-library) lists what changes and what doesn't. **Trigger:** the first dataset that isn't this study's.
 
 ### B2. DuckDB for analysis, PostgreSQL for the application
 
@@ -128,7 +128,7 @@ Everything in this picture is built in the repository by version 1.0. What chang
 
 ### B3. dbt for harmonisation
 
-**Built in this repository (Phase 3).** Every rule that makes the sources agree lives in a tested, version-controlled SQL model. **Trigger for more:** none expected; dbt scales from one file to a warehouse unchanged.
+**Built in this repository (Phase 3).** Every rule that makes the sources agree lives in a tested, version-controlled SQL model, and every known disagreement between sources is a row in a small committed table the tests compare with. **Trigger for more:** none expected; dbt scales from one file to a warehouse unchanged.
 
 ### B4. Airflow for orchestration
 
@@ -136,7 +136,7 @@ Everything in this picture is built in the repository by version 1.0. What chang
 
 ### B5. Cloud warehouses (Snowflake, Databricks)
 
-**Optional.** The dbt models can be pointed at a cloud warehouse by changing one profile (an optional module in Phase 3). At this data size it's portability practice, not a need. **Trigger:** a team whose data already lives in one, or tens of millions of measurements.
+**Optional, not built.** Most of the dbt models could be pointed at a cloud warehouse through a second connection profile; a few DuckDB conveniences they use would need their equivalents ([Phase 3 guide, section 7](04-phase-3-harmonisation.md#the-same-models-on-another-database-not-built-here)). At this data size it's portability practice, not a need. **Trigger:** a team whose data already lives in one, or tens of millions of measurements.
 
 ### B6. MLflow for models and runs
 

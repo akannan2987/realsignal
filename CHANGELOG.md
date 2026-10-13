@@ -6,12 +6,26 @@ Each step is explained in [`docs/HANDBOOK.md`](docs/HANDBOOK.md), the guide from
 
 ## [Unreleased]
 
-Phase 2: Layer 1's tables read, and the other four data layers fetched and checked ([`docs/03-phase-2-more-sources.md`](docs/03-phase-2-more-sources.md)). No version tag: v0.2.0 comes with Phase 3.
+Nothing yet.
 
-**Result.** Layer 1's files hold 206 five-strain communities: 136 for training (rounds 1 and 2), 68 new ones for testing (round 3), and `Mix69` and `Mix70`, grown in every round, which complete the 70 test communities. The authors' 12 per-plant machine-learning tables (808 plants from 204 communities) can be rebuilt exactly from the plant file, and they keep 120 undecided (`TBD`) plants from boxes that were dropped and recovered. All 36 files of Layers 2 to 5 download and check out (48.5 MB): 34 genomes match the MD5 that NCBI publishes (Leaf21, the 35th strain, has no genome listed), and the two journal workbooks are pinned by SHA-256. Layer 5's workbook differs in its bytes from the copy in the Phase 1 archive, which was saved again later, but every cell of its 14 sheets holds the same value. In the 2018 workbook, Table S9 counts 1,053 gene clusters and Table S11 lists 1,050, a difference left for Phase 3's data tests. 36 tests pass.
+## [0.2.0] - 2026-10-13
+
+Phases 2 and 3: the other four data layers fetched and checked ([`docs/03-phase-2-more-sources.md`](docs/03-phase-2-more-sources.md)), and all five harmonised in one tested warehouse with dbt ([`docs/04-phase-3-harmonisation.md`](docs/04-phase-3-harmonisation.md)).
+
+**Result, Phase 3.** Every raw table (20 tables, 13,908 rows) loads unchanged into the DuckDB warehouse `data/warehouse/realsignal.duckdb`, and a dbt project of 35 models builds from it the tables later phases read: 285 strains on one spelling, 208 communities with their roles, 960 plants, nine kinds of measurement, 725 inhibitions and 1,050 gene clusters. `dbt build` passes all 223 steps (1 seed, 35 models, 187 data tests). The three choices Phase 2 left are made: the 120 undecided (`TBD`) plants are kept, as the authors' tables keep them (leaving them out would empty 22 training and 12 test communities), with a setting to leave them out; `Mix69` and `Mix70` are test communities, their 16 plants from earlier rounds kept only for comparing rounds; `Mix54` and `Mix73` keep their rows with no plants (136 training communities designed, 134 with plants). The rebuilt choice of 808 plants is the authors', plant for plant. The tests located the three gene clusters on which Tables S9 and S11 disagree (one each for Leaf61, Leaf130 and Leaf182), found that the two strain lists differ on 7 families and 10 genera (agreeing on every phylum and class), record Leaf168, Leaf371 and Leaf454 as screened with no inhibition seen, and confirm that all 191 gene clusters of the 34 strains with a genome sit inside their contigs. A test runs the loader and the whole dbt project on a made-up screen of four strains in communities of two. 54 tests pass.
+
+**Result, Phase 2.** Layer 1's files hold 206 five-strain communities: 136 for training (rounds 1 and 2), 68 new ones for testing (round 3), and `Mix69` and `Mix70`, grown in every round, which complete the 70 test communities. The authors' 12 per-plant machine-learning tables (808 plants from 204 communities) can be rebuilt exactly from the plant file, and they keep 120 undecided (`TBD`) plants from boxes that were dropped and recovered. All 36 files of Layers 2 to 5 download and check out (48.5 MB): 34 genomes match the MD5 that NCBI publishes (Leaf21, the 35th strain, has no genome listed), and the two journal workbooks are pinned by SHA-256. Layer 5's workbook differs in its bytes from the copy in the Phase 1 archive, which was saved again later, but every cell of its 14 sheets holds the same value. In the 2018 workbook, Table S9 counts 1,053 gene clusters and Table S11 lists 1,050, a difference left for Phase 3's data tests. 36 tests pass.
 
 ### Added
 
+- `sources/tables.csv`: every raw table to load (17), with its source, file, sheet, heading row and what it holds.
+- `scripts/load_raw.py`: `--list` prints the table list; the default run loads every table, and the three tables in `sources/`, into the schema `raw` of `data/warehouse/realsignal.duckdb`, every value as text with a `_row` column pointing back into the file, the genomes as one row per contig with their letters counted, in one transaction, with `raw.load_log` holding each file's SHA-256. It loads nothing when a file is missing, and says so in plain words when the warehouse is open in another program.
+- `dbt/`: the dbt project. `dbt_project.yml` (layers, schemas, the settings `keep_undecided_plants`, `test_rounds`, `no_pathogen_code` and `outcome_measurement`, anonymous usage statistics switched off) and `profiles.yml` (the warehouse file); 21 staging models in six folders, one per source; 6 intermediate models, `int_plants` applying the three Layer 1 choices; 8 marts (`dim_strain`, `dim_community`, `community_member`, `fct_plant`, `fct_plant_measurement`, `fct_strain_interaction`, `fct_gene_cluster`, `model_plants`); the macros `strain_id()`, `looks_like_strain()`, `in_list()` and `generate_schema_name()`; the seed `known_source_differences.csv` (20 rows); 170 generic data tests (with the new `accepted_range`) and 17 singular ones; descriptions of every model and column, `models/overview.md` for the documentation pages, and `README.md`.
+- `src/realsignal/helpers.py`: the helpers `scripts/fetch_data.py` and `scripts/fetch_sources.py` had each carried (sizes, paths, banners, checksums, reading and writing CSV tables), now shared with `scripts/load_raw.py`.
+- `notebooks/explore_warehouse.py`: the strains, communities, plants, the modelling table, the measurements and the known differences, every number from a query on the marts.
+- `figures/make_phase3_figures.py`, drawing `figures/lineage.png` and `figures/data_model.png` from dbt's manifest and `figures/plant_choices.png` from the warehouse.
+- Tests, 18 more, 54 in all: `tests/test_helpers.py` (5), `tests/test_load_raw.py` (9: text kept as written, row numbers, workbook headings and footnotes, genomes counted, the load log, nothing loaded when a file is missing, a second run replaces, plain output within 80 columns for the real table list too) and `tests/test_warehouse.py` (4: the loader and the whole dbt project on a made-up screen, and the undecided plants left out by a setting).
+- `docs/04-phase-3-harmonisation.md`: the Phase 3 guide, in 20 sections.
 - `sources/register.csv`, the source register: one row per source with its layer, citation, DOI, where the files come from, terms, status and date; and `sources/files.csv`, one row per file with its address or NCBI accession, the name to save it under, its pinned checksum and, for Layer 5, the copy in the Phase 1 archive to compare with. Leaf21 has no genome accession in the strain table, which the register records.
 - `scripts/fetch_sources.py`: `--list` prints the register; `--probe` checks every file can be reached and downloads nothing; the default run fetches each file once into `data/raw/sources/<source>/`, throws away a download that doesn't start like its kind of file (a web page sent instead of a workbook) and tries the next address, checks genomes against the MD5 that NCBI publishes and workbooks against a pinned SHA-256, compares Layer 5's workbook with the archive copy (byte for byte, then cell by cell), moves a mismatching file aside, and logs every file in `data/raw/sources/fetch_log.json`; `--pin` records first-download checksums in `sources/files.csv` and each source's status and date in `sources/register.csv`; `--force` and `--only` as their names say. There is a pause after every request to NCBI.
 - `notebooks/explore_layer1.py`: Layer 1's design, its plants per round with their marks, the training and test communities, why plants were set aside, and the authors' 16 machine-learning input tables, one of them rebuilt from the plant file as a check.
@@ -22,6 +36,24 @@ Phase 2: Layer 1's tables read, and the other four data layers fetched and check
 
 ### Changed
 
+- `requirements.txt`: `dbt-core` and `dbt-duckdb`; `requirements.lock.txt` written again after installing them.
+- `scripts/check_env.py`: checks twelve packages, shown under the name pip installs them by, with the version pip recorded.
+- `scripts/fetch_data.py`, `scripts/fetch_sources.py`: their small helpers come from `src/realsignal/helpers.py`; what they do is unchanged.
+- `pytest.ini`: `pythonpath = src`, so tests can import the package.
+- `.gitignore`, and its copy in `docs/01-setup.md` section 11: `dbt/target/`, `dbt/logs/` and `dbt/dbt_packages/`.
+- `tests/test_docs.py`: `.sql` and `.csv` files are checked for look-alike characters too.
+- `docs/HANDBOOK.md`, revision 4: Stage 5 written out with its steps, real checkpoint numbers and save block with the v0.2.0 tag; Stage 6 next; the Phase 3 commands in the whole build; nine new troubleshooting rows; the new files in the file index.
+- `figures/make_illustrations.py`: Stage 5 done, Stage 6 next.
+- `README.md`: version v0.2.0, the Phase 3 result, the layers harmonised, the gene-cluster count as listed (1,050), the build status, the tutorial table, the repository map and the run commands.
+- `docs/ROADMAP.md`: Phase 3 done, with what it built and taught; status line, checklist, tag table and risks updated.
+- `docs/GLOSSARY.md`: new terms (taxonomy and its ranks, between-round reference plants, `sys.path`, UNPIVOT, `ref()` and `source()`, Jinja and macros, views and tables, materialisation, seed in dbt's sense, var, adapter, profile, dimension, fact and bridge table, key, join, generic and singular tests, `dbt build`, `dbt show` and `dbt docs`, manifest and catalog, graph operators, transaction, lock, localhost), and schema, wide and long format and data warehouse brought up to date.
+- `docs/00-architecture.md`: Layers 2 to 5, the harmonised tables and DuckDB marked built in the diagram; Box 3 with the real disagreements and what Phase 3 built; the SQL example in Box 4 runs on the real warehouse; the run commands and the note on `src/` brought up to date.
+- `docs/PRODUCT_ROADMAP.md`: the reuse test on a made-up screen, the list of known differences, and the cloud warehouse marked optional and not built.
+- `docs/index.html`: the lineage and the plant choices.
+- `docs/01-setup.md`: the two new packages in the requirements listing, twelve packages in the check (with the output from the Mac), and a pointer to `src/realsignal/helpers.py`.
+- `docs/03-phase-2-more-sources.md`: its pointers to Phase 3 now say what Phase 3 did.
+- `docs/GIT_WORKFLOW.md`: the v0.2.0 line in the table of tags.
+- `src/realsignal/__init__.py`: its docstring names `helpers.py`.
 - `docs/HANDBOOK.md`, revision 3: Stage 4 written out with its steps, real checkpoint numbers and save block; Stage 5 names the three choices Phase 2 left for Phase 3; the Phase 2 commands in the whole build; six new troubleshooting rows; nine new rows in the file index.
 - `figures/make_concept_figures.py`: the layers picture reads each layer's status from `sources/register.csv`.
 - `figures/make_illustrations.py`: Stage 4 done, Stage 5 next, so the journey map and `docs/interactive/journey.html` move on.
@@ -32,6 +64,11 @@ Phase 2: Layer 1's tables read, and the other four data layers fetched and check
 - `docs/PRODUCT_ROADMAP.md`: the terms of each layer, and what they mean for a product.
 - `docs/index.html`: a card for the communities page, and two of the new pictures.
 - `docs/02-phase-1-data-acquisition.md`: its pointers to Phase 2 now say what Phase 2 found, and a sentence about reading names from the manifest, which no longer described what the code does, is replaced.
+
+### Fixed (found on the first run on a Mac)
+
+- `pip install -r requirements.txt` stopped at `dbt-core-experimental-parser` with `CERTIFICATE_VERIFY_FAILED` on a Mac with Python from python.org: that package downloads its real file from GitHub during the install, and that Python trusts no certificate until its `Install Certificates.command` has run. `docs/01-setup.md` now has the step right after installing Python, and a troubleshooting entry; `docs/04-phase-3-harmonisation.md` has it in the mini-FAQ and the notes from the build; the Handbook has a row for it, and the Glossary explains certificates.
+- `docs/04-phase-3-harmonisation.md`: the expected outputs of the environment check, `dbt debug`, `dbt build`, the failing test and `pytest` are now the ones from the Mac, with the partial-parsing line of a first build; `dbt docs serve` shows its real output, and what it prints when stopped with Ctrl+C.
 
 ## [0.1.0] - 2026-10-12
 

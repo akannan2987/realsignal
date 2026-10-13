@@ -31,6 +31,7 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **Microbe**: any living thing too small to see, including bacteria and fungi. All the microbes in this project are bacteria.
 - **Strain**: one particular, named kind of bacterium, kept alive in a laboratory and identified down to its genes. These ones have names like `Leaf15` and `Leaf76` because they were isolated from leaves and numbered.
 - **Genus**: the first part of a bacterium's scientific name, written in italics. *Pseudomonas* Leaf15 is the strain numbered Leaf15, in the genus *Pseudomonas*, much as a surname groups relatives.
+- **Taxonomy**, **phylum**, **class**, **order**, **family**: the system that names living things and groups them, from the broadest group to the narrowest: phylum, class, order, family, genus, then species and strain. Names change as more is learned, so two strain lists made years apart can put the same strain in groups with different names. Phase 3 found two lists that agree on every phylum and class and differ on 7 families and 10 genera.
 - **Microbiome**: the whole community of microbes living on or in something: a leaf, a gut, a patch of soil. The town's whole population, as opposed to one resident.
 - **Microbiota**: used to mean the same as microbiome in most writing, including the source paper. Strictly, the microbiota is the organisms and the microbiome includes their genes and surroundings; this project treats them as one.
 - **Commensal**: a microbe that lives on a host without harming it (from the Latin for "sharing a table"). All 35 strains in the study are commensals.
@@ -72,6 +73,7 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **Experiments 1, 2 and 3**, **rounds**: the study's three rounds, `Exp1`, `Exp2` and `Exp3` in the files. Experiments 1 and 2 hold the 136 training communities. Experiment 3, run separately, holds 68 new communities which, with the two reference communities, make the 70 used only to test the finished models.
 - **Box**: a sealed, sterile container of four plants, all given the same community. Each round had 80 boxes.
 - **Reference community**: a community grown in every round, so the rounds can be compared with each other: here `Mix69` and `Mix70`, labelled `SynCom-High` and `SynCom-Low` in the plant file.
+- **Between-round reference plants**: Phase 3's name for the 16 plants of `Mix69` and `Mix70` grown in rounds 1 and 2. Their communities are test communities, so these plants never train a model; they're kept for comparing the rounds.
 - **TRUE, FALSE and TBD**: the marks in the `IncludedAnalysis` column of the plant files: kept, left out, or "to be decided". The 144 `TBD` plants sat in boxes that were dropped and recovered; the authors' per-plant machine-learning tables keep 120 of them. *(Phase 2 guide, section 5)*
 - **Screen** (or screening): testing many candidates in the same way to find the few worth a closer look.
 
@@ -106,6 +108,7 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **Function**: a named, reusable piece of code that takes inputs and gives back a result, such as `compute_md5(path)`.
 - **Module, package, library**: code someone else wrote that your code can use. A module is one file, a package a folder of modules, and library is the everyday word for either.
 - **Import**: making a module's code available in yours (`import pandas`).
+- **`sys.path`**: the list of folders Python searches when it meets an `import`. The scripts add `src/` to it, so `from realsignal import helpers` finds `src/realsignal/helpers.py`.
 - **pip**: Python's package installer. `python -m pip` makes sure it's the pip that belongs to the Python you're using.
 - **PyPI** (the Python Package Index): the public warehouse pip downloads from.
 - **Virtual environment** (`.venv`): a private copy of Python and its packages for one project only, so two projects needing different versions of the same package can't break each other. Like a pencil case per subject instead of one shared drawer.
@@ -169,6 +172,7 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **SHA-256**: a newer checksum method, 64 characters long. MD5 still catches accidental damage, but two different files with the same MD5 can be made on purpose; no such weakness is known for SHA-256, so the project uses it for its own pins.
 - **Pinning**, **trust on first use**: when a publisher gives no checksum, recording the checksum of the first download and checking every later download against it. The pins live in the `pinned_sha256` column of `sources/files.csv`.
 - **File signature**: the first few bytes every file of one kind starts with. Every `.xlsx` workbook starts with `PK`, every `.gz` file with the bytes `1f 8b`. A download that starts differently isn't the file it claims to be (often a web page).
+- **HTTPS**, **certificate**: an address starting `https://` means the connection is encrypted and the website proves who it is with a certificate, a statement signed by an issuer that browsers and programs trust. Python checks the signature against a list of trusted issuers; **certifi** is a package holding such a list. `CERTIFICATE_VERIFY_FAILED` means the check couldn't be made, often because that list is missing ([`docs/01-setup.md` section 17](01-setup.md#17-troubleshooting)).
 - **DOI** (digital object identifier): a permanent address for a published paper or dataset that keeps working when websites are reorganised. `10.5281/zenodo.10118600` is the dataset's.
 - **Zenodo**: a free, permanent public archive for research data and code, run by CERN. The study's data and code are deposited there.
 - **HTTP**, **HEAD request**: HTTP is how browsers and programs talk to websites. A HEAD request asks for a file's details (size, type) without its contents, which is what the download script's `--probe` does.
@@ -197,20 +201,38 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 
 - **Database**: an organised store of tables built to answer questions quickly.
 - **SQL**: the common language for asking databases questions: `SELECT ... FROM ... WHERE ...`.
-- **Schema**: the declared structure of a database: its tables, their columns and the type of each.
-- **Wide and long format**: two shapes for the same table. Wide has one column per strain (35 columns of 1s and 0s); long has one row per community-and-strain pair. Different tools want different shapes.
+- **Schema**: two related meanings. The declared structure of a database (its tables, their columns and the type of each), and, in DuckDB and dbt, a named group of tables inside one database, like a folder: the warehouse has the schemas `raw`, `staging`, `intermediate`, `marts` and `reference`.
+- **Wide and long format**: two shapes for the same table. Wide has one column per strain (the design file's 35 columns of 1s and 0s); long has one row per community-and-strain pair (`marts.community_member`). Different tools want different shapes, and a long table doesn't change shape when the library grows.
+- **UNPIVOT**: the SQL command that turns a wide table into a long one: each column becomes rows. `dbt/models/staging/screen/stg_screen__design.sql` uses it on the design.
 - **Presence/absence matrix**: a wide table of 1s and 0s saying which strains are in which community.
-- **Harmonisation**: making several sources agree: one name for each thing, one shape, and written rules for disagreements. *(Phase 3)*
+- **Harmonisation**: making several sources agree: one name for each thing, one shape, and written rules for disagreements.
 - **ETL**, **ELT**: extract, transform, load (reshape the data before storing it) and extract, load, transform (store it first, reshape it inside the database). dbt works the ELT way.
-- **dbt**: a tool that turns a folder of SQL files into a pipeline with an order, tests and documentation. **dbt Core** is the free version. *(Phase 3)*
+- **dbt** (data build tool): a tool that turns a folder of SQL files into a pipeline with an order, tests and documentation. **dbt Core** is the free, open-source command-line version this project uses.
 - **Model** (in dbt): one SQL file that builds one table from others. Not the same as a machine-learning model (Group 8).
 - **Staging, intermediate, marts**: dbt's usual layers: tidy each source on its own, combine them, then build the final tables people use.
-- **Data test**: an automatic check on the data itself, such as "every strain name is unique" or "no outcome is missing".
+- **`ref()`, `source()`**: how a dbt model names the tables it reads, `{{ ref('stg_screen__plants') }}` for another model and `{{ source('raw', 'screen_plants') }}` for a raw table. dbt fills in the real names and learns the order to build things in.
+- **Jinja**, **macro**: Jinja is the template language in the `{{ }}` and `{% %}` parts of a dbt file, filled in before the SQL runs. A macro is a reusable piece of it, such as `strain_id()`, which gives every strain one spelling.
+- **View**, **table**: a view is a saved query that runs again each time something reads it; a table stores its rows.
+- **Materialisation** (dbt): how a model is stored: as a view, as a table, or otherwise. Set per layer in `dbt/dbt_project.yml`.
+- **Seed** (dbt): a small CSV table written by hand, committed with the project, and loaded by dbt like any other table. Not the same as a random seed (Group 8).
+- **Var** (dbt): a setting in `dbt/dbt_project.yml` that models read with `var('...')`, such as `keep_undecided_plants`. It can be changed for one run: `dbt build --vars "{keep_undecided_plants: false}"`.
+- **Adapter** (dbt): the part of dbt that talks to one kind of database; `dbt-duckdb` is the one for DuckDB.
+- **Profile** (dbt): a connection, saying which database to use and where: `dbt/profiles.yml`.
+- **Dimension**, **fact**, **bridge table**: a dimension has one row per thing (a strain, a community); a fact has one row per event or measurement (a plant, a weight, an inhibition) and points at the dimensions; a bridge links two dimensions that relate many to many (`community_member`: a community holds several strains, and a strain is in many communities).
+- **Key**: the column that names each row once and only once (`strain_id` in `dim_strain`). A column in another table that holds those names points at that table.
+- **Join**: a query that combines two tables on a column they share, such as plants and communities on `community_id`.
+- **Data test**: an automatic check on the data itself, such as "every strain name is unique" or "no outcome is missing". In dbt it's a query that returns the rows breaking the rule, and it passes when there are none.
+- **Generic test**, **singular test** (dbt): a generic test is written as one line next to a column (`unique`, `not_null`, `accepted_values`, `relationships`, which checks that every name a column points with exists in the table it points at, and this project's `accepted_range`); a singular test is a SQL file of its own in `dbt/tests/`, for a rule that spans several tables.
+- **`dbt build`**, **`dbt show`**, **`dbt docs`**: build loads the seeds, builds every model and runs every test, in order; show runs a query and prints the result; docs generate and docs serve make and open the documentation pages.
+- **Manifest**, **catalog** (dbt): two files dbt writes in `dbt/target/`. The manifest records every model, what it reads and every test; the catalog records what the database itself says about each table (columns, types, size). `figures/make_phase3_figures.py` draws the lineage from the manifest.
+- **Graph operators** (dbt): the `+` in `--select int_plants+` (this model and everything after it) or `--select +model_plants` (this model and everything it needs).
 - **Lineage**: where every table and column came from, drawn as a diagram.
-- **DuckDB**: a complete analytical database in a single file, with no server and no setup. *(Phase 3)*
+- **DuckDB**: a complete analytical database in a single file, with no server and no setup.
+- **Transaction**: a group of changes a database applies all together or not at all. `scripts/load_raw.py` loads every raw table in one, so a failed load leaves nothing half done.
+- **Lock** (on a database file): DuckDB lets one program at a time write to a file. A second program trying to write gets `Could not set lock on file` until the first lets go.
 - **PostgreSQL** (Postgres): a database built for applications, with many people reading and writing at once. *(Phase 10)*
 - **OLAP**, **OLTP**: analytical processing (a few large questions over whole columns, DuckDB's job) and transaction processing (many small reads and writes, PostgreSQL's job).
-- **Data warehouse**: a large database for analysis, often rented in the cloud. **Snowflake** and **Databricks** are well-known ones; this project uses them only as an optional exercise.
+- **Data warehouse**: a database for analysis that brings all the data together, often rented in the cloud. This project's is a DuckDB file, `data/warehouse/realsignal.duckdb` (Phase 3). **Snowflake** and **Databricks** are well-known cloud ones; this project keeps them as an optional exercise.
 - **Spark**: a system that spreads computation over many machines when data won't fit on one. Not used here: the data is small.
 - **Pipeline**: a fixed sequence of steps, each doing one job and passing its result on.
 - **Orchestration**: running a pipeline's steps in the right order, on a schedule, with retries and a record of what happened. *(Phase 12)*
@@ -303,6 +325,7 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **Volume**: storage that outlives the containers using it; databases keep their data in volumes.
 - **Bind mount**: a folder on your computer made visible inside a container.
 - **Port**, **port mapping**: a numbered door a program listens on; mapping connects a door on your computer to one inside a container (`-p 8000:8000`).
+- **localhost**: your own computer, used as an address: `http://localhost:8080` is a page served by a program on your machine to your machine (`dbt docs serve` in Phase 3).
 - **Docker**, **Podman**: the two common container engines. Podman runs without a background service and as an ordinary user, and it's the engine Red Hat supports on RHEL 8.
 - **Daemon**: a program that runs in the background all the time; Docker's engine is one.
 - **Rootless**: running containers as your ordinary user instead of as administrator.

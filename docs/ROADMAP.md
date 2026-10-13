@@ -6,7 +6,7 @@
 
 **Why write the plan down.** A plan written in advance can't quietly shrink to whatever got finished, and it shows the reasoning behind each choice, including the tools that could have been used and weren't ([section 6](#6-tools-left-out-on-purpose-and-why)).
 
-**Current status: Phases 1 and 2 done (v0.1.0, and Phase 2 on top of it).** The published archive is downloaded and verified, Layer 1's tables are read and understood, the other four layers are fetched and checked: 34 genomes against the checksums NCBI publishes, and two journal workbooks against checksums pinned on first use. Phase 3 is next and earns v0.2.0. Everything after Phase 2 is planned and marked as planned everywhere in the repository.
+**Current status: Phases 1 to 3 done (v0.2.0).** The published archive is downloaded and verified, Layer 1's tables are read and understood, the other four layers are fetched and checked (34 genomes against the checksums NCBI publishes, two journal workbooks against checksums pinned on first use), and all five are harmonised in one DuckDB warehouse by a dbt project with 187 data tests. Phase 4 is next. Everything after Phase 3 is planned and marked as planned everywhere in the repository.
 
 ---
 
@@ -67,7 +67,7 @@ Version 1.0.0 is the finished product. It's reached when every box below is tick
 **The science**
 
 - ✅ All five data layers fetched and verified, or recorded as unobtainable with the reason (Phase 2: all five fetched; Leaf21 has no genome, and the register says so)
-- ⬜ One harmonised data model, with every data test passing
+- ✅ One harmonised data model, with every data test passing (Phase 3: 35 models, 187 data tests, and a test that runs it on a made-up screen of another size)
 - ⬜ The published models reproduced in Python, compared with the published numbers
 - ⬜ The authors' R code run, and the three-way comparison explained difference by difference
 - ⬜ The genome and network layers tested for added value, whatever the answer
@@ -112,17 +112,17 @@ It starts with Layer 1: open the tables Phase 1 listed and find where the 136 tr
 
 ### Phase 3: Harmonisation with dbt
 
-**Track A · about 10 hours · ⬜ planned · earns v0.2.0 · Guide (planned) `docs/04-phase-3-harmonisation.md`**
+**Track A · about 10 hours (estimate) · ✅ done · v0.2.0 · Handbook [Stage 5](HANDBOOK.md#stage-5-phase-3-harmonise-everything-with-dbt) · Guide [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md)**
 
-Sources written years apart by different laboratories spell the same strain differently and shape their tables differently. This phase joins them onto one strain name and one community name in a layered set of SQL models (staging, intermediate, marts), with automated data tests and generated documentation.
+Sources written years apart by different laboratories spell the same strain differently and shape their tables differently. This phase loads every raw table into a DuckDB warehouse unchanged, then joins them onto one strain name and one community name in a layered set of SQL models (staging, intermediate, marts), with automated data tests and generated documentation. The three choices Phase 2 left about Layer 1 are made here, each with its reason and a test: the undecided plants are kept, as a setting that can be switched; the two reference communities are test communities, their earlier plants kept only for comparing rounds; the two communities with no plants left keep their rows.
 
 **dbt** turns a folder of SQL files into a pipeline with an order, tests and documentation: loose recipe cards become a cookbook with a contents page, an index and a note on each recipe saying which others must be made first. dbt Core is free and runs here against DuckDB on your own computer.
 
 **One rule set here, because it's cheap now and expensive later:** nothing hard-codes 35 strains, five per community, one pathogen or one measurement. The strain library, the community size and the outcome are data, so the same tables could take a library of 400 strains, communities of three and a different measurement without a rewrite.
 
-**Optional, as a portability exercise:** the same dbt models pointed at a cloud warehouse (Snowflake or Databricks) by changing one connection profile. If it's built, the guide gives the free-trial steps, checked at the time of writing because those terms change, and how to avoid any cost.
+**Optional, as a portability exercise (not built in Phase 3):** the same dbt models pointed at a cloud warehouse (Snowflake or Databricks) by adding a second connection profile. The guide says which DuckDB conveniences in the models would need their equivalents. If it's built, it will come with free-trial steps checked at the time, because those terms change, and how to avoid any cost.
 
-**Builds:** the dbt project, data tests (unique, not empty, accepted ranges, every reference resolves), the lineage graph. **Teaches:** ELT and ETL, layered models, data tests, lineage, why transformations belong in version control.
+**Builds:** `sources/tables.csv` and `scripts/load_raw.py` (the load), the dbt project in `dbt/` (21 staging, 6 intermediate and 8 mart models, three macros, a seed of known disagreements between sources, 170 generic and 17 singular data tests), the shared helpers in `src/realsignal/helpers.py`, `notebooks/explore_warehouse.py`, three figures drawn from dbt's own records and the warehouse, and 18 more tests, one of which runs the loader and the whole dbt project on a made-up screen of four strains in communities of two. **Teaches:** ETL and ELT, a warehouse, dbt from zero (models, `ref()` and `source()`, macros, views and tables, seeds, vars), dimensions and facts, generic and singular data tests and seeing them fail, lineage, decisions about data as settings with reasons, why transformations belong in version control.
 
 ### Phase 4: Exploration
 
@@ -294,7 +294,7 @@ Each tag is a stopping point where the project is complete in itself. Projects g
 | Tag | After | What exists |
 |---|---|---|
 | **v0.1.0** ✅ | Phase 1 | verified data, the documentation and a reproducible setup |
-| v0.2.0 | Phase 3 | every available source fetched and harmonised in a tested dbt project |
+| **v0.2.0** ✅ | Phase 3 | every available source fetched and harmonised in a tested dbt project |
 | v0.3.0 | Phase 5 | the reproduction: the rebuilt numbers beside the published ones |
 | v0.4.0 | Phase 6 | the three-way comparison with the authors' R code |
 | v0.5.0 | Phase 7 | a prototype app, online |
@@ -352,7 +352,7 @@ Written down in advance, so nothing looks like a surprise later.
 
 **The extra layers may not improve prediction.** Quite possible: the original found strain identity alone predicted well. A negative result, reported as one.
 
-**Joining the sources may be harder than it looks.** Strain names across four papers won't match perfectly. That's ordinary multi-source work, Phase 3 exists for it, and the estimate allows for it.
+**Joining the sources may be harder than it looks.** Strain names across four papers won't match perfectly. In Phase 3 the names turned out easy (only one table writes bare numbers); the harder parts were elsewhere: two tables of one paper that count gene clusters differently for three strains, two strain lists that name 10 genera differently, and three decisions about Layer 1's plants. Each is written down and tested rather than settled quietly.
 
 **Phases may take longer than estimated.** They usually do. The estimates get replaced with actual hours as phases are finished, in [section 5](#5-effort-and-schedule) and in the changelog.
 

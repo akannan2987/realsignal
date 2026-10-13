@@ -1,0 +1,232 @@
+# Layer 1: the community screen (Emmenegger et al. 2023, the Zenodo archive).
+
+version: 2
+
+models:
+  - name: stg_screen__design
+    description: >
+      The design in long form: one row per community and strain, and whether
+      the strain is in the community. Built with UNPIVOT, so it takes any
+      number of strain columns.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "community_id || '|' || strain_id"
+    columns:
+      - name: community_id
+        description: "The community, as the files name it (Mix1, Mix69, axenic)."
+        data_tests: [not_null]
+      - name: strain_id
+        description: "The strain, in the project's spelling."
+        data_tests: [not_null]
+      - name: is_member
+        description: "True if the strain is in the community. NULL would mean a cell other than 0 or 1."
+        data_tests: [not_null]
+
+  - name: stg_screen__boxes
+    description: "One row per box of four plants (20200828_Box.txt)."
+    columns:
+      - name: box_id
+        description: "The box number."
+        data_tests: [unique, not_null]
+      - name: community_id
+        description: "The community every plant in the box received."
+        data_tests: [not_null]
+      - name: infection_code
+        description: "Pst (the pathogen) or NI (not infected)."
+      - name: replicate
+        description: "Which copy of the community in this round."
+      - name: round_id
+        description: "The round of the experiment: Exp1, Exp2 or Exp3."
+      - name: box_comment
+        description: "The comment on the box, such as when it was dropped."
+      - name: source_row
+        description: "The row in the file."
+
+  - name: stg_screen__plants
+    description: "One row per plant (2023-01-16Mini5SynComScreen_CommentsFile.txt)."
+    columns:
+      - name: plant_id
+        description: "Box and position, as the files write it: 10_1 is box 10, plant 1."
+        data_tests: [unique, not_null]
+      - name: box_id
+        description: "The plant's box."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_screen__boxes')
+                field: box_id
+      - name: position
+        description: "The plant's place in its box."
+      - name: community_id
+        description: "The community the plant received."
+        data_tests: [not_null]
+      - name: infection_code
+        description: "Pst or NI."
+        data_tests: [not_null]
+      - name: figure_label
+        description: "The name the authors' figures use (SynCom-High for Mix69)."
+      - name: inclusion_mark
+        description: "TRUE (kept), FALSE (left out) or TBD (to be decided)."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["TRUE", "FALSE", "TBD"]
+      - name: round_id
+        description: "Exp1, Exp2 or Exp3."
+        data_tests: [not_null]
+      - name: source_row
+        description: "The row in the file."
+
+  - name: stg_screen__plant_notes
+    description: "The 2020 notes on every plant (20201130_Comments.txt)."
+    columns:
+      - name: plant_id
+        description: "Built from box and position, as the plant file builds it."
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_screen__plants')
+                field: plant_id
+      - name: inclusion_mark_2020
+        description: "The plant's mark in 2020."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["TRUE", "FALSE", "TBD"]
+      - name: set_aside_reason
+        description: "Why the plant was set aside: box dropped, fungal contamination or missing plant."
+      - name: notes
+        description: "The file's comments on the plant, joined with semicolons."
+      - name: source_row
+        description: "The row in the file."
+
+  - name: stg_screen__pathogen_load
+    description: "The pathogen on every infected plant, per gram of fresh leaf."
+    columns:
+      - name: plant_id
+        description: "The plant."
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_screen__plants')
+                field: plant_id
+      - name: cfu_per_g
+        description: "Colony-forming units per gram of fresh leaf."
+        data_tests: [not_null]
+      - name: log10_cfu_per_g
+        description: "The same, on a log10 scale."
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 12
+      - name: log10_cfu_per_g_normalised
+        description: "The authors' normalised value, as published."
+      - name: source_row
+        description: "The row in the file."
+
+  - name: stg_screen__plant_weights
+    description: "The fresh weight of every plant."
+    columns:
+      - name: plant_id
+        description: "The plant."
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_screen__plants')
+                field: plant_id
+      - name: fresh_weight_mg
+        description: "Fresh weight in milligrams."
+        data_tests: [not_null]
+      - name: fresh_weight_normalised
+        description: "The authors' normalised value, as published."
+      - name: source_row
+        description: "The row in the file."
+
+  - name: stg_screen__commensal_load
+    description: "All the community's bacteria together, per gram of fresh leaf."
+    columns:
+      - name: plant_id
+        description: "The plant."
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_screen__plants')
+                field: plant_id
+      - name: cfu_per_g
+        description: "Colony-forming units per gram of fresh leaf."
+      - name: log10_cfu_per_g
+        description: "The same, on a log10 scale."
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 12
+      - name: source_row
+        description: "The row in the file."
+
+  - name: stg_screen__strain_colonisation
+    description: "Each community member on each plant, per gram of fresh leaf."
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "plant_id || '|' || strain_id"
+    columns:
+      - name: plant_id
+        description: "The plant."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_screen__plants')
+                field: plant_id
+      - name: strain_id
+        description: "The strain counted."
+        data_tests: [not_null]
+      - name: is_ambiguous
+        description: "True where two strains couldn't be told apart and share one count."
+        data_tests: [not_null]
+      - name: cfu_per_g
+        description: "Colony-forming units per gram of fresh leaf."
+      - name: log10_cfu_per_g
+        description: "The same, on a log10 scale."
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 12
+      - name: source_row
+        description: "The row in the file."
+
+  - name: stg_screen__authors_model_plants
+    description: >
+      The plants in the authors' machine-learning table
+      MLData_DF_Ind_TRUE_CommPresence.txt. Kept only to check the rebuilt
+      selection in marts.model_plants.
+    columns:
+      - name: plant_id
+        description: "The plant."
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_screen__plants')
+                field: plant_id
+      - name: community_id
+        description: "Its community."
+      - name: round_id
+        description: "Its round."
+      - name: inclusion_mark
+        description: "Its mark, as that table gives it."

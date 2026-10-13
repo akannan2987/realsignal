@@ -1,0 +1,117 @@
+# Layers 3 and 4: Helfrich et al. 2018, Nature Microbiology, supplementary workbook.
+
+version: 2
+
+models:
+  - name: stg_helfrich__interactions
+    description: "Supplementary Table 1: every inhibition seen between two strains."
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "inhibitor_strain_id || '->' || sensitive_strain_id"
+    columns:
+      - name: inhibitor_strain_id
+        description: "The strain that held the other back."
+        data_tests: [not_null]
+      - name: sensitive_strain_id
+        description: "The strain that was held back."
+        data_tests: [not_null]
+      - name: strength
+        description: "strong, weak, or for one pair 'weak; strong'."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["strong", "weak", "weak; strong"]
+      - name: media
+        description: "Where it was seen: R2AM, MMGlcM, or both separated by '; '."
+      - name: source_row
+        description: "The row in the sheet."
+
+  - name: stg_helfrich__inhibitor_panel
+    description: "Supplementary Table 4, first column: the strains tested as inhibitors."
+    columns:
+      - name: strain_id
+        description: "The strain."
+        data_tests: [unique, not_null]
+      - name: source_row
+        description: "The row in the sheet."
+
+  - name: stg_helfrich__sensitive_panel
+    description: "Supplementary Table 24: the strains tested as sensitive."
+    columns:
+      - name: strain_id
+        description: "The strain."
+        data_tests: [unique, not_null]
+      - name: source_row
+        description: "The row in the sheet."
+
+  - name: stg_helfrich__bgc_counts
+    description: "Supplementary Table 9 in long form: gene clusters per strain and class."
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "strain_id || '|' || bgc_class"
+    columns:
+      - name: strain_id
+        description: "The strain."
+        data_tests: [not_null]
+      - name: bgc_class
+        description: "The class of gene cluster, as the sheet's heading names it."
+        data_tests: [not_null]
+      - name: cluster_count
+        description: "How many clusters of that class."
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments:
+                min_value: 0
+
+  - name: stg_helfrich__bgc_totals
+    description: "Supplementary Table 9, Total column: the clusters reported per strain."
+    columns:
+      - name: strain_id
+        description: "The strain."
+        data_tests: [unique, not_null]
+      - name: genus
+        description: "The genus the sheet gives."
+      - name: reported_total
+        description: "The number of gene clusters reported."
+        data_tests: [not_null]
+      - name: source_row
+        description: "The row in the sheet."
+
+  - name: stg_helfrich__gene_clusters
+    description: "Supplementary Table 11: every predicted gene cluster, one per row."
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "strain_id || '_' || cluster_number"
+    columns:
+      - name: strain_id
+        description: "The strain."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_helfrich__bgc_totals')
+                field: strain_id
+      - name: cluster_number
+        description: "The cluster's number within its strain, from 1."
+        data_tests: [not_null]
+      - name: contig_accession
+        description: "The contig it sits on, as GenBank writes it."
+        data_tests: [not_null]
+      - name: bgc_type
+        description: "The type the prediction program (antiSMASH) gave, in lower case."
+      - name: potentially_inhibitory
+        description: "True if the sheet marks it put_inhib."
+      - name: named_compound
+        description: "The compound named in brackets after put_inhib, where there is one."
+      - name: start_position
+        description: "Where it starts on the contig."
+      - name: end_position
+        description: "Where it ends on the contig."
+      - name: gene_count
+        description: "How many genes it holds."
+      - name: source_row
+        description: "The row in the sheet."

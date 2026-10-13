@@ -1,0 +1,21 @@
+what_differs,strain_id,first_source,first_value,second_source,second_value,note
+gene_cluster_count,Leaf61,Helfrich 2018 Table S9 (Total),11,Helfrich 2018 Table S11 (rows),10,Table S11 numbers this strain's clusters 1 to 10 without a gap
+gene_cluster_count,Leaf130,Helfrich 2018 Table S9 (Total),7,Helfrich 2018 Table S11 (rows),6,Table S11 numbers this strain's clusters 1 to 6 without a gap
+gene_cluster_count,Leaf182,Helfrich 2018 Table S9 (Total),12,Helfrich 2018 Table S11 (rows),11,Table S11 numbers this strain's clusters 1 to 11 without a gap; a screen strain
+family,Leaf50,Layer 1 archive (dataAtLSPHERE.txt),Enterobacteriaceae,Vogel 2021 ST12,Yersiniaceae,
+family,Leaf51,Layer 1 archive (dataAtLSPHERE.txt),Enterobacteriaceae,Vogel 2021 ST12,Yersiniaceae,
+family,Leaf53,Layer 1 archive (dataAtLSPHERE.txt),Enterobacteriaceae,Vogel 2021 ST12,Erwiniaceae,
+family,Leaf187,Layer 1 archive (dataAtLSPHERE.txt),Bacillales,Vogel 2021 ST12,unclassified,Bacillales is an order; a screen strain
+family,Leaf196,Layer 1 archive (dataAtLSPHERE.txt),Bacillales,Vogel 2021 ST12,unclassified,Bacillales is an order
+family,Leaf220,Layer 1 archive (dataAtLSPHERE.txt),Comamonadaceae,Vogel 2021 ST12,unclassified,a screen strain
+family,Leaf354,Layer 1 archive (dataAtLSPHERE.txt),Nocardiaceae,Vogel 2021 ST12,Williamsiaceae,a screen strain
+genus,Leaf164,Layer 1 archive (dataAtLSPHERE.txt),Rathayibacter,Vogel 2021 ST12,Frigoribacterium,
+genus,Leaf172,Layer 1 archive (dataAtLSPHERE.txt),Clavibacter,Vogel 2021 ST12,Frigoribacterium,
+genus,Leaf220,Layer 1 archive (dataAtLSPHERE.txt),Variovorax,Vogel 2021 ST12,Xylophilus,a screen strain
+genus,Leaf263,Layer 1 archive (dataAtLSPHERE.txt),Clavibacter,Vogel 2021 ST12,Frigoribacterium,
+genus,Leaf267,Layer 1 archive (dataAtLSPHERE.txt),Variovorax,Vogel 2021 ST12,Pseudorhodoferax,
+genus,Leaf380,Layer 1 archive (dataAtLSPHERE.txt),Blastococcus,Vogel 2021 ST12,Modestobacter,a screen strain
+genus,Leaf400,Layer 1 archive (dataAtLSPHERE.txt),Acidovorax,Vogel 2021 ST12,Ramlibacter,
+genus,Leaf427,Layer 1 archive (dataAtLSPHERE.txt),Aurantimonas,Vogel 2021 ST12,Aureimonas,
+genus,Leaf454,Layer 1 archive (dataAtLSPHERE.txt),Aurantimonas,Vogel 2021 ST12,Aureimonas,a screen strain
+genus,Leaf460,Layer 1 archive (dataAtLSPHERE.txt),Aurantimonas,Vogel 2021 ST12,Aureimonas,

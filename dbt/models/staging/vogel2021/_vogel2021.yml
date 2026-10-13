@@ -1,0 +1,37 @@
+# Layer 5: Vogel et al. 2021, Nature Microbiology, supplementary workbook.
+# Only the strain list is staged. The protection scores (Supplementary Table 1)
+# wait for Phase 9, so they can't influence the models built before then.
+
+version: 2
+
+models:
+  - name: stg_vogel__strains
+    description: "Supplementary Table 12: the strain list with taxonomy and genome accessions."
+    columns:
+      - name: strain_id
+        description: "The strain, from the Strain column."
+        data_tests: [unique, not_null]
+      - name: strain_id_from_number
+        description: "The strain, from the Strain_ID column (a bare number)."
+      - name: phylum
+        description: "Taxonomy as this table gives it."
+      - name: taxonomic_class
+        description: "The class."
+      - name: taxonomic_order
+        description: "The order."
+      - name: family
+        description: "The family."
+      - name: genus
+        description: "The genus, without the footnote mark."
+      - name: genus_from_bai2015
+        description: "True where the table marks the genus with *, meaning it comes from Bai et al. 2015, not NCBI."
+      - name: assembly_accession
+        description: "The RefSeq genome accession, where there is one."
+      - name: collection
+        description: "At-LSPHERE, or positive control for the reference strain Fr1."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["At-LSPHERE", "positive control"]
+      - name: source_row
+        description: "The row in the sheet."

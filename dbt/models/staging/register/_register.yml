@@ -1,0 +1,84 @@
+# The project's own tables in sources/, typed and renamed.
+
+version: 2
+
+models:
+  - name: stg_register__sources
+    description: "sources/register.csv: one row per data source."
+    columns:
+      - name: source_id
+        description: "The source's short name, used everywhere else."
+        data_tests: [unique, not_null]
+      - name: layers
+        description: "The data layer or layers it provides, as text ('3, 4')."
+      - name: layer_name
+        description: "What the layer is about."
+      - name: citation
+        description: "The paper."
+      - name: doi
+        description: "The DOI of what is downloaded."
+      - name: terms
+        description: "The terms the data comes with."
+      - name: status
+        description: "fetched, partly fetched, to fetch or not available."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["fetched", "partly fetched", "to fetch", "not available"]
+      - name: checked_on
+        description: "The date the status last changed."
+        data_tests: [not_null]
+      - name: notes
+        description: "Anything else worth knowing."
+
+  - name: stg_register__files
+    description: "sources/files.csv: every file Phase 2 fetches."
+    columns:
+      - name: file_id
+        description: "The file's short name."
+        data_tests: [unique, not_null]
+      - name: source_id
+        description: "The source it belongs to."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_register__sources')
+                field: source_id
+      - name: kind
+        description: "url for a workbook, ncbi_assembly for a genome."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["url", "ncbi_assembly"]
+      - name: file_name
+        description: "The name the file is saved under, in data/raw/sources/<source_id>/."
+        data_tests: [unique, not_null]
+      - name: assembly_accession
+        description: "For a genome, its NCBI accession (GCF_...)."
+      - name: pinned_sha256
+        description: "The SHA-256 pinned after the first download, for files with no published checksum."
+      - name: strain_id
+        description: "For a genome, the strain it belongs to."
+
+  - name: stg_register__tables
+    description: "sources/tables.csv: every raw table scripts/load_raw.py loads."
+    columns:
+      - name: table_name
+        description: "The table's name in the raw schema."
+        data_tests: [unique, not_null]
+      - name: source_id
+        description: "The source it comes from (checked against the register by assert_every_raw_table_is_registered)."
+      - name: format
+        description: "tsv, xlsx or fasta_gz."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["tsv", "csv", "xlsx", "fasta_gz"]
+      - name: path
+        description: "The file, from the project folder."
+      - name: sheet
+        description: "For a workbook, the sheet."
+      - name: header_row
+        description: "The row that holds the headings, as a spreadsheet numbers it."
+      - name: what_it_holds
+        description: "In a sentence."

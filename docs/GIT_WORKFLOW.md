@@ -264,7 +264,7 @@ The project follows **semantic versioning**: `MAJOR.MINOR.PATCH`.
 | Tag | Reached at | What it means |
 |---|---|---|
 | v0.1.0 | Phase 1 | verified data, documentation and a reproducible setup |
-| v0.2.0 | Phase 3 | all data layers joined into one tidy table |
+| v0.2.0 | Phase 3 | every source harmonised in a tested dbt project |
 | v0.3.0 | Phase 5 | the published result reproduced in Python |
 | v0.4.0 | Phase 6 | the three-way comparison with the authors' R code |
 | v0.5.0 | Phase 7 | first app anyone can open |

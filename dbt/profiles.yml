@@ -1,0 +1,23 @@
+# dbt/profiles.yml: where dbt finds the database.
+#
+# A profile is a connection: which kind of database, and where it is. This
+# one points at a DuckDB file, so there's no server, password or account.
+# dbt looks for profiles.yml in the folder you run it from first, which is
+# why every dbt command in the guides is run from inside dbt/.
+#
+# The path is relative to that folder: ../data/warehouse/ is the warehouse
+# folder in the project folder, which Git ignores like the rest of data/.
+# scripts/load_raw.py creates the file and fills its raw schema.
+#
+# Pointing the same models at another database (a cloud warehouse, say) means
+# adding a second output here and choosing it with --target. Most models carry
+# over; a few DuckDB conveniences would need their equivalents. Explained in
+# docs/04-phase-3-harmonisation.md, section 7.
+
+realsignal:
+  target: local
+  outputs:
+    local:
+      type: duckdb
+      path: ../data/warehouse/realsignal.duckdb
+      threads: 4

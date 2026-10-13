@@ -44,15 +44,13 @@ Run from the project folder, with the virtual environment active:
 
 Explained in docs/03-phase-2-more-sources.md.
 
-The small helpers (sizes, paths, banners) are the same as in
-scripts/fetch_data.py. They move into src/realsignal/ in Phase 3, once a
-third program needs them.
+The small helpers (sizes, paths, banners, checksums, reading and writing
+the CSV tables) come from src/realsignal/helpers.py, shared with
+scripts/fetch_data.py and scripts/load_raw.py.
 """
 
 import argparse
-import csv
 import datetime as dt
-import hashlib
 import json
 import re
 import sys
@@ -63,6 +61,10 @@ from pathlib import Path
 import requests
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "src"))          # so Python finds src/realsignal/
+from realsignal import helpers  # noqa: E402
+from realsignal.helpers import banner, file_hashes, human_size  # noqa: E402
+
 REGISTER_PATH = PROJECT_ROOT / "sources" / "register.csv"
 FILES_PATH = PROJECT_ROOT / "sources" / "files.csv"
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
@@ -85,59 +87,21 @@ HEADERS = {"User-Agent": "RealSignal/0.2 (open reproduction project; "
 STATUSES = {"fetched", "to fetch", "partly fetched", "not available"}
 
 
-# ---------------------------------------------------------------------------
-# Small helpers (the same as in scripts/fetch_data.py)
-# ---------------------------------------------------------------------------
-
-def human_size(num_bytes: float) -> str:
-    """Decimal units (1 MB = 1,000,000 bytes), as the publishers' pages use."""
-    for unit in ("B", "KB", "MB", "GB"):
-        if num_bytes < 1000 or unit == "GB":
-            return f"{num_bytes:.1f} {unit}"
-        num_bytes /= 1000
-    return f"{num_bytes:.1f} GB"
-
-
 def rel(path: Path) -> str:
     """A path as seen from the project folder, so output is the same on every computer."""
-    try:
-        return path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix()
-    except ValueError:
-        return path.as_posix()
-
-
-def banner(title: str) -> None:
-    print()
-    print("=" * 70)
-    print(title)
-    print("=" * 70)
-
-
-def file_hashes(path: Path) -> tuple[str, str]:
-    """MD5 and SHA-256 of a file, read a megabyte at a time."""
-    md5, sha256 = hashlib.md5(), hashlib.sha256()
-    with open(path, "rb") as handle:
-        for piece in iter(lambda: handle.read(CHUNK_SIZE), b""):
-            md5.update(piece)
-            sha256.update(piece)
-    return md5.hexdigest(), sha256.hexdigest()
+    return helpers.rel(path, PROJECT_ROOT)
 
 
 # ---------------------------------------------------------------------------
 # The register and the file list
 # ---------------------------------------------------------------------------
 
-def read_csv(path: Path) -> list[dict]:
-    with open(path, newline="", encoding="utf-8") as handle:
-        return list(csv.DictReader(handle))
-
-
 def read_register() -> list[dict]:
-    return read_csv(REGISTER_PATH)
+    return helpers.read_csv_rows(REGISTER_PATH)
 
 
 def read_files(only: str | None = None) -> list[dict]:
-    rows = read_csv(FILES_PATH)
+    rows = helpers.read_csv_rows(FILES_PATH)
     return [r for r in rows if only is None or r["source_id"] == only]
 
 
@@ -147,7 +111,7 @@ def target_path(row: dict) -> Path:
 
 def show_register() -> int:
     banner("SOURCE REGISTER: sources/register.csv")
-    files = read_csv(FILES_PATH)
+    files = helpers.read_csv_rows(FILES_PATH)
     for source in read_register():
         count = sum(1 for f in files if f["source_id"] == source["source_id"])
         where = (f"{count} {'file' if count == 1 else 'files'} in sources/files.csv" if count
@@ -450,20 +414,13 @@ def outcome(source: dict, files: list[dict], log: dict) -> str:
     return "partly fetched" if good else "to fetch"
 
 
-def write_csv(path: Path, rows: list[dict]) -> None:
-    with open(path, "w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()), lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
-
-
 def pin() -> int:
     """Record the outcome of a fetch in the two committed tables:
     the SHA-256 of first downloads in sources/files.csv, and each source's
     status (with today's date) in sources/register.csv."""
     banner("PIN: record the checksums and the status of each source")
     log = read_log()
-    rows = read_csv(FILES_PATH)
+    rows = helpers.read_csv_rows(FILES_PATH)
     pinned = 0
     for row in rows:
         entry = log.get(row["file_id"])
@@ -473,7 +430,7 @@ def pin() -> int:
             print(f"  {row['file_id']}")
             print(f"    {entry['sha256']}")             # 64 characters: a line of its own
     if pinned:
-        write_csv(FILES_PATH, rows)
+        helpers.write_csv_rows(FILES_PATH, rows)
     print(f"{pinned} {'checksum' if pinned == 1 else 'checksums'} pinned in sources/files.csv")
 
     # A status changes only when the outcome changed, so the date says when.
@@ -488,7 +445,7 @@ def pin() -> int:
             source["status"], source["checked_on"] = now, today
             changed += 1
     if changed:
-        write_csv(REGISTER_PATH, register)
+        helpers.write_csv_rows(REGISTER_PATH, register)
     print(f"{changed} {'status' if changed == 1 else 'statuses'} updated in sources/register.csv")
     if pinned or changed:
         print()

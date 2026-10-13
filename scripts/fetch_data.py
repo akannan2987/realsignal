@@ -64,6 +64,12 @@ from pathlib import Path
 
 import requests
 
+# The shared helpers live in src/realsignal/. scripts/ isn't a package, so the
+# script first tells Python where to find them.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from realsignal import helpers  # noqa: E402
+from realsignal.helpers import banner, human_size  # noqa: E402
+
 # ---------------------------------------------------------------------------
 # What we download
 #
@@ -118,40 +124,17 @@ MAC_CLUTTER = ("__MACOSX/", ".DS_Store")
 
 # ---------------------------------------------------------------------------
 # Small helpers
+#
+# human_size() and banner() live in src/realsignal/helpers.py, shared with
+# scripts/fetch_sources.py and scripts/load_raw.py (imported at the top).
 # ---------------------------------------------------------------------------
-
-def human_size(num_bytes: int) -> str:
-    """Turn a byte count into something a person can read ('239.2 MB').
-
-    Decimal units (1 MB = 1,000,000 bytes), the same ones the Zenodo record
-    page and the macOS Finder use, so the sizes printed here match the
-    published "239.2 MB". (Some programs divide by 1,024 instead, which is
-    why the same file can look about 5 % smaller elsewhere.)"""
-    size = float(num_bytes)
-    for unit in ("B", "KB", "MB", "GB"):
-        if size < 1000 or unit == "GB":
-            return f"{size:.1f} {unit}"
-        size /= 1000
-    return f"{size:.1f} GB"
-
 
 def rel(path: Path) -> str:
     """A path as seen from the project folder ('data/raw/manifest.csv').
 
     Printing paths this way keeps the output identical on every computer and
     never shows anyone's home folder."""
-    try:
-        return path.relative_to(PROJECT_ROOT).as_posix()
-    except ValueError:
-        return str(path)
-
-
-def banner(title: str) -> None:
-    """Print a section header, so long output stays readable."""
-    print()
-    print("=" * 70)
-    print(title)
-    print("=" * 70)
+    return helpers.rel(path, PROJECT_ROOT)
 
 
 # ---------------------------------------------------------------------------

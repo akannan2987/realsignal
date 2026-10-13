@@ -23,6 +23,12 @@ __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
 
+# What dbt writes each time it runs (compiled SQL, results, the docs site,
+# its log). dbt makes all of it again from the models.
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+
 # Secrets. This project needs none so far, but the rule stays: anything
 # committed once stays in the history for good.
 .env

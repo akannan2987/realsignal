@@ -1,0 +1,118 @@
+# Where the sources meet, and where the three Layer 1 choices are applied.
+
+version: 2
+
+models:
+  - name: int_strain_mentions
+    description: "Every strain each source names, once per source: the full list of strains the project knows."
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "strain_id || '|' || mentioned_in"
+    columns:
+      - name: strain_id
+        description: "The strain, in the project's spelling."
+        data_tests: [not_null]
+      - name: mentioned_in
+        description: "The staging model that names it."
+
+  - name: int_communities
+    description: "One row per community in the design, with its size, kind and role, all counted from the data."
+    columns:
+      - name: community_id
+        description: "The community."
+        data_tests: [unique, not_null]
+      - name: label
+        description: "The name the authors' figures use."
+      - name: community_size
+        description: "How many strains it holds, counted from the design."
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments:
+                min_value: 0
+      - name: kind
+        description: "no strains, whole library, or community."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["no strains", "whole library", "community"]
+      - name: role
+        description: "control, training or test."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["control", "training", "test"]
+      - name: rounds_grown
+        description: "The rounds it was grown in."
+      - name: plants_grown
+        description: "How many plants received it."
+
+  - name: int_plants
+    description: "Every plant, with its split and whether later phases use it (the three Layer 1 choices)."
+    columns:
+      - name: plant_id
+        description: "The plant."
+        data_tests: [unique, not_null]
+      - name: split
+        description: "training, test, between-round reference or control."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["training", "test", "between-round reference", "control"]
+      - name: use_for_modelling
+        description: "True for the plants later phases train and test on."
+        data_tests: [not_null]
+      - name: not_used_because
+        description: "Why a plant isn't used, in words; NULL when it is."
+
+  - name: int_strain_interaction_counts
+    description: "For every strain in the interaction screen, inhibitions given and received, with zero where none was seen."
+    columns:
+      - name: strain_id
+        description: "The strain."
+        data_tests: [unique, not_null]
+      - name: inhibits
+        description: "How many strains it held back."
+        data_tests: [not_null]
+      - name: inhibits_strongly
+        description: "Of those, how many strongly."
+      - name: inhibited_by
+        description: "How many strains held it back."
+        data_tests: [not_null]
+      - name: inhibited_strongly_by
+        description: "Of those, how many strongly."
+
+  - name: int_strain_genomes
+    description: "One row per strain with a genome: contigs, length and GC content."
+    columns:
+      - name: strain_id
+        description: "The strain."
+        data_tests: [unique, not_null]
+      - name: assembly_accession
+        description: "The genome's RefSeq accession."
+      - name: contigs
+        description: "How many pieces the genome is in."
+      - name: genome_length_bp
+        description: "Its length in letters."
+      - name: gc_percent
+        description: "The share of G and C letters, in per cent."
+        data_tests:
+          - accepted_range:
+              arguments:
+                min_value: 20
+                max_value: 80
+
+  - name: int_strain_gene_clusters
+    description: "Gene clusters per analysed strain, as Table S9 reports them and as Table S11 lists them."
+    columns:
+      - name: strain_id
+        description: "The strain."
+        data_tests: [unique, not_null]
+      - name: clusters_reported
+        description: "Table S9's Total."
+      - name: clusters_listed
+        description: "Table S11's rows for the strain."
+      - name: potentially_inhibitory_clusters
+        description: "Of those, how many Table S11 marks put_inhib."

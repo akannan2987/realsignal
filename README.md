@@ -2,12 +2,13 @@
 
 ![RealSignal: reproduce, check and extend a published result](docs/img/realsignal_logo.svg)
 
-**Version:** v0.1.0, and Phase 2 on top of it (2 of 18 phases done: the published data downloaded and verified, and the four other data layers fetched and checked) · **Interactive figures:** [`docs/interactive/`](docs/interactive/), or online once GitHub Pages is switched on ([how](docs/02-phase-1-data-acquisition.md#optional-publish-the-interactive-pages-with-github-pages))
+**Version:** v0.2.0 (3 of 18 phases done: the published data downloaded and verified, the four other data layers fetched and checked, and all five harmonised into one tested warehouse with dbt) · **Interactive figures:** [`docs/interactive/`](docs/interactive/), or online once GitHub Pages is switched on ([how](docs/02-phase-1-data-acquisition.md#optional-publish-the-interactive-pages-with-github-pages))
 · ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![tests](https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white)
 ![data](https://img.shields.io/badge/data-real%2C%20published%2C%20CC--BY%204.0-1a7f37)
 ![license](https://img.shields.io/badge/license-MIT-blue)
-![status](https://img.shields.io/badge/status-phase%202%20of%2018%20done-orange)
+![status](https://img.shields.io/badge/status-phase%203%20of%2018%20done-orange)
+![dbt](https://img.shields.io/badge/dbt-187%20data%20tests-FF694B?logo=dbt&logoColor=white)
 ![platform](https://img.shields.io/badge/runs%20on-Windows%20%7C%20macOS%20%7C%20Linux%20(RHEL%208)-informational)
 
 Rebuilding a published machine-learning study about bacteria that protect plants, from its released data, in another language; checking its conclusion against evidence the model never saw; and turning it into a tool that helps decide which experiments are worth running. Built from scratch in public, with every step explained.
@@ -150,8 +151,10 @@ One dataset answers one question. Several linked datasets can answer questions n
 |---|---|---|---|---|
 | 1 | community make-up and pathogen outcome | 136 training and 70 test communities | Emmenegger *et al.* 2023, *Nat Commun* 14:7983; data and code on [Zenodo](https://doi.org/10.5281/zenodo.10118600), CC-BY 4.0 | ✅ downloaded and verified (Phase 1) |
 | 2 | strain genomes | the genetic blueprint of each strain | Bai *et al.* 2015, *Nature* 528:364; the genomes from NCBI | ✅ 34 of 35 fetched and checked (Phase 2); Leaf21 has none listed |
-| 3 | biosynthetic gene clusters | 1,053 predicted clusters for natural products such as antibiotics | Helfrich *et al.* 2018, *Nat Microbiol* 3:909, [doi:10.1038/s41564-018-0200-0](https://doi.org/10.1038/s41564-018-0200-0) | ✅ fetched and checked (Phase 2) |
+| 3 | biosynthetic gene clusters | 1,050 predicted clusters for natural products such as antibiotics, listed one by one (another table of the same paper counts 1,053) | Helfrich *et al.* 2018, *Nat Microbiol* 3:909, [doi:10.1038/s41564-018-0200-0](https://doi.org/10.1038/s41564-018-0200-0) | ✅ fetched and checked (Phase 2) |
 | 4 | strain-against-strain inhibition | more than 50,000 pairings of 224 strains, 725 of them inhibitory | the same Helfrich *et al.* 2018 study | ✅ fetched and checked (Phase 2) |
+
+All five layers are harmonised (Phase 3): loaded unchanged into one DuckDB warehouse, then joined by dbt onto one strain name and one community name, with 187 data tests that run on every build ([Phase 3 guide](docs/04-phase-3-harmonisation.md)).
 | 5 | single-strain protection | 224 strains, each tested **alone** against the pathogen | Vogel *et al.* 2021, *Nat Microbiol* 6:1537, [doi:10.1038/s41564-021-00997-7](https://doi.org/10.1038/s41564-021-00997-7) | ✅ fetched and checked (Phase 2) |
 
 **What each one is for.** Layer 1 asks *which communities protect?* Layers 2 and 3 ask *why*: genes encode the chemistry a strain can make, so if the highly ranked strains carry more antibiotic gene clusters, the statistical result gains a possible mechanism. Layer 4 asks *how they interact*. Layer 5 is the strongest check: the model learns which strains matter from communities only and never sees a strain tested alone, so comparing its ranking with Layer 5 tests the conclusion against evidence it never touched. (Layer 5 comes from the same research group, so it's an independent dataset, not an independent laboratory, and the validation guide says so.)
@@ -180,7 +183,7 @@ The problem has a shape that has nothing to do with bacteria: you have N compone
 
 So the project is built to keep the method reusable:
 
-- **Nothing hard-codes 35 strains, five per community, one pathogen or one measurement.** The strain library, the community size and the measured outcome are inputs to the data model, from Phase 3 on.
+- **Nothing hard-codes 35 strains, five per community, one pathogen or one measurement.** The strain library, the community size and the measured outcome are inputs to the data model, from Phase 3 on, and a test runs the whole pipeline on a made-up screen of four strains in communities of two to check it.
 - **The useful loop is predict, test a shortlist, feed the results back, retrain, predict again.** The pipeline (Phase 12) is built so that a new file of results can go in and the models retrain from it.
 - **It can run entirely on your own computer.** Containerised, with no outside service and nothing uploaded. (The online copy from Phase 7 is for trying it with the published data.) I chose that for reproducibility, and it's also what anyone with a confidential strain library would need.
 
@@ -196,7 +199,8 @@ Results appear here as each phase is finished, including the published numbers b
 |---|---|
 | 1 | the published archive (239,154,876 bytes) downloads and matches its published MD5 checksum. It holds 342 files: 53 data files the authors started from, 183 that their code wrote (results for eight random seeds and most of the supplementary tables), 22 R scripts and 76 figure PDFs ([details](docs/02-phase-1-data-acquisition.md#what-the-archive-holds)) |
 | 2 | Layer 1's tables read: 136 training communities (rounds 1 and 2), 68 new test communities plus two reference communities grown in every round (round 3); 144 infected plants marked undecided after their boxes were dropped, and 16 left out. The authors' 12 per-plant machine-learning tables rebuild exactly from the plant file and keep the 120 undecided plants in five-strain communities. Layers 2 to 5 fetched: 34 genomes matching NCBI's published MD5, two workbooks pinned by SHA-256, 48.5 MB in all ([details](docs/03-phase-2-more-sources.md#5-step-1-open-layer-1s-tables)) |
-| 3 onwards | not run yet |
+| 3 | all five layers in one warehouse, checked by 187 data tests. The three choices Phase 2 left are made: the 120 undecided plants are kept (leaving them out would empty 34 communities) as a setting Phase 5 can switch; `Mix69` and `Mix70` are test communities, with their 16 earlier plants kept only for comparing rounds; `Mix54` and `Mix73` keep their rows with no plants (136 training communities designed, 134 with plants). The rebuilt choice of plants is the authors', plant for plant (808). Tables S9 and S11 disagree for three strains (Leaf61, Leaf130, Leaf182), and the two strain lists on 7 families and 10 genera, all written down in a list the tests check; all 191 gene clusters of the 34 strains with a genome sit inside their contigs ([details](docs/04-phase-3-harmonisation.md#9-step-4-build-and-test-everything)) |
+| 4 onwards | not run yet |
 
 ---
 
@@ -208,7 +212,7 @@ The full plan, with effort estimates and the reasons behind every tool chosen an
 |---|---|---|---|---|
 | 1 | Data acquisition: verified, logged, safe to re-run | Data | v0.1.0 | ✅ done |
 | 2 | The other data layers, or a record of why not | Data | n/a | ✅ done |
-| 3 | Harmonisation with dbt: one strain name, tested, documented | Data | v0.2.0 | ⬜ |
+| 3 | Harmonisation with dbt: one strain name, tested, documented | Data | v0.2.0 | ✅ done |
 | 4 | Exploration: distributions, data quality, first figures | Data | n/a | ⬜ |
 | 5 | Reproduction of the published models in Python, with MLflow | Science | v0.3.0 | ⬜ |
 | 6 | **The original R analysis:** run the authors' code in R and RStudio; the three-way comparison | Science | v0.4.0 | ⬜ |
@@ -240,7 +244,8 @@ Every step from an empty laptop to a working system is taught in `docs/`, for so
 | 01 | [Setup](docs/01-setup.md) | blank laptop to working workshop: Python, Git, a virtual environment, GitHub and the safety gate, on Windows, macOS and RHEL 8 |
 | 02 | [Phase 1: data acquisition](docs/02-phase-1-data-acquisition.md) | permanent archives, DOIs, checksums, read-only raw data, provenance |
 | 03 | [Phase 2: the other data layers](docs/03-phase-2-more-sources.md) | reading tables you didn't write, a source register, free to read versus free to reuse, published and pinned checksums |
-| 04 to 19 | the phase guides for Phases 3 to 18 | one guide per phase, added as each phase is built |
+| 04 | [Phase 3: harmonisation with dbt](docs/04-phase-3-harmonisation.md) | ELT, a warehouse, dbt from zero (models, tests, seeds, lineage), one strain name, decisions about data written down as settings |
+| 05 to 19 | the phase guides for Phases 4 to 18 | one guide per phase, added as each phase is built |
 | n/a | [Git workflow](docs/GIT_WORKFLOW.md) | branches from zero, and the commands at the end of every phase |
 | n/a | [Containers](docs/CONTAINERS.md) | what a container is, Docker and Podman, and running the whole system with one command |
 | n/a | [Roadmap](docs/ROADMAP.md) | the 18 phases, the version tags, the effort, and the tools left out on purpose |
@@ -255,7 +260,7 @@ Every step from an empty laptop to a working system is taught in `docs/`, for so
 - **Reproducing a study isn't a criticism of it.** The authors released their data and code publicly, permanently and under an open licence, which is what makes this project possible at all.
 - **Cross-language differences are expected.** Close numbers support the finding; identical digits would be slightly surprising.
 - **It's a controlled laboratory system, not a field.** A model trained here describes these 35 strains, this pathogen, this plant and this measurement. It isn't advice for growing crops.
-- **The measurements are noisy, as living things are.** Plants vary, some bacterial counts couldn't be assigned to a single strain, boxes got dropped and a few plants were contaminated. The authors documented every decision in their files: of the 936 infected plants, 16 are left out and 144 marked undecided ([what Phase 2 found](docs/03-phase-2-more-sources.md#5-step-1-open-layer-1s-tables)). The harmonisation in Phase 3 handles each one in the open instead of dropping rows quietly.
+- **The measurements are noisy, as living things are.** Plants vary, some bacterial counts couldn't be assigned to a single strain, boxes got dropped and a few plants were contaminated. The authors documented every decision in their files: of the 936 infected plants, 16 are left out and 144 marked undecided ([what Phase 2 found](docs/03-phase-2-more-sources.md#5-step-1-open-layer-1s-tables)). The harmonisation in Phase 3 handles each one in the open: every plant keeps its row, and the ones not used for modelling say why ([the three choices](docs/04-phase-3-harmonisation.md#8-the-three-layer-1-choices)).
 - **The other layers aren't mine either.** The genomes come from Bai *et al.* 2015 through NCBI, and the workbooks behind Layers 3 to 5 from Helfrich *et al.* 2018 and Vogel *et al.* 2021, under their publisher's terms. The scripts download each file from its source; `sources/register.csv` records where from and on what terms, and the repository stores none of them.
 - **Nothing here is a claim about any commercial product.**
 
@@ -285,7 +290,8 @@ realsignal/
 │   ├── 01-setup.md                    ← blank laptop to working workshop                    ✅
 │   ├── 02-phase-1-data-acquisition.md ← Phase 1: the verified download                      ✅
 │   ├── 03-phase-2-more-sources.md     ← Phase 2: Layer 1 read, the other layers fetched     ✅
-│   ├── 04 to 19                       ← one guide per phase, Phases 3 to 18                 ⬜
+│   ├── 04-phase-3-harmonisation.md    ← Phase 3: the warehouse, harmonised with dbt         ✅
+│   ├── 05 to 19                       ← one guide per phase, Phases 4 to 18                 ⬜
 │   ├── GIT_WORKFLOW.md                ← branches and the end-of-phase ritual                ✅
 │   ├── CONTAINERS.md                  ← containers from zero, Docker and Podman             ✅
 │   ├── ROADMAP.md                     ← the 18 phases, tags, effort, tools left out         ✅
@@ -297,37 +303,49 @@ realsignal/
 │
 ├── sources/
 │   ├── register.csv                   ← the source register: every source, terms, status    ✅
-│   └── files.csv                      ← every file to fetch, with its pinned checksum       ✅
+│   ├── files.csv                      ← every file to fetch, with its pinned checksum       ✅
+│   └── tables.csv                     ← every raw table to load into the warehouse          ✅
 ├── scripts/
 │   ├── check_env.py                   ← proves the setup works                              ✅
 │   ├── fetch_data.py                  ← probe, download, verify, unpack, list, log          ✅
-│   └── fetch_sources.py               ← the other layers: list, probe, fetch, check, pin    ✅
+│   ├── fetch_sources.py               ← the other layers: list, probe, fetch, check, pin    ✅
+│   └── load_raw.py                    ← every raw table into the warehouse, unchanged       ✅
 ├── notebooks/
 │   ├── explore_raw.py                 ← a first look at what the archive holds              ✅
 │   ├── explore_layer1.py              ← what Layer 1's tables hold                          ✅
-│   └── explore_sources.py             ← a first look at the fetched workbooks and genomes   ✅
+│   ├── explore_sources.py             ← a first look at the fetched workbooks and genomes   ✅
+│   └── explore_warehouse.py           ← what the harmonised warehouse holds                 ✅
 ├── figures/
 │   ├── make_concept_figures.py        ← draws the concept pictures (PNG)                    ✅
 │   ├── make_illustrations.py          ← draws the logo, journey map, journey page           ✅
 │   ├── make_phase2_figures.py         ← draws the Phase 2 pictures, communities page        ✅
+│   ├── make_phase3_figures.py         ← draws the lineage, data model and plant choices     ✅
 │   └── *.png                          ← the pictures themselves                             ✅
 ├── tests/
 │   ├── test_fetch_data.py             ← the download script, offline                        ✅
 │   ├── test_fetch_sources.py          ← the register and the fetcher, offline               ✅
 │   ├── test_explore.py                ← the Phase 2 explorers, on made-up tables            ✅
+│   ├── test_helpers.py                ← the shared helpers                                  ✅
+│   ├── test_load_raw.py               ← the loader, on a made-up project                    ✅
+│   ├── test_warehouse.py              ← loader and dbt on a made-up screen of four strains  ✅
 │   ├── test_safety_gate.py            ← the safety gate refuses what it should              ✅
 │   └── test_docs.py                   ← links work, no look-alike characters                ✅
-├── src/realsignal/                    ← the reusable Python code (grows from Phase 3)       ✅
-├── dbt/                               ← the harmonisation models (Phase 3)                  ⬜
+├── src/realsignal/                    ← the reusable Python code: helpers.py so far         ✅
+├── dbt/                               ← the harmonisation models (Phase 3)                  ✅
+│   ├── dbt_project.yml, profiles.yml  ← settings, the three choices, where the warehouse is ✅
+│   ├── models/                        ← staging, intermediate and marts, with their tests   ✅
+│   ├── macros/, seeds/, tests/        ← one strain name, known differences, 17 more tests   ✅
+│   └── README.md                      ← a map of the folder                                 ✅
 ├── R/                                 ← the authors' R analysis, run as published (Phase 6) ⬜
 ├── app/                               ← the Streamlit prototype (Phase 7)                   ⬜
 ├── api/                               ← the FastAPI backend (Phase 10)                      ⬜
 ├── frontend/                          ← the React and TypeScript web app (Phase 11)         ⬜
 ├── airflow/                           ← the orchestration (Phase 12)                        ⬜
 ├── mcp/                               ← the MCP server (Phase 15)                           ⬜
-└── data/                              ← never in Git: rebuilt by the two fetch scripts
-    └── raw/                           ← the downloaded archive, never edited
-        └── sources/                   ← the other layers, one folder per source
+└── data/                              ← never in Git: rebuilt by the scripts
+    ├── raw/                           ← the downloaded archive, never edited
+    │   └── sources/                   ← the other layers, one folder per source
+    └── warehouse/                     ← realsignal.duckdb: the raw tables and dbt's layers
 ```
 
 **Why `data/` isn't in Git.** Version control is built for text you edit, not a 239 MB archive, and some of the layers come under their publisher's terms rather than an open licence. A script can rebuild the data instead: anyone who clones the repository runs two commands and gets the same bytes from the original sources, each file checked against a published or pinned checksum.
@@ -365,6 +383,11 @@ python notebooks/explore_raw.py        # what the archive holds
 python notebooks/explore_layer1.py     # what Layer 1's tables hold
 python scripts/fetch_sources.py        # the other four layers, each one checked
 python notebooks/explore_sources.py    # what they hold
+python scripts/load_raw.py             # every raw table into the warehouse, unchanged
+cd dbt
+dbt build                              # harmonise and test: 35 models, 187 data tests
+cd ..
+python notebooks/explore_warehouse.py  # what the warehouse holds
 pytest -q                              # the automated tests
 ```
 

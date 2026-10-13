@@ -1,0 +1,327 @@
+# The marts: the tables people and later phases read. Each is described column
+# by column, because these are the names everything after Phase 3 relies on.
+
+version: 2
+
+models:
+  - name: dim_strain
+    description: >
+      One row per strain any source names, with what each layer says about it.
+      A column from a layer is NULL for a strain that layer doesn't cover.
+    columns:
+      - name: strain_id
+        description: "The strain's one name across the project (Leaf15)."
+        data_tests: [unique, not_null]
+      - name: in_screen_library
+        description: "True for the strains of the community screen (counted from the design, not written down)."
+        data_tests: [not_null]
+      - name: collection_group
+        description: "At-LSPHERE, extended, control, other, or positive control."
+        data_tests: [not_null]
+      - name: phylum
+        description: "Taxonomy from the Layer 1 archive's strain list (from Vogel et al. 2021 where only that lists the strain)."
+        data_tests: [not_null]
+      - name: taxonomic_class
+        description: "The class."
+      - name: family
+        description: "The family."
+      - name: genus
+        description: "The genus."
+      - name: family_vogel2021
+        description: "The family Vogel et al. 2021 gives, where it lists the strain."
+      - name: genus_vogel2021
+        description: "The genus Vogel et al. 2021 gives, where it lists the strain."
+      - name: has_genome
+        description: "True if the strain's genome is part of Layer 2."
+        data_tests: [not_null]
+      - name: assembly_accession
+        description: "The genome's RefSeq accession."
+        data_tests: [unique]
+      - name: contigs
+        description: "How many pieces the genome is in."
+      - name: genome_length_bp
+        description: "The genome's length in letters."
+      - name: gc_percent
+        description: "The share of G and C letters, in per cent."
+      - name: clusters_reported
+        description: "Gene clusters, as Table S9 counts them (NULL if the strain wasn't analysed)."
+      - name: clusters_listed
+        description: "Gene clusters, as Table S11 lists them."
+      - name: potentially_inhibitory_clusters
+        description: "Clusters Table S11 marks as possibly making an inhibiting compound."
+      - name: in_interaction_screen
+        description: "True if the strain was on the interaction screen's panels."
+        data_tests: [not_null]
+      - name: inhibits
+        description: "Strains it held back. Zero means none seen; NULL means it wasn't screened."
+        data_tests:
+          - not_null:
+              config:
+                where: "in_interaction_screen"
+      - name: inhibits_strongly
+        description: "Of those, how many strongly."
+      - name: inhibited_by
+        description: "Strains that held it back."
+        data_tests:
+          - not_null:
+              config:
+                where: "in_interaction_screen"
+      - name: inhibited_strongly_by
+        description: "Of those, how many strongly."
+      - name: communities_designed
+        description: "For a screen strain, how many communities of the design hold it."
+        data_tests:
+          - not_null:
+              config:
+                where: "in_screen_library"
+      - name: training_communities
+        description: "Of those, how many are training communities."
+      - name: test_communities
+        description: "Of those, how many are test communities."
+
+  - name: dim_community
+    description: "One row per community of the design, controls included, with its role and how many plants later phases use."
+    columns:
+      - name: community_id
+        description: "The community (Mix1, Mix69, Mix71, axenic)."
+        data_tests: [unique, not_null]
+      - name: label
+        description: "The name the authors' figures use (SynCom-High for Mix69)."
+      - name: community_size
+        description: "How many strains it holds."
+        data_tests: [not_null]
+      - name: kind
+        description: "no strains, whole library, or community."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["no strains", "whole library", "community"]
+      - name: role
+        description: "training, test, or control."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["control", "training", "test"]
+      - name: rounds_grown
+        description: "The rounds it was grown in, such as 'Exp1, Exp2, Exp3'."
+      - name: plants_grown
+        description: "Plants that received it."
+      - name: plants_for_modelling
+        description: "Of those, the plants in marts.model_plants."
+      - name: has_plants_for_modelling
+        description: "False for a community whose plants were all left out."
+
+  - name: community_member
+    description: "Which strains each community holds, one row per pair (a bridge between dim_community and dim_strain)."
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "community_id || '|' || strain_id"
+    columns:
+      - name: community_id
+        description: "The community."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community')
+                field: community_id
+      - name: strain_id
+        description: "A strain it holds."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_strain')
+                field: strain_id
+
+  - name: fct_plant
+    description: "One row per plant: where it grew, what it received, its marks, and whether later phases use it."
+    columns:
+      - name: plant_id
+        description: "Box and position (10_1)."
+        data_tests: [unique, not_null]
+      - name: box_id
+        description: "Its box."
+      - name: position
+        description: "Its place in the box."
+      - name: round_id
+        description: "The round: Exp1, Exp2 or Exp3."
+        data_tests: [not_null]
+      - name: community_id
+        description: "The community it received."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_community')
+                field: community_id
+      - name: pathogen
+        description: "The pathogen it was infected with (Pst), or NULL if none."
+      - name: inclusion_mark
+        description: "Its mark in the 2023 plant file: TRUE, FALSE or TBD."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["TRUE", "FALSE", "TBD"]
+      - name: inclusion_mark_2020
+        description: "Its mark in the 2020 notes."
+      - name: set_aside_reason
+        description: "Why it was set aside, from the 2020 notes."
+      - name: split
+        description: "training, test, between-round reference or control."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["training", "test", "between-round reference", "control"]
+      - name: use_for_modelling
+        description: "True for the plants in marts.model_plants."
+        data_tests: [not_null]
+      - name: not_used_because
+        description: "Why it isn't used, in words."
+        data_tests:
+          - not_null:
+              config:
+                where: "not use_for_modelling"
+      - name: notes
+        description: "The comments the 2020 notes hold for it."
+
+  - name: fct_plant_measurement
+    description: >
+      Every measurement on every plant, one per row: a new kind of measurement
+      becomes more rows, never new columns.
+    columns:
+      - name: measurement_id
+        description: "Plant, measurement and (for one strain's count) strain, joined with |."
+        data_tests: [unique, not_null]
+      - name: plant_id
+        description: "The plant."
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_plant')
+                field: plant_id
+      - name: measurement
+        description: "What was measured."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["pathogen_cfu_per_g", "pathogen_log10_cfu_per_g", "pathogen_log10_normalised",
+                         "fresh_weight", "fresh_weight_normalised",
+                         "commensal_cfu_per_g", "commensal_log10_cfu_per_g",
+                         "strain_cfu_per_g", "strain_log10_cfu_per_g"]
+      - name: strain_id
+        description: "For one strain's count, the strain; otherwise NULL."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_strain')
+                field: strain_id
+      - name: value
+        description: "The value, as published."
+        data_tests: [not_null]
+      - name: unit
+        description: "Its unit."
+        data_tests: [not_null]
+      - name: is_ambiguous
+        description: "For one strain's count: true where two strains share one count."
+      - name: source_table
+        description: "The raw table it came from."
+
+  - name: fct_strain_interaction
+    description: "Every inhibition seen between two strains, one row per pair."
+    columns:
+      - name: interaction_id
+        description: "Inhibitor->sensitive."
+        data_tests: [unique, not_null]
+      - name: inhibitor_strain_id
+        description: "The strain that held the other back."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_strain')
+                field: strain_id
+      - name: sensitive_strain_id
+        description: "The strain held back."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_strain')
+                field: strain_id
+      - name: strength
+        description: "strong, weak, or 'weak; strong'."
+      - name: media
+        description: "The growth media it was seen on."
+      - name: both_in_screen_library
+        description: "True if both strains are in the community screen."
+
+  - name: fct_gene_cluster
+    description: "Every predicted gene cluster, with the length of its contig where the genome is part of Layer 2."
+    columns:
+      - name: gene_cluster_id
+        description: "Strain and cluster number (Leaf15_3)."
+        data_tests: [unique, not_null]
+      - name: strain_id
+        description: "The strain."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_strain')
+                field: strain_id
+      - name: cluster_number
+        description: "Its number within the strain."
+      - name: contig_accession
+        description: "The contig it sits on (GenBank form)."
+      - name: bgc_type
+        description: "The predicted type."
+      - name: potentially_inhibitory
+        description: "True if marked put_inhib."
+      - name: named_compound
+        description: "A compound named in the sheet, where there is one."
+      - name: start_position
+        description: "Start on the contig."
+      - name: end_position
+        description: "End on the contig."
+      - name: gene_count
+        description: "Genes in the cluster."
+      - name: contig_length_bp
+        description: "The contig's length, where its genome is part of Layer 2."
+
+  - name: model_plants
+    description: >
+      The plants Phase 5 trains and tests on, with the outcome to predict
+      (var outcome_measurement). Phase 5 adds the strains of each plant's
+      community from community_member.
+    columns:
+      - name: plant_id
+        description: "The plant."
+        data_tests: [unique, not_null]
+      - name: community_id
+        description: "Its community."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_community')
+                field: community_id
+      - name: round_id
+        description: "Its round."
+      - name: split
+        description: "training or test."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["training", "test"]
+      - name: inclusion_mark
+        description: "TRUE or TBD (FALSE plants are never here)."
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["TRUE", "TBD"]
+      - name: outcome_measurement
+        description: "The measurement used as the outcome."
+      - name: outcome
+        description: "Its value for the plant."
+        data_tests: [not_null]

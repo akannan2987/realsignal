@@ -1,0 +1,38 @@
+# Layer 2: the genomes (Bai et al. 2015), fetched from NCBI RefSeq.
+
+version: 2
+
+models:
+  - name: stg_genomes__contigs
+    description: "One row per contig of every genome, with the strain from sources/files.csv."
+    columns:
+      - name: strain_id
+        description: "The strain, matched through the file name."
+        data_tests: [not_null]
+      - name: assembly_accession
+        description: "The genome's RefSeq accession."
+        data_tests: [not_null]
+      - name: contig_accession
+        description: "The contig as RefSeq writes it (NZ_...)."
+        data_tests: [unique, not_null]
+      - name: genbank_accession
+        description: "The same without NZ_, as GenBank and Supplementary Table 11 write it."
+        data_tests: [unique]
+      - name: description
+        description: "The rest of the FASTA heading line."
+      - name: length_bp
+        description: "How many letters (base pairs) the contig has."
+        data_tests:
+          - not_null
+          - accepted_range:
+              arguments:
+                min_value: 1
+      - name: gc_count
+        description: "How many of them are G or C."
+      - name: file_name
+        description: "The genome file."
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_register__files')
+                field: file_name

@@ -1,0 +1,18 @@
+table_name,source_id,format,path,sheet,header_row,what_it_holds
+screen_design,emmenegger2023_archive,tsv,data/raw/extracted/Data/MetaData/Mini5SynComScreen/20200828_Mixes.txt,,1,"the design: one row per community, one column per strain, 1 if the strain is in it"
+screen_boxes,emmenegger2023_archive,tsv,data/raw/extracted/Data/MetaData/Mini5SynComScreen/20200828_Box.txt,,1,"one row per box of four plants: its community, infection, replicate and round, and a comment"
+screen_plants,emmenegger2023_archive,tsv,data/raw/extracted/Data/CleanData/2023-01-16Mini5SynComScreen_CommentsFile.txt,,1,"one row per plant: its box, community, infection, round and its TRUE, FALSE or TBD mark"
+screen_plant_notes,emmenegger2023_archive,tsv,data/raw/extracted/Data/MetaData/Mini5SynComScreen/20201130_Comments.txt,,1,"the 2020 notes on every plant: its mark at the time, and why a plant was set aside"
+screen_pathogen_load,emmenegger2023_archive,tsv,data/raw/extracted/Data/CleanData/2023-01-16Mini5SynComScreen_PathogenCFUs.txt,,1,"pathogen per gram of leaf for every infected plant, as counted and on a log scale"
+screen_plant_weights,emmenegger2023_archive,tsv,data/raw/extracted/Data/CleanData/2023-01-16Mini5SynComScreen_Weights.txt,,1,"the fresh weight of every plant"
+screen_commensal_load,emmenegger2023_archive,tsv,data/raw/extracted/Data/CleanData/2023-01-16Mini5SynComScreen_TotalCommensalCFU.txt,,1,"all the community's bacteria together, per gram of leaf, for every plant that had a community"
+screen_strain_colonisation,emmenegger2023_archive,tsv,data/raw/extracted/Data/CleanData/2023-01-16Mini5SynComScreen_IndividualStrainColonization.txt,,1,"each community member per gram of leaf, with a flag where two strains couldn't be told apart"
+screen_authors_model_input,emmenegger2023_archive,tsv,data/raw/extracted/Data/EditedData/ML_DataInput/MLData_DF_Ind_TRUE_CommPresence.txt,,1,"one of the authors' machine-learning input tables, used only to check that the rebuilt selection of plants matches it"
+collection_strains,emmenegger2023_archive,tsv,data/raw/extracted/Data/MetaData/AtSPHERE/dataAtLSPHERE.txt,,1,"the strain collection: each strain's taxonomy, and whether its genome was published"
+helfrich_interactions,helfrich2018_supplement,xlsx,data/raw/sources/helfrich2018_supplement/41564_2018_200_MOESM3_ESM.xlsx,Table_S1,3,"every inhibition seen in the strain-against-strain screen, strong or weak"
+helfrich_inhibitor_panel,helfrich2018_supplement,xlsx,data/raw/sources/helfrich2018_supplement/41564_2018_200_MOESM3_ESM.xlsx,Table_S4,4,"the strains tested as inhibitors (only the first column, Inhibitor, is used)"
+helfrich_sensitive_panel,helfrich2018_supplement,xlsx,data/raw/sources/helfrich2018_supplement/41564_2018_200_MOESM3_ESM.xlsx,Table_S24,3,the strains tested as sensitive
+helfrich_bgc_counts,helfrich2018_supplement,xlsx,data/raw/sources/helfrich2018_supplement/41564_2018_200_MOESM3_ESM.xlsx,Table_S9,3,"gene clusters per strain, by class, with a Total column and a Total row"
+helfrich_gene_clusters,helfrich2018_supplement,xlsx,data/raw/sources/helfrich2018_supplement/41564_2018_200_MOESM3_ESM.xlsx,Table_S11,3,"every predicted gene cluster, one per row, with the contig it sits on"
+vogel_strains,vogel2021_supplement,xlsx,data/raw/sources/vogel2021_supplement/41564_2021_997_MOESM3_ESM.xlsx,ST12,3,"the strain list with taxonomy and genome accessions"
+genome_contigs,refseq_genomes,fasta_gz,data/raw/sources/refseq_genomes/*_genomic.fna.gz,,,"one row per contig of every genome: its name, its length and how many of its letters are G or C"

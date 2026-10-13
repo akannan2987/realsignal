@@ -49,7 +49,7 @@ That shape is called a **pipeline**. It works like an assembly line: raw materia
 
 ## 2. The whole system on one page
 
-This is the finished system. Boxes 1 and 2 exist today (Phase 1); the rest arrives phase by phase, as the [Roadmap](ROADMAP.md) sets out.
+This is the finished system. Boxes 1 to 3 and the analysis database (4a) exist today (Phases 1 to 3); the rest arrives phase by phase, as the [Roadmap](ROADMAP.md) sets out.
 
 ```mermaid
 flowchart TD
@@ -77,8 +77,8 @@ flowchart TD
 
     classDef built fill:#E6F4EA,stroke:#4CAF7D,color:#0B3D2E;
     classDef planned fill:#F5F5F5,stroke:#B0B0B0,color:#555555,stroke-dasharray:4 3;
-    class A1,B built
-    class A2,A3,A4,C,D,E,F,G,H,I,J,K,L,M planned
+    class A1,A2,A3,A4,B,C,D built
+    class E,F,G,H,I,J,K,L,M planned
 ```
 
 *Green: built. Dashed grey: planned.* Read as one sentence: take the published datasets about the same bacteria; keep untouched copies; harmonise them onto one strain name with a tested pipeline; store the result as tables for analysis and as a graph for relationships; train models on the training communities only; judge them on communities they never saw and against a separate experiment; serve the results through an API to a prototype, a web app and the AI features; and let an orchestrator run the whole chain.
@@ -95,7 +95,7 @@ Five layers of data from four published studies, all describing the **same strai
 |---|---|---|
 | 1 | 136 training and 70 test communities, with the pathogen measured on every plant | which communities protect? |
 | 2 | each strain's genome | what could each strain do? |
-| 3 | 1,053 predicted gene clusters for natural products | what chemistry can each strain make? |
+| 3 | 1,050 predicted gene clusters for natural products, listed one by one | what chemistry can each strain make? |
 | 4 | more than 50,000 strain-against-strain pairings, 725 of them inhibitory | how do the strains affect each other? |
 | 5 | 224 strains, each tested alone | does the ranking learned from communities hold up? |
 
@@ -131,7 +131,7 @@ When a publisher gives no checksum, the first download's checksum is recorded an
 
 ### The problem
 
-Four studies, from different years and teams. The same strain may be written `Leaf15`, `leaf_15` or `Pseudomonas Leaf15`; tables have different shapes; some strains appear in one source and not another.
+Four studies, from different years and teams. The same strain is `Leaf73` in one column of a table and `73` in the next; two strain lists give different genus names for ten strains; two tables of one paper count a strain's gene clusters differently; tables have different shapes; some strains appear in one source and not another.
 
 **Harmonisation** makes them agree: one name for each thing, one shape, and written rules for what to do when sources disagree. In multi-source work it's usually the largest single job, and it's often done out of sight, inside a script nobody checks.
 
@@ -147,7 +147,9 @@ Imagine three colleagues sending attendance lists for the same meeting, one with
 
 An analysis of broken data rarely crashes. It produces confident, well-formatted, wrong answers, which is far worse than an error message, and that's the reason for testing data as carefully as code.
 
-dbt Core is free and runs here against DuckDB. The same SQL can point at a cloud warehouse by changing one connection profile (optional in Phase 3, [Roadmap section 6](ROADMAP.md#6-tools-left-out-on-purpose-and-why)).
+dbt Core is free and runs here against DuckDB. Most of the same SQL could point at a cloud warehouse through a second connection profile, an optional exercise ([Roadmap section 6](ROADMAP.md#6-tools-left-out-on-purpose-and-why)).
+
+**Built in Phase 3.** `scripts/load_raw.py` loads every raw table into the warehouse, unchanged; dbt then builds 21 staging, 6 intermediate and 8 mart models from them, and 187 data tests check them on every build, including that the three sources of genome information agree and that every gene cluster sits inside its genome. The places where sources disagree are written down in a small table the tests compare with. [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) builds it step by step.
 
 ---
 
@@ -160,13 +162,13 @@ An organised store of tables, built to answer questions quickly. Compare a filin
 **SQL** is the language for asking those questions:
 
 ```sql
-SELECT strain_name, COUNT(*) AS communities_containing
-FROM community_membership
-GROUP BY strain_name
-ORDER BY communities_containing DESC;
+SELECT strain_id, COUNT(*) AS communities
+FROM marts.community_member
+GROUP BY strain_id
+ORDER BY communities DESC;
 ```
 
-*For each strain, count the communities it appears in, most first.* Phase 3 is where you write your first one.
+*For each strain, count the communities it appears in, most first.* You run this one, on the real warehouse, in [Phase 3](04-phase-3-harmonisation.md#your-first-sql-query).
 
 ### Three stores, three jobs
 
@@ -339,6 +341,11 @@ python notebooks/explore_raw.py
 python notebooks/explore_layer1.py
 python scripts/fetch_sources.py --probe
 python scripts/fetch_sources.py
+python scripts/load_raw.py
+cd dbt
+dbt build
+cd ..
+python notebooks/explore_warehouse.py
 ```
 
 **In one go.** By the end, one command (a Python runner, then Airflow) runs the whole pipeline in the right order, with the tests as the last step. This is how the project gets used, and it proves the parts fit together.
@@ -370,7 +377,7 @@ realsignal/
 
 Folders for later phases already exist, each holding an empty `.gitkeep` file, because Git only records folders that contain something. The README's [repository map](../README.md#repository-map) lists every file.
 
-**Why `src/` and `scripts/` are separate.** Code in `src/realsignal/` is written to be *imported*: small functions with one job each, which tests can call directly. Code in `scripts/` is written to be *run*: it reads options, prints progress, and calls functions. A 400-line script is hard to test; a 12-line function isn't. The two download scripts are still self-contained (Phase 2's repeats a few small helpers from Phase 1's); from Phase 3, when a third program needs them, shared code moves into `src/realsignal/`.
+**Why `src/` and `scripts/` are separate.** Code in `src/realsignal/` is written to be *imported*: small functions with one job each, which tests can call directly. Code in `scripts/` is written to be *run*: it reads options, prints progress, and calls functions. A 400-line script is hard to test; a 12-line function isn't. Phase 3 started it: the small helpers the two download scripts had each carried (sizes, paths, banners, checksums, CSV tables) moved into `src/realsignal/helpers.py` when a third program, the loader, needed them too.
 
 **Why `notebooks/` is separate.** Exploration is messy by nature. Jupyter notebooks in particular can be run out of order and give results nobody can repeat, so this project keeps its exploration as plain scripts (`notebooks/explore_raw.py` and `notebooks/explore_layer1.py` are two) that run top to bottom, and anything worth keeping moves into `src/realsignal/` with a test.
 

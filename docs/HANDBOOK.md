@@ -2,7 +2,7 @@
 
 # The RealSignal Handbook: from day 0 to the finished product
 
-**Handbook revision:** 3 · **Last updated:** 2026-10-12 · **Repository state it describes:** Stages 0 to 4 are done: the plan, the setup on a blank computer, the repository with its three branches and the safety gate, Phase 1 (the published dataset downloaded and verified, version v0.1.0) and Phase 2 (Layer 1's tables read, and the other four layers fetched and checked, with a source register that records each one). Stage 5, Phase 3, is next. 36 automated tests.
+**Handbook revision:** 4 · **Last updated:** 2026-10-13 · **Repository state it describes:** Stages 0 to 5 are done: the plan, the setup on a blank computer, the repository with its three branches and the safety gate, Phase 1 (the published dataset downloaded and verified, version v0.1.0), Phase 2 (Layer 1's tables read, and the other four layers fetched and checked, with a source register that records each one) and Phase 3 (every source loaded into one DuckDB warehouse and harmonised with dbt, with the three Layer 1 choices made and 187 data tests, version v0.2.0). Stage 6, Phase 4, is next. 54 automated tests.
 
 **Read this document first, and come back to it whenever you wonder what to do next.** It walks the whole journey in order: understanding the project, preparing a blank computer, building each of the 18 phases, releasing version 1.0, and what lies beyond. At every step it explains *why*, and it links to the guide that holds the detail. If you ever have to hunt through the repository to find your next step, the Handbook has a gap, and that counts as a bug.
 
@@ -63,9 +63,9 @@ flowchart TB
     classDef done fill:#E6F4EA,stroke:#4CAF7D,color:#0B3D2E;
     classDef next fill:#FFF3CD,stroke:#C9A227,color:#4A3B00;
     classDef later fill:#F5F5F5,stroke:#B0B0B0,color:#555555,stroke-dasharray:4 3;
-    class S0,S1,S2,S3,S4 done
-    class S5 next
-    class S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21 later
+    class S0,S1,S2,S3,S4,S5 done
+    class S6 next
+    class S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21 later
 ```
 
 *Green: built and tested. Gold: in progress. Dashed grey: planned.* The Prototype app (Stage 9) sits inside the science group on purpose: a first clickable version halfway through the science keeps asking "who would use this, and for what?" while there's still time to act on the answer.
@@ -77,8 +77,8 @@ flowchart TB
 | 2 | Git | Version control, the three branches and the safety gate | [`docs/01-setup.md`](01-setup.md) sections 12 to 14, [`docs/GIT_WORKFLOW.md`](GIT_WORKFLOW.md) | 30-45 min | ✅ done |
 | 3 | Data | Phase 1: get the real data, verified | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) | about 1 h | ✅ done |
 | 4 | Data | Phase 2: the other four layers, or a record of why not | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) | about 1.5 h | ✅ done |
-| 5 | Data | Phase 3: harmonise everything with dbt | `docs/04-phase-3-harmonisation.md` | ~10 h | ⏳ next |
-| 6 | Data | Phase 4: explore the data | `docs/05-phase-4-exploration.md` | ~6 h | ⬜ planned |
+| 5 | Data | Phase 3: harmonise everything with dbt | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) | 2-3 h | ✅ done |
+| 6 | Data | Phase 4: explore the data | `docs/05-phase-4-exploration.md` | ~6 h | ⏳ next |
 | 7 | Science | Phase 5: reproduce the published models in Python | `docs/06-phase-5-reproduction.md` | ~12 h | ⬜ planned |
 | 8 | Science | Phase 6: run the authors' R code, the three-way comparison | `docs/07-phase-6-original-r-code.md` | ~8 h | ⬜ planned |
 | 9 | Product | Phase 7: the prototype app, online | `docs/08-phase-7-prototype-app.md` | ~10 h | ⬜ planned |
@@ -282,18 +282,50 @@ git switch develop
 
 ## Stage 5: Phase 3, harmonise everything with dbt
 
-**What (planned).** `docs/04-phase-3-harmonisation.md`. Install dbt Core, then write a layered set of SQL models (staging, intermediate, marts) that join every source onto one strain name and one community name, with automated data tests and generated documentation. Three choices Phase 2 found get made here, each written down with its reason: whether to keep the undecided (`TBD`) plants, how to use the two communities grown in every round, and what to do with the two communities that have no plants left ([Phase 2 guide, section 5](03-phase-2-more-sources.md#what-this-settles-and-what-it-leaves-for-later)).
+**What.** Follow [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md).
 
-**Why.** Sources written by different laboratories years apart spell the same strain differently and shape their tables differently. Making them agree is usually the biggest single job in multi-source work, and doing it in dbt keeps every decision visible and tested instead of buried in a script. One rule is set here because it's free now and expensive later: nothing hard-codes 35 strains, five per community, one pathogen or one measurement. The pool size, the community size and the outcome are data, so the same tables could take another strain library.
+1. Read the guide's sections 1 to 4: what harmonising means and why the data is loaded before it's transformed (ELT), dbt from zero, one strain name and one community name, and the files.
+2. Install dbt Core and its DuckDB adapter, and check the workshop: `python -m pip install -r requirements.txt`, then `python scripts/check_env.py`.
+3. Load every raw table into the warehouse, unchanged: `python scripts/load_raw.py --list`, then `python scripts/load_raw.py`.
+4. Go into `dbt/` (`cd dbt`), check the connection with `dbt debug`, read the three Layer 1 choices (the guide's section 8), then build and test everything: `dbt build`.
+5. Write your first SQL query with `dbt show`, then from the project folder: `python notebooks/explore_warehouse.py`.
+6. Draw the pictures (`python figures/make_phase3_figures.py`) and open dbt's own documentation pages (`dbt docs generate`, then `dbt docs serve`, inside `dbt/`).
+7. Change a choice and break a test on purpose (the guide's section 12), then rebuild with a plain `dbt build`.
 
-**Checkpoint (planned).** `dbt build` runs every model and every test without a failure; the lineage graph shows each final table's ancestry; a query lists 136 training and 70 test communities.
-**Commit message (planned):** `feat: harmonise all sources with dbt models and data tests`, tagged **v0.2.0**.
+![Which plants the models will see](../figures/plant_choices.png)
+
+**Why.** Sources written by different laboratories years apart spell the same strain differently and shape their tables differently. Making them agree is usually the biggest single job in multi-source work, and doing it in dbt keeps every decision visible and tested instead of buried in a script. The three choices Phase 2 left open (the undecided plants, the two communities grown in every round, the two communities with no plants left) are made here, each with its reason and a test, and the one a reader may want to change is a setting. One rule is set here because it's free now and expensive later: nothing hard-codes 35 strains, five per community, one pathogen or one measurement. A test runs the whole pipeline on a made-up screen of four strains in communities of two to show it.
+
+**Checkpoint.** `python scripts/check_env.py` lists twelve packages, `dbt-core` and `dbt-duckdb` among them. `python scripts/load_raw.py` loads 20 tables (13,908 rows) into `data/warehouse/realsignal.duckdb`. Inside `dbt/`, `dbt debug` ends with `All checks passed!` and `dbt build` with `Done. PASS=223 WARN=0 ERROR=0` (35 models, 1 seed and 187 data tests). `python notebooks/explore_warehouse.py` reports 285 strains (35 in the screen, 34 of them with a genome), 136 training and 70 test communities (134 and 70 with plants for modelling), and 808 plants for modelling, 120 of them `TBD`: the same plants as the authors' table. The tests located the three gene clusters on which Tables S9 and S11 disagree (one each for Leaf61, Leaf130 and Leaf182), record Leaf168, Leaf371 and Leaf454 as screened with no inhibition seen, and confirm that all 191 gene clusters of the 34 strains with a genome sit inside their contigs. `python figures/make_phase3_figures.py` draws three pictures. `pytest -q` passes 54 tests (47 passed and 7 skipped from Windows PowerShell). `git status` shows nothing under `data/` or `dbt/target/`.
+**Save it.** This stage completes **v0.2.0**, and the changelog's `[Unreleased]` entry for Phase 2 moves under `[0.2.0]` with it. The pictures first, then the checks; stop if either check fails:
+
+```bash
+python figures/make_phase3_figures.py    # the guides link to these pictures
+pytest -q                                # 54 passed
+./check-public-safe.sh                   # must end with: SAFE TO PUSH
+```
+
+Then save:
+
+```bash
+git switch develop
+git add -A
+git commit -m "feat: harmonise all sources with dbt models and data tests"
+git push origin develop develop:beta develop:master
+## --tags is optional, only when required: this stage completes v0.2.0
+git tag -a v0.2.0 -m "v0.2.0: every source harmonised in a tested dbt project"
+git push origin develop develop:beta develop:master --tags
+## then switch back to local master and pull in the remote changes
+git switch master
+git pull --ff-only origin master
+git switch develop
+```
 
 ---
 
 ## Stage 6: Phase 4, explore the data
 
-**What (planned).** `docs/05-phase-4-exploration.md`. Distributions, the two-humped shape of the pathogen counts, how often each strain appears, missing values and outliers, with the first figures from the real data and a short data-quality report.
+**What (planned).** `docs/05-phase-4-exploration.md`. Distributions, the two-humped shape of the pathogen counts, how often each strain appears, missing values and outliers, how much the three rounds differ (the two reference communities grown in every round show it, and Phase 3 kept their earlier plants for this), with the first figures from the real data and a short data-quality report. It reads the marts Phase 3 built.
 
 **Why.** Looking comes before modelling. A problem spotted in a histogram costs minutes; the same problem found after training a model costs days, because by then it looks like a modelling bug. This stage also shows why bacterial counts are read on a log scale ([`figures/log_scale.png`](../figures/log_scale.png)).
 
@@ -495,6 +527,19 @@ python notebooks/explore_sources.py                        # what arrived
 python figures/make_phase2_figures.py                      # the Phase 2 pictures and communities.html
 python figures/make_concept_figures.py                     # redraws the layers picture from the register
 
+# Stage 5, Phase 3: harmonise everything with dbt          (docs/04-phase-3-harmonisation.md)
+python -m pip install -r requirements.txt                  # adds dbt-core and dbt-duckdb
+python scripts/check_env.py                                # twelve packages
+python scripts/load_raw.py --list                          # what gets loaded
+python scripts/load_raw.py                                 # every raw table into the warehouse, unchanged
+cd dbt                                                     # dbt runs from inside dbt/
+dbt debug                                                  # can dbt find its files and the warehouse?
+dbt build                                                  # every model, the seed and every test
+dbt docs generate                                          # the documentation pages (dbt docs serve opens them)
+cd ..
+python notebooks/explore_warehouse.py                      # what the warehouse holds
+python figures/make_phase3_figures.py                      # lineage, data model, plant choices
+
 # Every stage ends with
 pytest -q
 ./check-public-safe.sh                                     # Windows: bash check-public-safe.sh in Git Bash
@@ -528,9 +573,17 @@ Then the end-of-phase ritual (Stage 2) when the stage is complete.
 | the Phase 2 probe says `NOT REACHED  HTTP 403` for a journal file, or the fetch says `the server sent something else` | download the workbook by hand from the article page and put it in `data/raw/sources/<source_id>/` under the name in `sources/files.csv` ([Phase 2 mini-FAQ](03-phase-2-more-sources.md#16-what-could-go-wrong-mini-faq)) |
 | a genome line says `FAILED` | run `python scripts/fetch_sources.py` again; only the missing files are fetched |
 | `MISMATCH with pinned SHA-256` | the workbook isn't the one that was pinned: never re-pin to silence it ([Phase 2 mini-FAQ](03-phase-2-more-sources.md#16-what-could-go-wrong-mini-faq)) |
-| `pytest -q` says `missing file ../figures/...png` | a guide links to a picture not drawn on this computer yet: run the figure scripts (`python figures/make_concept_figures.py`, `python figures/make_illustrations.py`, `python figures/make_phase2_figures.py`), then the tests again |
+| `pytest -q` says `missing file ../figures/...png` | a guide links to a picture not drawn on this computer yet: run the figure scripts (`python figures/make_concept_figures.py`, `python figures/make_illustrations.py`, `python figures/make_phase2_figures.py`, `python figures/make_phase3_figures.py`), then the tests again |
 | `Nothing fetched yet` from `notebooks/explore_sources.py` | run `python scripts/fetch_sources.py` first |
 | `ModuleNotFoundError: No module named 'openpyxl'` | the packages aren't installed in the active environment: `python -m pip install -r requirements.txt` |
+| `pip install` stops at `dbt-core-experimental-parser` with `CERTIFICATE_VERIFY_FAILED` (Mac, Python from python.org) | Python's certificates were never installed: `sh "/Applications/Python 3.14/Install Certificates.command"` once, then install again ([Phase 3 mini-FAQ](04-phase-3-harmonisation.md#18-what-could-go-wrong-mini-faq)) |
+| `dbt: command not found`, or `dbt is not recognized` | the virtual environment isn't active, or dbt isn't installed in it: activate it, then `python -m pip install -r requirements.txt` |
+| dbt says `Path '/Users/<you>/.dbt' does not exist` or `No dbt_project.yml found` | dbt was started from the project folder: `cd dbt` first ([Phase 3 mini-FAQ](04-phase-3-harmonisation.md#18-what-could-go-wrong-mini-faq)) |
+| `Catalog Error: Table with name ... does not exist` during `dbt build` | the raw tables aren't loaded: `python scripts/load_raw.py` from the project folder, then `dbt build` again |
+| `Could not set lock on file`, or `scripts/load_raw.py` says the warehouse is open in another program | close the other program holding `data/warehouse/realsignal.duckdb` (a Python session, a database viewer, a dbt command still running) |
+| a dbt test fails | `dbt show --select <the test's name>` shows the rows it found; after an experiment with `--vars`, a plain `dbt build` first ([Phase 3 mini-FAQ](04-phase-3-harmonisation.md#18-what-could-go-wrong-mini-faq)) |
+| `dbt docs serve` says the address is in use | another program uses port 8080: `dbt docs serve --port 8081` |
+| `git status` lists `dbt/target/` or `dbt/logs/` | your `.gitignore` is older than Phase 3: compare it with [`docs/01-setup.md` section 11](01-setup.md#11-keep-things-out-of-git-with-gitignore) |
 | Windows: `The filename or extension is too long` | move the project closer to `C:\`, or switch on long paths ([Phase 1 mini-FAQ](02-phase-1-data-acquisition.md#15-what-could-go-wrong-mini-faq)) |
 | `git status` lists files under `data/` | stop: `.gitignore` isn't working ([`docs/01-setup.md` section 11](01-setup.md#11-keep-things-out-of-git-with-gitignore)) |
 | the safety gate says NOT SAFE | read the line marked ✗; it names the file and the fix. Never weaken the check ([`docs/01-setup.md` section 13](01-setup.md#13-the-safety-gate)) |
@@ -542,7 +595,7 @@ Then the end-of-phase ritual (Stage 2) when the stage is complete.
 | `git push` is rejected | GitHub has commits your computer doesn't; pull first ([`docs/GIT_WORKFLOW.md` section 8](GIT_WORKFLOW.md#8-five-situations-that-confuse-everyone-and-their-fixes)) |
 | you edited files on the wrong branch | [`docs/GIT_WORKFLOW.md` section 8](GIT_WORKFLOW.md#8-five-situations-that-confuse-everyone-and-their-fixes) |
 | a word you don't know | the [Glossary](GLOSSARY.md) |
-| a figure looks wrong or is missing | run the script that draws it again: `python figures/make_concept_figures.py`, `python figures/make_illustrations.py` or `python figures/make_phase2_figures.py` |
+| a figure looks wrong or is missing | run the script that draws it again: `python figures/make_concept_figures.py`, `python figures/make_illustrations.py`, `python figures/make_phase2_figures.py` or `python figures/make_phase3_figures.py` |
 
 ## Every file in the repository, and where it is explained
 
@@ -558,8 +611,8 @@ Every file in the repository is listed here with the guide that explains it. Pat
 | `setup.sh`, `setup.ps1` | one-command setup for macOS/Linux and for Windows PowerShell, once Python is installed | [`docs/01-setup.md`](01-setup.md) section 16 |
 | `.gitignore` | what Git must never record | [`docs/01-setup.md`](01-setup.md) section 11 |
 | `check-public-safe.sh` | the safety gate, run before every push | [`docs/01-setup.md`](01-setup.md) section 13 |
-| `pytest.ini` | tells the tests where to look (only in `tests/`) | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 12 |
-| `scripts/check_env.py` | proves the setup works | [`docs/01-setup.md`](01-setup.md) section 10 |
+| `pytest.ini` | tells the tests where to look (only in `tests/`), and lets them import from `src/` | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 12, [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 4 |
+| `scripts/check_env.py` | proves the setup works: Python, the virtual environment and the twelve packages | [`docs/01-setup.md`](01-setup.md) section 10 |
 | `scripts/fetch_data.py` | probe, download, verify, unpack, list and log the published archive | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) |
 | `notebooks/explore_raw.py` | a first look at what the archive contains | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 8 |
 | `sources/register.csv` | the source register: every data source, its terms, status and date | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) sections 2 and 4 |
@@ -567,23 +620,41 @@ Every file in the repository is listed here with the guide that explains it. Pat
 | `scripts/fetch_sources.py` | list, probe, fetch, check and log the other layers, and record the outcome | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) sections 6 to 8 |
 | `notebooks/explore_layer1.py` | what Layer 1's tables hold: training and test communities, plants set aside, the machine-learning table | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 5 |
 | `notebooks/explore_sources.py` | a first look at the fetched workbooks and genomes | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 9 |
-| `src/realsignal/__init__.py` | marks the folder as a Python package; the reusable code grows here from Phase 3 | [`docs/00-architecture.md`](00-architecture.md) section 14 |
+| `sources/tables.csv` | every raw table to load into the warehouse: its source, file, sheet and heading row | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 4 |
+| `scripts/load_raw.py` | list and load the raw tables into `data/warehouse/realsignal.duckdb`, unchanged, with a load log | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 6 |
+| `dbt/dbt_project.yml`, `dbt/profiles.yml` | the dbt project's settings and choices (vars), and where the warehouse is | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 7 |
+| `dbt/README.md` | a map of the dbt folder | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 4 |
+| `dbt/models/staging/` | the raw tables' declaration (`_sources.yml`) and 21 staging models in six folders, each with a `.yml` of descriptions and tests | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) sections 2, 3 and 9 |
+| `dbt/models/intermediate/` | six models where the sources meet; `int_plants.sql` applies the three Layer 1 choices | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 8 |
+| `dbt/models/marts/` | the eight tables later phases read, and their `.yml` | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) sections 9 and 10 |
+| `dbt/models/overview.md` | the front page of dbt's documentation pages | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 11 |
+| `dbt/macros/` | `strain_id()` and `looks_like_strain()`, `in_list()`, and the schema names | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) sections 3 and 7 |
+| `dbt/seeds/` | `known_source_differences.csv`, every place two sources disagree, and its `.yml` | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 9 |
+| `dbt/tests/` | 17 singular data tests, and the generic test `generic/accepted_range.sql` | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 9 |
+| `notebooks/explore_warehouse.py` | what the warehouse holds, from queries on the marts | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 10 |
+| `src/realsignal/__init__.py` | marks the folder as a Python package | [`docs/00-architecture.md`](00-architecture.md) section 14 |
+| `src/realsignal/helpers.py` | the small helpers three scripts share: sizes, paths, banners, checksums, CSV tables | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 4 |
 | `tests/test_fetch_data.py` | checks the download script offline, with a tiny stand-in archive | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 12 |
 | `tests/test_safety_gate.py` | checks that the safety gate refuses what it should | [`docs/01-setup.md`](01-setup.md) section 13 |
 | `tests/test_docs.py` | every link between the documents works, no look-alike characters, the Handbook and the journey map agree | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 12 |
 | `tests/test_fetch_sources.py` | checks the register, and the fetcher against a stand-in web server, offline | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 13 |
 | `tests/test_explore.py` | checks both Phase 2 explorers on tiny made-up tables | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 13 |
+| `tests/test_helpers.py` | checks the shared helpers | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 15 |
+| `tests/test_load_raw.py` | checks the loader on a made-up project | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 15 |
+| `tests/test_warehouse.py` | runs the loader and the whole dbt project on a made-up screen of four strains in communities of two | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 15 |
 | `figures/make_concept_figures.py`, `figures/*.png` | the concept pictures and the combinations page; the layers picture reads its statuses from `sources/register.csv` | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 9 |
 | `figures/make_illustrations.py` | the logo, icon, wordmark, journey map and the interactive journey | [How this Handbook is maintained](#how-this-handbook-is-maintained) |
 | `figures/make_phase2_figures.py` | the three Phase 2 pictures (`three_checks.png`, `source_register.png`, `layer1_rounds.png`) and the communities page | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 10 |
+| `figures/make_phase3_figures.py` | the three Phase 3 pictures: `lineage.png` and `data_model.png` from dbt's manifest, `plant_choices.png` from the warehouse | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 11 |
 | `docs/*.md` | the guides, glossary, roadmaps and this Handbook | this table |
 | `docs/img/*.svg` | the logo, icon, wordmark and journey map | `figures/make_illustrations.py` |
 | `docs/interactive/journey.html` | this Handbook's journey as a page you can click, built from this file | `figures/make_illustrations.py` |
 | `docs/interactive/combinations.html` | how many communities exist, and how long testing them all would take | `figures/make_concept_figures.py` |
 | `docs/interactive/communities.html` | all 206 communities of the screen: pick strains, see which training and test communities hold them | `figures/make_phase2_figures.py` |
 | `docs/index.html`, `docs/.nojekyll` | the front page of the optional GitHub Pages site, and the marker that publishes the folder as it is | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 9 |
-| `R/`, `dbt/`, `api/`, `app/`, `frontend/`, `airflow/`, `mcp/` | empty folders kept by a `.gitkeep` file, one for each phase that will fill it | [`docs/00-architecture.md`](00-architecture.md) section 14 |
-| `data/` | the downloaded files and everything made from them: **never in Git**. `data/raw/` (the archive) is rebuilt by `scripts/fetch_data.py`, `data/raw/sources/` (the other layers) by `scripts/fetch_sources.py` | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md), [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) |
+| `R/`, `api/`, `app/`, `frontend/`, `airflow/`, `mcp/` | empty folders kept by a `.gitkeep` file, one for each phase that will fill it | [`docs/00-architecture.md`](00-architecture.md) section 14 |
+| `data/` | the downloaded files and everything made from them: **never in Git**. `data/raw/` (the archive) is rebuilt by `scripts/fetch_data.py`, `data/raw/sources/` (the other layers) by `scripts/fetch_sources.py`, and `data/warehouse/realsignal.duckdb` by `scripts/load_raw.py` and `dbt build` | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md), [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md), [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) |
+| `dbt/target/`, `dbt/logs/` | what dbt writes each time it runs (compiled SQL, results, the documentation pages, its log): **never in Git**, made again on every run | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 11 |
 
 ## How this Handbook is maintained
 

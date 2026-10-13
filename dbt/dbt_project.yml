@@ -1,0 +1,60 @@
+# dbt/dbt_project.yml: the settings of the RealSignal dbt project.
+#
+# dbt reads this file first. It names the project, says which connection
+# profile to use (dbt/profiles.yml), where each kind of file lives, and how
+# each layer of models is stored. Explained in
+# docs/04-phase-3-harmonisation.md, section 7.
+
+name: realsignal
+version: "0.2.0"
+config-version: 2
+profile: realsignal
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"            # compiled SQL, run results and the docs site
+clean-targets: ["target", "logs"]
+
+# dbt Core sends anonymous usage statistics to dbt Labs unless told not to.
+# This project keeps everything on your own computer, so it's switched off.
+flags:
+  send_anonymous_usage_stats: false
+
+# Settings the models read with var('...'). Each one is a decision that a
+# reader may want to change, so it lives here, in one place, with its reason.
+# Override one for a single run without editing this file:
+#     dbt build --vars "{keep_undecided_plants: false}"
+vars:
+  # Choice 1: plants marked TBD ("to be decided") after their box was dropped
+  # and the plants recovered. true keeps them for modelling, as the authors'
+  # own machine-learning tables do; false leaves them out.
+  keep_undecided_plants: true
+  # The round (or rounds) whose new communities are kept back for testing.
+  test_rounds: ["Exp3"]
+  # How the plant file writes "no pathogen given".
+  no_pathogen_code: "NI"
+  # The measurement later phases predict, by its name in
+  # marts.fct_plant_measurement.
+  outcome_measurement: "pathogen_log10_cfu_per_g"
+
+# How each layer is stored. A view is a saved query, rebuilt every time it's
+# read; a table is stored data. Staging and intermediate models are small
+# steps, so views; the marts are what people and programs read, so tables.
+# +schema puts each layer in its own schema (macros/generate_schema_name.sql).
+models:
+  realsignal:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  realsignal:
+    +schema: reference

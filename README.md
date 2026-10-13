@@ -2,12 +2,12 @@
 
 ![RealSignal: reproduce, check and extend a published result](docs/img/realsignal_logo.svg)
 
-**Version:** v0.2.0 (3 of 18 phases done: the published data downloaded and verified, the four other data layers fetched and checked, and all five harmonised into one tested warehouse with dbt) · **Interactive figures:** [`docs/interactive/`](docs/interactive/), or online once GitHub Pages is switched on ([how](docs/02-phase-1-data-acquisition.md#optional-publish-the-interactive-pages-with-github-pages))
+**Version:** v0.2.0, plus Phase 4 (4 of 18 phases done: the published data downloaded and verified, the four other data layers fetched and checked, all five harmonised into one tested warehouse with dbt, and the result explored with the test set sealed) · **Interactive figures:** [`docs/interactive/`](docs/interactive/), or online once GitHub Pages is switched on ([how](docs/02-phase-1-data-acquisition.md#optional-publish-the-interactive-pages-with-github-pages))
 · ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
 ![tests](https://img.shields.io/badge/tests-pytest-0A9EDC?logo=pytest&logoColor=white)
 ![data](https://img.shields.io/badge/data-real%2C%20published%2C%20CC--BY%204.0-1a7f37)
 ![license](https://img.shields.io/badge/license-MIT-blue)
-![status](https://img.shields.io/badge/status-phase%203%20of%2018%20done-orange)
+![status](https://img.shields.io/badge/status-phase%204%20of%2018%20done-orange)
 ![dbt](https://img.shields.io/badge/dbt-187%20data%20tests-FF694B?logo=dbt&logoColor=white)
 ![platform](https://img.shields.io/badge/runs%20on-Windows%20%7C%20macOS%20%7C%20Linux%20(RHEL%208)-informational)
 
@@ -200,7 +200,8 @@ Results appear here as each phase is finished, including the published numbers b
 | 1 | the published archive (239,154,876 bytes) downloads and matches its published MD5 checksum. It holds 342 files: 53 data files the authors started from, 183 that their code wrote (results for eight random seeds and most of the supplementary tables), 22 R scripts and 76 figure PDFs ([details](docs/02-phase-1-data-acquisition.md#what-the-archive-holds)) |
 | 2 | Layer 1's tables read: 136 training communities (rounds 1 and 2), 68 new test communities plus two reference communities grown in every round (round 3); 144 infected plants marked undecided after their boxes were dropped, and 16 left out. The authors' 12 per-plant machine-learning tables rebuild exactly from the plant file and keep the 120 undecided plants in five-strain communities. Layers 2 to 5 fetched: 34 genomes matching NCBI's published MD5, two workbooks pinned by SHA-256, 48.5 MB in all ([details](docs/03-phase-2-more-sources.md#5-step-1-open-layer-1s-tables)) |
 | 3 | all five layers in one warehouse, checked by 187 data tests. The three choices Phase 2 left are made: the 120 undecided plants are kept (leaving them out would empty 34 communities) as a setting Phase 5 can switch; `Mix69` and `Mix70` are test communities, with their 16 earlier plants kept only for comparing rounds; `Mix54` and `Mix73` keep their rows with no plants (136 training communities designed, 134 with plants). The rebuilt choice of plants is the authors', plant for plant (808). Tables S9 and S11 disagree for three strains (Leaf61, Leaf130, Leaf182), and the two strain lists on 7 families and 10 genera, all written down in a list the tests check; all 191 gene clusters of the 34 strains with a genome sit inside their contigs ([details](docs/04-phase-3-harmonisation.md#9-step-4-build-and-test-everything)) |
-| 4 onwards | not run yet |
+| 4 | the training outcome has two humps, near 4.91 and 7.81 on the log scale with the dip at 5.71, and on the ordinary scale a tenth of the plants carry 68 % of the pathogen. The plants with no strains stay near 9.0 in every round, while the reference and whole-library plants came out about one log unit higher in round 2 than in round 1; the authors' normalised pathogen value is the count minus the round's no-strain median (655 of 655 plants match), so it doesn't remove that. Nothing is missing among the 808 plants used for modelling; 22 plants sit far from their community and are kept; 0.69 of the variation lies between communities. One strain at a time, `Leaf76`, `Leaf68` and `Leaf15` stand out beyond what 1,000 shuffles give by chance, and of the other layers' properties only genome length lines up. No value measured on a test plant was read ([details](docs/05-phase-4-exploration.md#13-what-this-means-for-phase-5), [report](docs/reports/data-quality.md)) |
+| 5 onwards | not run yet |
 
 ---
 
@@ -213,7 +214,7 @@ The full plan, with effort estimates and the reasons behind every tool chosen an
 | 1 | Data acquisition: verified, logged, safe to re-run | Data | v0.1.0 | ✅ done |
 | 2 | The other data layers, or a record of why not | Data | n/a | ✅ done |
 | 3 | Harmonisation with dbt: one strain name, tested, documented | Data | v0.2.0 | ✅ done |
-| 4 | Exploration: distributions, data quality, first figures | Data | n/a | ⬜ |
+| 4 | Exploration: distributions, data quality, first figures, test set sealed | Data | n/a | ✅ done |
 | 5 | Reproduction of the published models in Python, with MLflow | Science | v0.3.0 | ⬜ |
 | 6 | **The original R analysis:** run the authors' code in R and RStudio; the three-way comparison | Science | v0.4.0 | ⬜ |
 | 7 | Streamlit prototype, online | Product | v0.5.0 | ⬜ |
@@ -245,7 +246,8 @@ Every step from an empty laptop to a working system is taught in `docs/`, for so
 | 02 | [Phase 1: data acquisition](docs/02-phase-1-data-acquisition.md) | permanent archives, DOIs, checksums, read-only raw data, provenance |
 | 03 | [Phase 2: the other data layers](docs/03-phase-2-more-sources.md) | reading tables you didn't write, a source register, free to read versus free to reuse, published and pinned checksums |
 | 04 | [Phase 3: harmonisation with dbt](docs/04-phase-3-harmonisation.md) | ELT, a warehouse, dbt from zero (models, tests, seeds, lineage), one strain name, decisions about data written down as settings |
-| 05 to 19 | the phase guides for Phases 4 to 18 | one guide per phase, added as each phase is built |
+| 05 | [Phase 4: exploration](docs/05-phase-4-exploration.md) | medians, quartiles and histograms, log scales, two humps and class balance, batch effects, missing values and outliers, the shuffle test, a sealed test set, a report that rebuilds byte for byte |
+| 06 to 19 | the phase guides for Phases 5 to 18 | one guide per phase, added as each phase is built |
 | n/a | [Git workflow](docs/GIT_WORKFLOW.md) | branches from zero, and the commands at the end of every phase |
 | n/a | [Containers](docs/CONTAINERS.md) | what a container is, Docker and Podman, and running the whole system with one command |
 | n/a | [Roadmap](docs/ROADMAP.md) | the 18 phases, the version tags, the effort, and the tools left out on purpose |
@@ -291,12 +293,14 @@ realsignal/
 │   ├── 02-phase-1-data-acquisition.md ← Phase 1: the verified download                      ✅
 │   ├── 03-phase-2-more-sources.md     ← Phase 2: Layer 1 read, the other layers fetched     ✅
 │   ├── 04-phase-3-harmonisation.md    ← Phase 3: the warehouse, harmonised with dbt         ✅
-│   ├── 05 to 19                       ← one guide per phase, Phases 4 to 18                 ⬜
+│   ├── 05-phase-4-exploration.md      ← Phase 4: the data explored, test set sealed         ✅
+│   ├── 06 to 19                       ← one guide per phase, Phases 5 to 18                 ⬜
 │   ├── GIT_WORKFLOW.md                ← branches and the end-of-phase ritual                ✅
 │   ├── CONTAINERS.md                  ← containers from zero, Docker and Podman             ✅
 │   ├── ROADMAP.md                     ← the 18 phases, tags, effort, tools left out         ✅
 │   ├── PRODUCT_ROADMAP.md             ← beyond the repository                               ✅
 │   ├── GLOSSARY.md                    ← every term, in plain language                       ✅
+│   ├── reports/data-quality.md        ← the data-quality report, written by a script        ✅
 │   ├── img/                           ← logo, icon, wordmark and journey map (SVG)          ✅
 │   ├── interactive/                   ← pages to click: journey, combinations, communities  ✅
 │   └── index.html, .nojekyll          ← the front page of the optional GitHub Pages site    ✅
@@ -309,17 +313,20 @@ realsignal/
 │   ├── check_env.py                   ← proves the setup works                              ✅
 │   ├── fetch_data.py                  ← probe, download, verify, unpack, list, log          ✅
 │   ├── fetch_sources.py               ← the other layers: list, probe, fetch, check, pin    ✅
-│   └── load_raw.py                    ← every raw table into the warehouse, unchanged       ✅
+│   ├── load_raw.py                    ← every raw table into the warehouse, unchanged       ✅
+│   └── make_quality_report.py         ← writes docs/reports/data-quality.md                 ✅
 ├── notebooks/
 │   ├── explore_raw.py                 ← a first look at what the archive holds              ✅
 │   ├── explore_layer1.py              ← what Layer 1's tables hold                          ✅
 │   ├── explore_sources.py             ← a first look at the fetched workbooks and genomes   ✅
-│   └── explore_warehouse.py           ← what the harmonised warehouse holds                 ✅
+│   ├── explore_warehouse.py           ← what the harmonised warehouse holds                 ✅
+│   └── explore_marts.py               ← seven questions before modelling, test set sealed   ✅
 ├── figures/
 │   ├── make_concept_figures.py        ← draws the concept pictures (PNG)                    ✅
 │   ├── make_illustrations.py          ← draws the logo, journey map, journey page           ✅
 │   ├── make_phase2_figures.py         ← draws the Phase 2 pictures, communities page        ✅
 │   ├── make_phase3_figures.py         ← draws the lineage, data model and plant choices     ✅
+│   ├── make_phase4_figures.py         ← draws the first pictures of measured values         ✅
 │   └── *.png                          ← the pictures themselves                             ✅
 ├── tests/
 │   ├── test_fetch_data.py             ← the download script, offline                        ✅
@@ -328,9 +335,10 @@ realsignal/
 │   ├── test_helpers.py                ← the shared helpers                                  ✅
 │   ├── test_load_raw.py               ← the loader, on a made-up project                    ✅
 │   ├── test_warehouse.py              ← loader and dbt on a made-up screen of four strains  ✅
+│   ├── test_exploration.py            ← the Phase 4 questions and the seal, made-up data    ✅
 │   ├── test_safety_gate.py            ← the safety gate refuses what it should              ✅
 │   └── test_docs.py                   ← links work, no look-alike characters                ✅
-├── src/realsignal/                    ← the reusable Python code: helpers.py so far         ✅
+├── src/realsignal/                    ← the reusable Python code: helpers, exploration      ✅
 ├── dbt/                               ← the harmonisation models (Phase 3)                  ✅
 │   ├── dbt_project.yml, profiles.yml  ← settings, the three choices, where the warehouse is ✅
 │   ├── models/                        ← staging, intermediate and marts, with their tests   ✅
@@ -388,6 +396,8 @@ cd dbt
 dbt build                              # harmonise and test: 35 models, 187 data tests
 cd ..
 python notebooks/explore_warehouse.py  # what the warehouse holds
+python notebooks/explore_marts.py      # seven questions before modelling
+python scripts/make_quality_report.py  # the data-quality report
 pytest -q                              # the automated tests
 ```
 

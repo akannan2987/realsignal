@@ -224,7 +224,7 @@ Train a model, ask it to predict the data it was trained on, and it scores 99 %.
 
 ### The defences
 
-1. **A held-out test set.** The original study ran a *separate experiment* with 70 new communities. They're kept aside and used once, at the end. That's stronger than splitting one dataset in two, because a split still shares every quirk of a single experimental run.
+1. **A held-out test set.** The original study ran a *separate experiment* with 70 new communities. They're kept aside and used once, at the end. That's stronger than splitting one dataset in two, because a split still shares every quirk of a single experimental run. Keeping them aside starts before any model: while the data is explored (Phase 4), the test plants are counted but no value measured on one is read, and a test checks it, so no choice made along the way can have been shaped by them.
 2. **Cross-validation while developing.** Split the training data into five parts, train on four, test on the fifth, and rotate, like sitting five practice papers before the real exam.
 3. **Keeping groups together.** Several plants received the same community. If plants of one community landed on both sides of a split, the model would be tested on something it had in effect already seen, a mistake called **data leakage**. The rebuild keeps every community's plants together, and a test fails if that's ever broken.
 4. **Baselines.** Every score is reported next to what a trivial strategy achieves. "84 % accurate" is impressive if guessing gives 50 % and poor if guessing gives 83 %.
@@ -346,6 +346,8 @@ cd dbt
 dbt build
 cd ..
 python notebooks/explore_warehouse.py
+python notebooks/explore_marts.py
+python scripts/make_quality_report.py
 ```
 
 **In one go.** By the end, one command (a Python runner, then Airflow) runs the whole pipeline in the right order, with the tests as the last step. This is how the project gets used, and it proves the parts fit together.
@@ -358,7 +360,7 @@ Both call the same functions.
 
 ```
 realsignal/
-├── docs/            ← the guides, the Handbook first
+├── docs/            ← the guides, the Handbook first, and reports/ written by scripts
 ├── sources/         ← the source register: what is fetched, from where, on what terms
 ├── scripts/         ← programs you run by hand, one job each
 ├── src/realsignal/  ← reusable, tested functions that scripts and apps import
@@ -377,9 +379,9 @@ realsignal/
 
 Folders for later phases already exist, each holding an empty `.gitkeep` file, because Git only records folders that contain something. The README's [repository map](../README.md#repository-map) lists every file.
 
-**Why `src/` and `scripts/` are separate.** Code in `src/realsignal/` is written to be *imported*: small functions with one job each, which tests can call directly. Code in `scripts/` is written to be *run*: it reads options, prints progress, and calls functions. A 400-line script is hard to test; a 12-line function isn't. Phase 3 started it: the small helpers the two download scripts had each carried (sizes, paths, banners, checksums, CSV tables) moved into `src/realsignal/helpers.py` when a third program, the loader, needed them too.
+**Why `src/` and `scripts/` are separate.** Code in `src/realsignal/` is written to be *imported*: small functions with one job each, which tests can call directly. Code in `scripts/` is written to be *run*: it reads options, prints progress, and calls functions. A 400-line script is hard to test; a 12-line function isn't. Phase 3 started it: the small helpers the two download scripts had each carried (sizes, paths, banners, checksums, CSV tables) moved into `src/realsignal/helpers.py` when a third program, the loader, needed them too. Phase 4 added `src/realsignal/exploration.py`, whose seven questions feed three programs (the explorer, the report and the pictures), so the three can't disagree.
 
-**Why `notebooks/` is separate.** Exploration is messy by nature. Jupyter notebooks in particular can be run out of order and give results nobody can repeat, so this project keeps its exploration as plain scripts (`notebooks/explore_raw.py` and `notebooks/explore_layer1.py` are two) that run top to bottom, and anything worth keeping moves into `src/realsignal/` with a test.
+**Why `notebooks/` is separate.** Exploration is messy by nature. Jupyter notebooks in particular can be run out of order and give results nobody can repeat, so this project keeps its exploration as plain scripts (`notebooks/explore_raw.py` and `notebooks/explore_layer1.py` are two) that run top to bottom, and anything worth keeping moves into `src/realsignal/` with a test. `notebooks/explore_marts.py` from Phase 4 shows where that leads: the questions moved into `src/realsignal/exploration.py`, and the script only prints the answers.
 
 **Why `data/` isn't in Git.** Git is built for text you edit, not large archives. And if a script can rebuild the data, the script working is the proof: anyone can clone the repository, run one command, and get the same bytes, verified by checksum.
 

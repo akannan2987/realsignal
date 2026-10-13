@@ -314,7 +314,7 @@ def fetch_pipeline_figure():
 def log_scale_figure():
     fig, ax = canvas(1100, 470)
     ax.text(40, 445, "Why counts of bacteria are drawn on a log scale", fontsize=19, fontweight="bold", va="top")
-    ax.text(40, 413, "The pathogen counts in this study run from about 10,000 to about 1,000,000,000 per gram "
+    ax.text(40, 413, "The pathogen counts in this study run from a few thousand to a few billion per gram "
             "of leaf.", fontsize=12, color=SOFT, va="top")
     values = [10 ** k for k in range(4, 10)]
     names = ["10,000", "100,000", "1 million", "10 million", "100 million", "1 billion"]

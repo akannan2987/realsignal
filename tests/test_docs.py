@@ -22,8 +22,9 @@ TEXT_SUFFIXES = {".md", ".py", ".txt", ".sh", ".ps1", ".ini", ".html", ".svg", "
 
 
 def markdown_files() -> list[Path]:
-    """README, CHANGELOG and every guide in docs/."""
-    files = [ROOT / "README.md", ROOT / "CHANGELOG.md"] + sorted((ROOT / "docs").glob("*.md"))
+    """README, CHANGELOG, every guide in docs/ and the generated reports in docs/reports/."""
+    files = [ROOT / "README.md", ROOT / "CHANGELOG.md"] + sorted((ROOT / "docs").glob("*.md")) + sorted(
+        (ROOT / "docs" / "reports").glob("*.md"))
     return [f for f in files if f.exists()]
 
 

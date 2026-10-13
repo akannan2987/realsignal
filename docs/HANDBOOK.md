@@ -2,7 +2,7 @@
 
 # The RealSignal Handbook: from day 0 to the finished product
 
-**Handbook revision:** 4 · **Last updated:** 2026-10-13 · **Repository state it describes:** Stages 0 to 5 are done: the plan, the setup on a blank computer, the repository with its three branches and the safety gate, Phase 1 (the published dataset downloaded and verified, version v0.1.0), Phase 2 (Layer 1's tables read, and the other four layers fetched and checked, with a source register that records each one) and Phase 3 (every source loaded into one DuckDB warehouse and harmonised with dbt, with the three Layer 1 choices made and 187 data tests, version v0.2.0). Stage 6, Phase 4, is next. 54 automated tests.
+**Handbook revision:** 5 · **Last updated:** 2026-10-13 · **Repository state it describes:** Stages 0 to 6 are done: the plan, the setup on a blank computer, the repository with its three branches and the safety gate, Phase 1 (the published dataset downloaded and verified, version v0.1.0), Phase 2 (Layer 1's tables read, and the other four layers fetched and checked, with a source register that records each one), Phase 3 (every source loaded into one DuckDB warehouse and harmonised with dbt, with the three Layer 1 choices made and 187 data tests, version v0.2.0) and Phase 4 (the harmonised data explored with the test set sealed: seven questions, five pictures and a data-quality report one script rebuilds). Stage 7, Phase 5, is next. 65 automated tests.
 
 **Read this document first, and come back to it whenever you wonder what to do next.** It walks the whole journey in order: understanding the project, preparing a blank computer, building each of the 18 phases, releasing version 1.0, and what lies beyond. At every step it explains *why*, and it links to the guide that holds the detail. If you ever have to hunt through the repository to find your next step, the Handbook has a gap, and that counts as a bug.
 
@@ -63,9 +63,9 @@ flowchart TB
     classDef done fill:#E6F4EA,stroke:#4CAF7D,color:#0B3D2E;
     classDef next fill:#FFF3CD,stroke:#C9A227,color:#4A3B00;
     classDef later fill:#F5F5F5,stroke:#B0B0B0,color:#555555,stroke-dasharray:4 3;
-    class S0,S1,S2,S3,S4,S5 done
-    class S6 next
-    class S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21 later
+    class S0,S1,S2,S3,S4,S5,S6 done
+    class S7 next
+    class S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21 later
 ```
 
 *Green: built and tested. Gold: in progress. Dashed grey: planned.* The Prototype app (Stage 9) sits inside the science group on purpose: a first clickable version halfway through the science keeps asking "who would use this, and for what?" while there's still time to act on the answer.
@@ -78,8 +78,8 @@ flowchart TB
 | 3 | Data | Phase 1: get the real data, verified | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) | about 1 h | ✅ done |
 | 4 | Data | Phase 2: the other four layers, or a record of why not | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) | about 1.5 h | ✅ done |
 | 5 | Data | Phase 3: harmonise everything with dbt | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) | 2-3 h | ✅ done |
-| 6 | Data | Phase 4: explore the data | `docs/05-phase-4-exploration.md` | ~6 h | ⏳ next |
-| 7 | Science | Phase 5: reproduce the published models in Python | `docs/06-phase-5-reproduction.md` | ~12 h | ⬜ planned |
+| 6 | Data | Phase 4: explore the data | [`docs/05-phase-4-exploration.md`](05-phase-4-exploration.md) | about 1.5 h | ✅ done |
+| 7 | Science | Phase 5: reproduce the published models in Python | `docs/06-phase-5-reproduction.md` | ~12 h | ⏳ next |
 | 8 | Science | Phase 6: run the authors' R code, the three-way comparison | `docs/07-phase-6-original-r-code.md` | ~8 h | ⬜ planned |
 | 9 | Product | Phase 7: the prototype app, online | `docs/08-phase-7-prototype-app.md` | ~10 h | ⬜ planned |
 | 10 | Science | Phase 8: multi-omics integration | `docs/09-phase-8-multi-omics.md` | ~12 h | ⬜ planned |
@@ -325,18 +325,48 @@ git switch develop
 
 ## Stage 6: Phase 4, explore the data
 
-**What (planned).** `docs/05-phase-4-exploration.md`. Distributions, the two-humped shape of the pathogen counts, how often each strain appears, missing values and outliers, how much the three rounds differ (the two reference communities grown in every round show it, and Phase 3 kept their earlier plants for this), with the first figures from the real data and a short data-quality report. It reads the marts Phase 3 built.
+**What.** Follow [`docs/05-phase-4-exploration.md`](05-phase-4-exploration.md).
 
-**Why.** Looking comes before modelling. A problem spotted in a histogram costs minutes; the same problem found after training a model costs days, because by then it looks like a modelling bug. This stage also shows why bacterial counts are read on a log scale ([`figures/log_scale.png`](../figures/log_scale.png)).
+1. Read the guide's section 1: what exploring means, the seven questions, and why the test set stays sealed (test plants are counted, but their values are never read).
+2. Run the explorer: `python notebooks/explore_marts.py`. Then read its answers with the guide's sections 4 to 10, one question at a time: the shape of the outcome, the rounds, the design, missing values and outliers, plant-to-plant noise, one strain at a time, and how the other layers relate.
+3. Draw the pictures: `python figures/make_phase4_figures.py`.
+4. Write the data-quality report, twice: `python scripts/make_quality_report.py`. The second run says `unchanged`.
+5. Read what it all means for Phase 5 (the guide's section 13).
+6. Try the two experiments of the guide's section 14: the authors' normalised outcome, and a broken seal the tests catch. Then a plain `dbt build` inside `dbt/`.
 
-**Checkpoint (planned).** Every number in the data-quality report can be regenerated by one script, and the two humps of the outcome are visible in a figure.
-**Commit message (planned):** `feat: explore the harmonised data, first figures and a data-quality report`.
+![The outcome on an ordinary scale and on a log scale](../figures/outcome_shape.png)
+
+**Why.** Looking comes before modelling. A problem spotted in a histogram costs minutes; the same problem found after training a model costs days, because by then it looks like a modelling bug. This stage also shows why bacterial counts are read on a log scale ([`figures/log_scale.png`](../figures/log_scale.png)), how controls grown in every round reveal differences between rounds, and how a difference found by looking at 35 strains is checked against what chance alone gives. It keeps every test plant's values out of every choice, so the single score Phase 5 gets on the 70 test communities still means something.
+
+**Checkpoint.** `python notebooks/explore_marts.py` describes 531 training plants in 134 communities, with two humps near 4.91 and 7.81 and the dip between them at 5.71; it finds the reference and whole-library plants about one log unit higher in round 2 than in round 1 while the plants with no strains stay near 9.0; it works out the authors' normalised pathogen value from the numbers alone (`655 of 655 plants match`); it reports no missing values among the 808 plants used for modelling, 22 outliers listed and kept, a share of 0.69 of the variation between communities, and `standing out: Leaf76, Leaf68, Leaf15`. `python figures/make_phase4_figures.py` draws five pictures. `python scripts/make_quality_report.py` writes `docs/reports/data-quality.md`, and a second run says `unchanged`. `pytest -q` passes 65 tests (58 passed and 7 skipped from Windows PowerShell).
+**Save it.** No version tag this time: v0.3.0 comes with Phase 5. The pictures and the report first, then the checks; stop if either check fails:
+
+```bash
+python figures/make_phase4_figures.py    # the guides link to these pictures
+python scripts/make_quality_report.py    # and to this report
+pytest -q                                # 65 passed
+./check-public-safe.sh                   # must end with: SAFE TO PUSH
+```
+
+Then save:
+
+```bash
+git switch develop
+git add -A
+git commit -m "feat: explore the harmonised data, first figures and a data-quality report"
+git push origin develop develop:beta develop:master
+## --tags is optional, only when required: not this time, v0.3.0 comes with Phase 5
+## then switch back to local master and pull in the remote changes
+git switch master
+git pull --ff-only origin master
+git switch develop
+```
 
 ---
 
 ## Stage 7: Phase 5, reproduce the published models in Python
 
-**What (planned).** `docs/06-phase-5-reproduction.md`. Random forests and elastic nets, for both classification (protected or not) and regression (how much pathogen), with repeated cross-validation over several random seeds, scored once on the 70 test communities the models never saw. Every run is recorded with MLflow. Then the comparison table: these numbers next to the published ones.
+**What (planned).** `docs/06-phase-5-reproduction.md`. Random forests and elastic nets, for both classification (protected or not) and regression (how much pathogen), with repeated cross-validation over several random seeds, scored once on the 70 test communities the models never saw. Every run is recorded with MLflow. Then the comparison table: these numbers next to the published ones. It takes Phase 4's findings with it ([`docs/05-phase-4-exploration.md` section 13](05-phase-4-exploration.md#13-what-this-means-for-phase-5)): errors reported by round where possible, community means scored as well as single plants, and a check that no conclusion depends on the 22 plants listed as outliers.
 
 **Why.** This is the reproduction itself, written from the paper alone. Its evaluation guards against the usual ways a model fools its maker: a held-out test set from a separate experiment, cross-validation that keeps all plants of one community together, a baseline for every score, and results across several seeds instead of the best one.
 
@@ -540,6 +570,12 @@ cd ..
 python notebooks/explore_warehouse.py                      # what the warehouse holds
 python figures/make_phase3_figures.py                      # lineage, data model, plant choices
 
+# Stage 6, Phase 4: explore the data                       (docs/05-phase-4-exploration.md)
+python notebooks/explore_marts.py                          # seven questions; test values stay sealed
+python figures/make_phase4_figures.py                      # the five Phase 4 pictures
+python scripts/make_quality_report.py                      # docs/reports/data-quality.md
+python scripts/make_quality_report.py                      # again: unchanged, byte for byte
+
 # Every stage ends with
 pytest -q
 ./check-public-safe.sh                                     # Windows: bash check-public-safe.sh in Git Bash
@@ -573,7 +609,11 @@ Then the end-of-phase ritual (Stage 2) when the stage is complete.
 | the Phase 2 probe says `NOT REACHED  HTTP 403` for a journal file, or the fetch says `the server sent something else` | download the workbook by hand from the article page and put it in `data/raw/sources/<source_id>/` under the name in `sources/files.csv` ([Phase 2 mini-FAQ](03-phase-2-more-sources.md#16-what-could-go-wrong-mini-faq)) |
 | a genome line says `FAILED` | run `python scripts/fetch_sources.py` again; only the missing files are fetched |
 | `MISMATCH with pinned SHA-256` | the workbook isn't the one that was pinned: never re-pin to silence it ([Phase 2 mini-FAQ](03-phase-2-more-sources.md#16-what-could-go-wrong-mini-faq)) |
-| `pytest -q` says `missing file ../figures/...png` | a guide links to a picture not drawn on this computer yet: run the figure scripts (`python figures/make_concept_figures.py`, `python figures/make_illustrations.py`, `python figures/make_phase2_figures.py`, `python figures/make_phase3_figures.py`), then the tests again |
+| `pytest -q` says `missing file ../figures/...png` | a guide links to a picture not drawn on this computer yet: run the figure scripts (`python figures/make_concept_figures.py`, `python figures/make_illustrations.py`, `python figures/make_phase2_figures.py`, `python figures/make_phase3_figures.py`, `python figures/make_phase4_figures.py`), then the tests again |
+| `pytest -q` says a file ending in `data-quality.md` is missing | the report hasn't been written on this computer yet: `python scripts/make_quality_report.py`, then the tests again |
+| `notebooks/explore_marts.py` or the Phase 4 scripts say `No warehouse yet` or that the marts aren't built | `python scripts/load_raw.py`, then `dbt build` inside `dbt/` ([Phase 4 mini-FAQ](05-phase-4-exploration.md#20-what-could-go-wrong-mini-faq)) |
+| the explorer shows `pathogen_log10_normalised`, or numbers that differ from the guide | a `--vars` experiment is still in the warehouse: a plain `dbt build` inside `dbt/` |
+| the data-quality report says `changed` though nothing was changed | `git diff docs/reports/data-quality.md` shows which numbers moved; usually a var left over from an experiment ([Phase 4 mini-FAQ](05-phase-4-exploration.md#20-what-could-go-wrong-mini-faq)) |
 | `Nothing fetched yet` from `notebooks/explore_sources.py` | run `python scripts/fetch_sources.py` first |
 | `ModuleNotFoundError: No module named 'openpyxl'` | the packages aren't installed in the active environment: `python -m pip install -r requirements.txt` |
 | `pip install` stops at `dbt-core-experimental-parser` with `CERTIFICATE_VERIFY_FAILED` (Mac, Python from python.org) | Python's certificates were never installed: `sh "/Applications/Python 3.14/Install Certificates.command"` once, then install again ([Phase 3 mini-FAQ](04-phase-3-harmonisation.md#18-what-could-go-wrong-mini-faq)) |
@@ -595,7 +635,7 @@ Then the end-of-phase ritual (Stage 2) when the stage is complete.
 | `git push` is rejected | GitHub has commits your computer doesn't; pull first ([`docs/GIT_WORKFLOW.md` section 8](GIT_WORKFLOW.md#8-five-situations-that-confuse-everyone-and-their-fixes)) |
 | you edited files on the wrong branch | [`docs/GIT_WORKFLOW.md` section 8](GIT_WORKFLOW.md#8-five-situations-that-confuse-everyone-and-their-fixes) |
 | a word you don't know | the [Glossary](GLOSSARY.md) |
-| a figure looks wrong or is missing | run the script that draws it again: `python figures/make_concept_figures.py`, `python figures/make_illustrations.py`, `python figures/make_phase2_figures.py` or `python figures/make_phase3_figures.py` |
+| a figure looks wrong or is missing | run the script that draws it again: `python figures/make_concept_figures.py`, `python figures/make_illustrations.py`, `python figures/make_phase2_figures.py`, `python figures/make_phase3_figures.py` or `python figures/make_phase4_figures.py` |
 
 ## Every file in the repository, and where it is explained
 
@@ -634,6 +674,10 @@ Every file in the repository is listed here with the guide that explains it. Pat
 | `notebooks/explore_warehouse.py` | what the warehouse holds, from queries on the marts | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 10 |
 | `src/realsignal/__init__.py` | marks the folder as a Python package | [`docs/00-architecture.md`](00-architecture.md) section 14 |
 | `src/realsignal/helpers.py` | the small helpers three scripts share: sizes, paths, banners, checksums, CSV tables | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 4 |
+| `src/realsignal/exploration.py` | the seven Phase 4 questions, one function each, with the test set sealed | [`docs/05-phase-4-exploration.md`](05-phase-4-exploration.md) sections 1 and 2 |
+| `notebooks/explore_marts.py` | prints every Phase 4 answer in the terminal | [`docs/05-phase-4-exploration.md`](05-phase-4-exploration.md) sections 3 to 10 |
+| `scripts/make_quality_report.py` | writes the data-quality report, the same bytes every time for the same data | [`docs/05-phase-4-exploration.md`](05-phase-4-exploration.md) section 12 |
+| `docs/reports/data-quality.md` | the data-quality report: every Phase 4 answer with its full lists, written by the script above | [`docs/05-phase-4-exploration.md`](05-phase-4-exploration.md) section 12 |
 | `tests/test_fetch_data.py` | checks the download script offline, with a tiny stand-in archive | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 12 |
 | `tests/test_safety_gate.py` | checks that the safety gate refuses what it should | [`docs/01-setup.md`](01-setup.md) section 13 |
 | `tests/test_docs.py` | every link between the documents works, no look-alike characters, the Handbook and the journey map agree | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 12 |
@@ -642,10 +686,12 @@ Every file in the repository is listed here with the guide that explains it. Pat
 | `tests/test_helpers.py` | checks the shared helpers | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 15 |
 | `tests/test_load_raw.py` | checks the loader on a made-up project | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 15 |
 | `tests/test_warehouse.py` | runs the loader and the whole dbt project on a made-up screen of four strains in communities of two | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 15 |
+| `tests/test_exploration.py` | the Phase 4 questions on a made-up warehouse of six strains in pairs, and the seal on the test set | [`docs/05-phase-4-exploration.md`](05-phase-4-exploration.md) section 17 |
 | `figures/make_concept_figures.py`, `figures/*.png` | the concept pictures and the combinations page; the layers picture reads its statuses from `sources/register.csv` | [`docs/02-phase-1-data-acquisition.md`](02-phase-1-data-acquisition.md) section 9 |
 | `figures/make_illustrations.py` | the logo, icon, wordmark, journey map and the interactive journey | [How this Handbook is maintained](#how-this-handbook-is-maintained) |
 | `figures/make_phase2_figures.py` | the three Phase 2 pictures (`three_checks.png`, `source_register.png`, `layer1_rounds.png`) and the communities page | [`docs/03-phase-2-more-sources.md`](03-phase-2-more-sources.md) section 10 |
 | `figures/make_phase3_figures.py` | the three Phase 3 pictures: `lineage.png` and `data_model.png` from dbt's manifest, `plant_choices.png` from the warehouse | [`docs/04-phase-3-harmonisation.md`](04-phase-3-harmonisation.md) section 11 |
+| `figures/make_phase4_figures.py` | the five Phase 4 pictures, drawn from measured values: `outcome_shape.png`, `rounds_compared.png`, `strain_frequency.png`, `missing_values.png`, `one_strain_at_a_time.png` | [`docs/05-phase-4-exploration.md`](05-phase-4-exploration.md) section 11 |
 | `docs/*.md` | the guides, glossary, roadmaps and this Handbook | this table |
 | `docs/img/*.svg` | the logo, icon, wordmark and journey map | `figures/make_illustrations.py` |
 | `docs/interactive/journey.html` | this Handbook's journey as a page you can click, built from this file | `figures/make_illustrations.py` |

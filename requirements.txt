@@ -26,7 +26,7 @@ dbt-duckdb>=1.9,<2.0      # lets dbt build its tables in DuckDB
 
 # --- Modelling ----------------------------------------------------------
 scikit-learn>=1.4,<2.0    # the machine-learning models and evaluation tools
-scipy>=1.11,<2.0          # statistics used for confidence intervals
+scipy>=1.11,<2.0          # statistics: smoothed histograms, confidence intervals
 
 # --- Charts -------------------------------------------------------------
 matplotlib>=3.8,<4.0      # charts, saved as image files by code

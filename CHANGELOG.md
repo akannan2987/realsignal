@@ -6,7 +6,37 @@ Each step is explained in [`docs/HANDBOOK.md`](docs/HANDBOOK.md), the guide from
 
 ## [Unreleased]
 
-Nothing yet.
+Phase 4: the harmonised data explored before any model, with the test set sealed ([`docs/05-phase-4-exploration.md`](docs/05-phase-4-exploration.md)). It earns no version tag; v0.3.0 comes with Phase 5.
+
+**Result.** The 531 training plants' outcome (`pathogen_log10_cfu_per_g`) has a median of 6.97 and two humps, near 4.91 and 7.81, with the dip at 5.71; on the ordinary scale a tenth of the plants carry 68 % of the pathogen counted, so the mean (102 million per gram) sits above 77 % of the plants. Measured against their own round's plants with no strains, 76 %, 49 % and 33 % of the plants have at least 10, 100 and 1,000 times less pathogen. The infected plants with no strains stay near 9.0 in all three rounds, while the whole library and the reference communities `Mix69` and `Mix70` came out about one log unit higher in round 2 than in round 1. Worked out from the numbers alone: the authors' normalised pathogen value is the count minus the median of the round's infected plants with no strains (655 of 655 plants match), and their normalised weight is every weight divided by 35.30 mg, round 1's median for healthy plants. Nothing is missing among the 808 plants used for modelling; the undecided plants from dropped boxes look like the others; 22 plants sit more than 2 log10 units from the rest of their community and are listed and kept; 0.69 of the variation lies between communities. One strain at a time, `Leaf76`, `Leaf68` and `Leaf15` stand out beyond what 1,000 shuffles give by chance (1.01); of the other layers' properties only genome length lines up (-0.49, beyond 0.45). The test plants are counted, and no value measured on one is read. 65 tests pass.
+
+### Added
+
+- `src/realsignal/exploration.py`: the seven questions, one function each (the outcome's shape and class balance, rounds and the authors' normalised values, the design, missing values, undecided plants and outliers, plant-to-plant noise, one strain at a time with a shuffle test, and the other layers), shared by the three programs below. Every query that reads a value leaves test plants out in its SQL.
+- `notebooks/explore_marts.py`: every answer in the terminal, in lines of at most 80 characters.
+- `scripts/make_quality_report.py` and the report it writes, `docs/reports/data-quality.md`: every answer with its full lists, no date or time, the same bytes for the same data, and a fingerprint of the source files the warehouse was loaded from.
+- `figures/make_phase4_figures.py`, drawing `figures/outcome_shape.png`, `figures/rounds_compared.png`, `figures/strain_frequency.png`, `figures/missing_values.png` and `figures/one_strain_at_a_time.png`, the first pictures of measured values.
+- Tests, 11 more, 65 in all: `tests/test_exploration.py`, mostly on a made-up warehouse of six strains in pairs with only documented columns: the answers built into it, the seal (every test value changed, nothing printed or reported moves; no query returns a test plant), the same answers whatever order the rows come back in (the whole report, and question 7's shuffle test on 20 strains), the report the same twice, short clean lines, a missing warehouse explained, two humps found, and the pictures drawn from a screen of another size.
+- `docs/05-phase-4-exploration.md`: the Phase 4 guide, in 22 sections.
+
+### Changed
+
+- `tests/test_docs.py`: the links in `docs/reports/` are checked too.
+- `docs/HANDBOOK.md`, revision 5: Stage 6 written out with its steps, real checkpoint numbers and save block; Stage 7 next, with what it takes from Phase 4; the Phase 4 commands in the whole build; four new troubleshooting rows and two extended; the new files in the file index.
+- `figures/make_illustrations.py`: Stage 6 done, Stage 7 next.
+- `README.md`: version line and status badge, the Phase 4 result, the build status, the tutorial table, the repository map and the run commands.
+- `docs/ROADMAP.md`: Phase 4 done, with what it built and taught; status line and checklist updated, Phase 5 takes the findings along, and a new risk: the rounds differ.
+- `docs/PRODUCT_ROADMAP.md`: the data-quality report for every new round (B9), in the reuse table and the technology table.
+- `docs/GLOSSARY.md`: new terms (exploratory data analysis, distribution, histogram and kernel density estimate, median, quartiles and IQR, mean and standard deviation, batch effect, normalisation, sealed test set, shuffle test, multiple comparisons, confounding, intraclass correlation), and outlier, bimodal distribution and rank correlation brought up to date.
+- `docs/00-architecture.md`: the sealed test set among the defences, the Phase 4 commands, `docs/reports/`, and `src/realsignal/exploration.py` as the example of exploration that moved into `src/`.
+- `docs/index.html`: two of the new pictures and a link to the report.
+- `docs/04-phase-3-harmonisation.md`: its pointers to Phase 4 now say what Phase 4 found.
+- `src/realsignal/__init__.py`: its docstring names `exploration.py`.
+- `requirements.txt`: the comment on scipy says what it's used for now (smoothed histograms too); no package is added.
+
+### Fixed
+
+- The range of the pathogen counts, under `figures/log_scale.png` (drawn by `figures/make_concept_figures.py`) and in the Glossary's entry for log scales, said about 10,000 to about 1,000,000,000 per gram. Question 1 measured 2,472 to 2.4 billion for the training plants; both now say a few thousand to a few billion.
 
 ## [0.2.0] - 2026-10-13
 

@@ -150,6 +150,10 @@ Everything in this picture is built in the repository by version 1.0. What chang
 
 **Recommended later.** Genomes, model files and large result files belong in object storage once they outgrow a disk or need sharing between servers. **Trigger:** more than one server, or files over a few gigabytes.
 
+### B9. A data-quality report for every new round
+
+**Built in this repository for this study (Phase 4).** `scripts/make_quality_report.py` writes every number from the warehouse, never from typed-in values, and comes out byte for byte the same for the same data, so the report changes only when the data does. The controls grown in every round make differences between rounds visible: in this study, the reference communities protected about ten times less well in round 2 than in round 1. A team screening round after round (A3) would want that report on each new round before its results go into a model, with a warning when the controls move. **Trigger for more:** the first new round, at which point the report runs on it automatically (Phase 12's pipeline) and the warning becomes a check that can stop the run.
+
 ---
 
 ## C. The AI features
@@ -219,6 +223,7 @@ What stays the same and what changes when someone brings their own screen:
 | fetching and verifying | new fetcher | one function per source, same checks and provenance log |
 | harmonisation (dbt) | new staging model | the strain library, community size and outcome are already data, so only the first layer of models changes |
 | models and evaluation | no | the same grouped cross-validation, baselines and held-out test |
+| exploration and data-quality report | no | the questions read the marts and find the controls by what they hold, not by name; a test runs them on six strains in pairs |
 | data-efficiency curve | no | runs on any number of communities |
 | knowledge graph | new nodes | the ontology already allows any strain, cluster and interaction |
 | apps, API, MCP server, agent | no | they read from the database, not from this study |
@@ -235,6 +240,7 @@ The trained model is specific to this study. The pipeline around it isn't, and t
 | R, RStudio, renv | built | Phase 6 | n/a |
 | DuckDB | built | Phase 3 | n/a |
 | dbt Core | built | Phase 3 | n/a |
+| data-quality report | built | Phase 4 | a new round each time (B9) |
 | MLflow | built | Phase 5 | a model registry with approvals |
 | Streamlit | built | Phase 7 | n/a |
 | PostgreSQL | built | Phase 10 | a managed service on a server |

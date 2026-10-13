@@ -6,7 +6,7 @@
 
 **Why write the plan down.** A plan written in advance can't quietly shrink to whatever got finished, and it shows the reasoning behind each choice, including the tools that could have been used and weren't ([section 6](#6-tools-left-out-on-purpose-and-why)).
 
-**Current status: Phases 1 to 3 done (v0.2.0).** The published archive is downloaded and verified, Layer 1's tables are read and understood, the other four layers are fetched and checked (34 genomes against the checksums NCBI publishes, two journal workbooks against checksums pinned on first use), and all five are harmonised in one DuckDB warehouse by a dbt project with 187 data tests. Phase 4 is next. Everything after Phase 3 is planned and marked as planned everywhere in the repository.
+**Current status: Phases 1 to 4 done (v0.2.0, plus Phase 4).** The published archive is downloaded and verified, Layer 1's tables are read and understood, the other four layers are fetched and checked (34 genomes against the checksums NCBI publishes, two journal workbooks against checksums pinned on first use), all five are harmonised in one DuckDB warehouse by a dbt project with 187 data tests, and the result has been explored with the test set sealed, in a data-quality report one script rebuilds. Phase 5 is next. Everything after Phase 4 is planned and marked as planned everywhere in the repository.
 
 ---
 
@@ -68,6 +68,7 @@ Version 1.0.0 is the finished product. It's reached when every box below is tick
 
 - ✅ All five data layers fetched and verified, or recorded as unobtainable with the reason (Phase 2: all five fetched; Leaf21 has no genome, and the register says so)
 - ✅ One harmonised data model, with every data test passing (Phase 3: 35 models, 187 data tests, and a test that runs it on a made-up screen of another size)
+- ✅ The data explored before any model, with the test set sealed and a data-quality report one script rebuilds (Phase 4: seven questions, five pictures, and a test that changes every test value and checks that nothing moves)
 - ⬜ The published models reproduced in Python, compared with the published numbers
 - ⬜ The authors' R code run, and the three-way comparison explained difference by difference
 - ⬜ The genome and network layers tested for added value, whatever the answer
@@ -126,17 +127,17 @@ Sources written years apart by different laboratories spell the same strain diff
 
 ### Phase 4: Exploration
 
-**Track A · about 6 hours · ⬜ planned · Guide (planned) `docs/05-phase-4-exploration.md`**
+**Track A · about 6 hours (estimate) · ✅ done · Handbook [Stage 6](HANDBOOK.md#stage-6-phase-4-explore-the-data) · Guide [`docs/05-phase-4-exploration.md`](05-phase-4-exploration.md)**
 
-The first proper look: distributions, the two-humped shape of the pathogen counts, how often each strain appears, missing values, outliers, and how the layers relate.
+The first proper look, in seven questions: the two-humped shape of the pathogen counts and the class balance at several cut-offs, how much the three rounds differ (the controls and the reference communities grown in more than one round show it), how often each strain appears and which pairs never meet, missing values and outliers, how much plants of one community differ, one strain at a time, and how the other layers relate. The test set stays sealed: its plants are counted, and no value measured on one is read, so the single score Phase 5 gets on them still means something.
 
-**Builds:** an exploration script, the first figures from the real data, a data-quality report that one script regenerates. **Teaches:** exploratory analysis, log scales, class imbalance, finding problems before modelling instead of after.
+**Builds:** `src/realsignal/exploration.py` (the seven questions, shared by everything below), `notebooks/explore_marts.py`, `scripts/make_quality_report.py` and the report it writes, `docs/reports/data-quality.md`, five pictures of measured values from `figures/make_phase4_figures.py`, and 11 tests, most of them on a made-up warehouse: one changes every test value and checks that nothing moves, and two check that no answer depends on the order the database hands rows back in. **Teaches:** exploratory analysis, medians and quartiles, log scales, histograms and two humps, class balance, batch effects, missing values and outliers kept by a stated rule, the intraclass correlation, the shuffle test, rank correlation, a sealed test set, and finding problems before modelling instead of after.
 
 ### Phase 5: Reproduce the published models in Python
 
 **Track A · about 12 hours · ⬜ planned · earns v0.3.0 · Guide (planned) `docs/06-phase-5-reproduction.md`**
 
-Random forests and elastic nets, for classification (protected or not) and regression (how much pathogen), with repeated cross-validation over several random seeds, scored once on the 70 test communities. Then the table that matters: these numbers beside the published ones.
+Random forests and elastic nets, for classification (protected or not) and regression (how much pathogen), with repeated cross-validation over several random seeds, scored once on the 70 test communities. Then the table that matters: these numbers beside the published ones. Phase 4's findings come along ([its section 13](05-phase-4-exploration.md#13-what-this-means-for-phase-5)): errors reported by round where possible, community means scored as well as single plants, and a check that no conclusion depends on the 22 plants listed as outliers.
 
 **MLflow** records every training run's settings, scores and model, a laboratory notebook that fills itself in, so "which settings gave that number?" always has an answer.
 
@@ -351,6 +352,8 @@ Written down in advance, so nothing looks like a surprise later.
 **The authors' R code may not run unchanged.** Old package versions, fixed folder paths. Every fix is logged, and if something can't be made to run, that's recorded as a finding of the three-way comparison.
 
 **The extra layers may not improve prediction.** Quite possible: the original found strain identity alone predicted well. A negative result, reported as one.
+
+**The rounds differ.** Phase 4 found the reference and whole-library plants about ten times less protected in round 2 than in round 1, while the plants with no strains stayed where they were, and the test set is round 3 (the whole library's round-3 plants, the only protective ones that aren't test plants, look like round 2's). If the test round differs from the training rounds in the same way, Phase 5's test score carries an error no model trained on rounds 1 and 2 can remove. That's a property of the experiment, reported as one; Phase 6 shows how the authors handled it.
 
 **Joining the sources may be harder than it looks.** Strain names across four papers won't match perfectly. In Phase 3 the names turned out easy (only one table writes bare numbers); the harder parts were elsewhere: two tables of one paper that count gene clusters differently for three strains, two strain lists that name 10 genera differently, and three decisions about Layer 1's plants. Each is written down and tested rather than settled quietly.
 

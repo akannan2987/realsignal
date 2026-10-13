@@ -66,7 +66,7 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **CFU** (colony-forming unit): the standard way to count live bacteria. Spread a diluted sample on a nutrient jelly, let each living bacterium grow into a visible dot (a **colony**), count the dots, and scale back up by the dilution. One CFU is roughly one living bacterium that could grow.
 - **CFU per gram of fresh weight**: the count divided by the plant's weight, so a big plant isn't counted as worse off just for offering more surface. Crime figures per 100,000 residents work the same way, so a city isn't automatically "worse" than a village.
 - **Order of magnitude**: a factor of ten. Two orders of magnitude larger means a hundred times larger.
-- **Log scale**, **log10**: replacing a number by roughly how many zeros it has: 1,000 becomes 3 and 1,000,000 becomes 6. Pathogen counts here run from about 10,000 to about 1,000,000,000, so on an ordinary scale the large values would squash everything else flat. On a log scale each step means ten times more, which is how biologists think about these numbers ([`figures/log_scale.png`](../figures/log_scale.png)).
+- **Log scale**, **log10**: replacing a number by roughly how many zeros it has: 1,000 becomes 3 and 1,000,000 becomes 6. Pathogen counts here run from a few thousand to a few billion per gram of leaf, so on an ordinary scale the large values would squash everything else flat. On a log scale each step means ten times more, which is how biologists think about these numbers ([`figures/log_scale.png`](../figures/log_scale.png)).
 - **dpi** (days post infection): days since the pathogen was applied. The study measured at 14 dpi.
 - **Replicate**: a repeat of the same condition, to see how much of the variation is noise. Several plants received each community.
 - **Control**: a condition included only to compare against: here, sterile plants without the pathogen (what does a healthy plant look like?), sterile plants with it (what does an unprotected infection look like?), all 35 strains at once, and two reference communities grown in every round.
@@ -281,9 +281,21 @@ Terms are grouped by subject. Within a group, earlier entries don't depend on la
 - **Baseline**: what a trivial strategy scores (always guessing the commonest answer, say). A score means little without one beside it.
 - **Confidence interval**: a range that shows how uncertain a number is. Seventy test communities isn't many, so intervals matter.
 - **Bootstrapping**: estimating that uncertainty by recomputing a score on many random resamples of the data.
-- **Bimodal distribution**: values that cluster around two peaks instead of one, like the pathogen counts (protected plants low, unprotected high).
-- **Outlier**: a value far from the rest. Worth checking, not deleting on sight.
-- **Rank correlation** (Spearman's): how well two rankings agree, from 1 (same order) through 0 (unrelated) to -1 (reversed). *(Phase 9)*
+- **Exploratory data analysis** (EDA): describing data with a few summary numbers and pictures before any model touches it, to find problems while they're cheap to fix. Phase 4 is this project's.
+- **Distribution**: how the values of a measurement are spread: where most of them sit, how far they reach, and whether they bunch in one place or several.
+- **Histogram**: a bar chart of a distribution. The range is cut into equal steps, with one bar per step, as tall as the number of values that fall in it. A **kernel density estimate** is a smoothed histogram: each value becomes a small bell curve and the curves are added up, so the shape doesn't depend on where the bars start.
+- **Median**, **quartiles**, **interquartile range** (IQR): sort the values. The median is the one in the middle, the quartiles cut the sorted list into quarters, and the IQR is the distance from the first quartile to the third, where the **middle half** of the values sit. None of them moves much when a few values are extreme.
+- **Mean**, **standard deviation**: the ordinary average, and the typical distance of a value from it. Both are pulled about by extreme values, which is one reason bacterial counts are averaged on a log scale.
+- **Bimodal distribution**: values that cluster around two peaks (humps) instead of one, like the pathogen counts (well protected plants low, less protected ones high).
+- **Outlier**: a value far from the others it should resemble. Worth checking, not deleting on sight: Phase 4 lists them by a stated rule and keeps them.
+- **Batch effect**: a difference caused by when or how a batch of samples was handled rather than by what was being studied. Here each round of the experiment is a batch, and the controls grown in every round show the difference.
+- **Normalisation**: rescaling a measurement against a reference, such as subtracting the median of the round's plants with no strains. Phase 4 works out from the numbers how the authors normalised theirs.
+- **Sealed test set**: a test set whose results nobody looks at until the final score, so that no choice made before it can have been shaped by it. In Phase 4 the test plants are counted, and no value measured on one is read.
+- **Shuffle test**, **permutation test**: checking whether a difference could come from chance alone, by handing the outcomes out at random many times and seeing how large the difference gets when nothing real is going on.
+- **Multiple comparisons**: looking at many things at once (35 strains, say) makes it likely that one of them looks impressive by luck. Comparing with the largest of all the shuffled differences, as Phase 4 does, allows for it.
+- **Confounding**: two things that go together, so that the effect of one is mistaken for the other's. Strains that often share a community confound each other's one-at-a-time differences.
+- **Intraclass correlation**: the share of the variation that lies between groups (communities) rather than within them (the plants of one community): 1 if plants of a community always agree, 0 if the community makes no difference. It sets a rough ceiling for a model that only knows the group.
+- **Rank correlation** (Spearman's): how well two rankings agree, from 1 (same order) through 0 (unrelated) to -1 (reversed). Phase 4 uses it to compare strain properties with protection.
 - **External validation**: checking a conclusion against data from a separate experiment that played no part in building it. *(Phase 9)*
 - **Learning curve**, **data-efficiency curve**: how a result changes as a model gets more training examples; here, how many communities were needed before the conclusion stopped changing. *(Phase 9)*
 - **Hit rate**: the share of recommended communities that turn out to protect, compared with communities chosen at random.
